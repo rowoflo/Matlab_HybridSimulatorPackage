@@ -1,0 +1,207 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>jumpSet</title><meta name="generator" content="MATLAB 7.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2011-08-31"><meta name="DC.source" content="jumpSet.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">Check Input Arguments</a></li><li><a href="#4">Parameters</a></li><li><a href="#5">Variables</a></li><li><a href="#6">Distance to walls</a></li><li><a href="#7">Status</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> jumpSetValue = jumpSet(~,~,~,~,~)
+</pre><pre class="codeinput"><span class="comment">% The "jumpSet" method sets the set where discrete time dynamics take</span>
+<span class="comment">% place.</span>
+<span class="comment">%</span>
+<span class="comment">% SYNTAX:</span>
+<span class="comment">%   jumpSetValue = jumpSet(botObj,time,state,input)</span>
+<span class="comment">%   jumpSetValue = jumpSet(botObj,time,state,input,flowTime)</span>
+<span class="comment">%   jumpSetValue = jumpSet(botObj,time,state,input,flowTime,jumpCount)</span>
+<span class="comment">%</span>
+<span class="comment">% INPUTS:</span>
+<span class="comment">%   botObj - (1 x 1 simulate.system)</span>
+<span class="comment">%       An instance of the "simulate.system" class.</span>
+<span class="comment">%</span>
+<span class="comment">%   time - (1 x 1 real number)</span>
+<span class="comment">%       Current time.</span>
+<span class="comment">%</span>
+<span class="comment">%   state - (? x 1 number)</span>
+<span class="comment">%       Current state. Must be a "botObj.nStates" x 1 vector.</span>
+<span class="comment">%</span>
+<span class="comment">%   input - (? x 1 number)</span>
+<span class="comment">%       Current input value. Must be a "botObj.nInputs" x 1 vector.</span>
+<span class="comment">%</span>
+<span class="comment">%   flowTime - (1 x 1 semi-positive real number) [0]</span>
+<span class="comment">%       Current flow time value.</span>
+<span class="comment">%</span>
+<span class="comment">%   jumpCount - (1 x 1 semi-positive integer) [0]</span>
+<span class="comment">%       Current jump count value.</span>
+<span class="comment">%</span>
+<span class="comment">% OUTPUTS:</span>
+<span class="comment">%   jumpSetValue - (1 x 1 number)</span>
+<span class="comment">%      A value that defines if the system is in the jump set.</span>
+<span class="comment">%      Positive values are in the set and negative values are outside</span>
+<span class="comment">%      the set.</span>
+<span class="comment">%</span>
+<span class="comment">% NOTES:</span>
+<span class="comment">%</span>
+<span class="comment">% NECESSARY FILES AND/OR PACKAGES:</span>
+<span class="comment">%   +simulate</span>
+<span class="comment">%</span>
+<span class="comment">% AUTHOR:</span>
+<span class="comment">%   30-AUG-2011 by Rowland O'Flaherty</span>
+<span class="comment">%</span>
+<span class="comment">%-------------------------------------------------------------------------------</span>
+</pre><h2>Check Input Arguments<a name="3"></a></h2><p>Check number of arguments error(nargchk(4,6,nargin))</p><p>Apply default values if nargin &lt; 5, flowTime = 0; end if nargin &lt; 6, jumpCount = 0; end</p><p>Check arguments for errors assert(isa(botObj,'simulate.bot') &amp;&amp; numel(botObj) == 1,...     'simulate:bot:jumpSet:botObj',...     'Input argument "botObj" must be a 1 x 1 simulate.bot object.')</p><p>assert(isnumeric(time) &amp;&amp; isreal(time) &amp;&amp; numel(time) == 1,...     'simulate:bot:jumpSet:time',...     'Input argument "time" must be a 1 x 1 real number.')</p><p>assert(isnumeric(state) &amp;&amp; isequal(size(state),[botObj.nStates,1]),...     'simulate:bot:jumpSet:state',...     'Input argument "state" must be a %d x 1 vector of numbers.',botObj.nStates)</p><p>assert(isnumeric(input) &amp;&amp; isequal(size(input),[botObj.nInputs,1]),...     'simulate:bot:jumpSet:input',...     'Input argument "input" must be a %d x 1 vector of numbers.',botObj.nInputs)</p><p>assert(isnumeric(flowTime) &amp;&amp; isreal(flowTime) &amp;&amp; numel(flowTime) == 1 &amp;&amp; flowTime &gt;= 0,...     'simulate:bot:jumpSet:flowTime',...     'Input argument "flowTime" must be a 1 x 1 semi-positive real number.')</p><p>assert(isnumeric(jumpCount) &amp;&amp; isreal(jumpCount) &amp;&amp; numel(jumpCount) == 1 &amp;&amp; jumpCount &gt;= 0 &amp;&amp; mod(jumpCount,1) == 0,...     'simulate:bot:jumpSet:jumpCount',...     'Input argument "jumpCount" must be a 1 x 1 semi-positive integer.')</p><h2>Parameters<a name="4"></a></h2><h2>Variables<a name="5"></a></h2><h2>Distance to walls<a name="6"></a></h2><h2>Status<a name="7"></a></h2><pre class="codeinput">jumpSetValue = -1;
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">The class simulate.bot has no property or method named 'jumpSet'.
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.12<br></p></div><!--
+##### SOURCE BEGIN #####
+function jumpSetValue = jumpSet(~,~,~,~,~)
+% The "jumpSet" method sets the set where discrete time dynamics take
+% place.
+%
+% SYNTAX:
+%   jumpSetValue = jumpSet(botObj,time,state,input)
+%   jumpSetValue = jumpSet(botObj,time,state,input,flowTime)
+%   jumpSetValue = jumpSet(botObj,time,state,input,flowTime,jumpCount)
+%
+% INPUTS:
+%   botObj - (1 x 1 simulate.system)
+%       An instance of the "simulate.system" class.
+%
+%   time - (1 x 1 real number)
+%       Current time.
+%
+%   state - (? x 1 number)
+%       Current state. Must be a "botObj.nStates" x 1 vector.
+%
+%   input - (? x 1 number)
+%       Current input value. Must be a "botObj.nInputs" x 1 vector.
+%
+%   flowTime - (1 x 1 semi-positive real number) [0]
+%       Current flow time value.
+%
+%   jumpCount - (1 x 1 semi-positive integer) [0] 
+%       Current jump count value.
+%
+% OUTPUTS:
+%   jumpSetValue - (1 x 1 number)
+%      A value that defines if the system is in the jump set.
+%      Positive values are in the set and negative values are outside
+%      the set.
+%
+% NOTES:
+%
+% NECESSARY FILES AND/OR PACKAGES:
+%   +simulate
+%
+% AUTHOR:
+%   30-AUG-2011 by Rowland O'Flaherty
+%
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+%% Check Input Arguments
+% 
+% Check number of arguments
+% error(nargchk(4,6,nargin))
+% 
+% Apply default values
+% if nargin < 5, flowTime = 0; end
+% if nargin < 6, jumpCount = 0; end
+% 
+% Check arguments for errors
+% assert(isa(botObj,'simulate.bot') && numel(botObj) == 1,...
+%     'simulate:bot:jumpSet:botObj',...
+%     'Input argument "botObj" must be a 1 x 1 simulate.bot object.')
+% 
+% assert(isnumeric(time) && isreal(time) && numel(time) == 1,...
+%     'simulate:bot:jumpSet:time',...
+%     'Input argument "time" must be a 1 x 1 real number.')
+% 
+% assert(isnumeric(state) && isequal(size(state),[botObj.nStates,1]),...
+%     'simulate:bot:jumpSet:state',...
+%     'Input argument "state" must be a %d x 1 vector of numbers.',botObj.nStates)
+% 
+% assert(isnumeric(input) && isequal(size(input),[botObj.nInputs,1]),...
+%     'simulate:bot:jumpSet:input',...
+%     'Input argument "input" must be a %d x 1 vector of numbers.',botObj.nInputs)
+% 
+% assert(isnumeric(flowTime) && isreal(flowTime) && numel(flowTime) == 1 && flowTime >= 0,...
+%     'simulate:bot:jumpSet:flowTime',...
+%     'Input argument "flowTime" must be a 1 x 1 semi-positive real number.')
+% 
+% assert(isnumeric(jumpCount) && isreal(jumpCount) && numel(jumpCount) == 1 && jumpCount >= 0 && mod(jumpCount,1) == 0,...
+%     'simulate:bot:jumpSet:jumpCount',...
+%     'Input argument "jumpCount" must be a 1 x 1 semi-positive integer.')
+
+%% Parameters
+
+
+%% Variables
+
+
+%% Distance to walls
+
+
+%% Status
+jumpSetValue = -1;
+
+end
+
+##### SOURCE END #####
+--></body></html>
