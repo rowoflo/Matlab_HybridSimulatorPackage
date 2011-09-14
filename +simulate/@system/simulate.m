@@ -150,8 +150,8 @@ catSize = 500;
 %% Initialize
 initialTime = timeVector(1);
 finalTime = timeVector(end);
-initialInput = systemObj.controller(initialTime,initialState,initialFlowTime,initialJumpCount);
-initialOutput = systemObj.observer(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount);
+initialInput = systemObj.inputConstraint(systemObj.policy(initialTime,initialState,initialFlowTime,initialJumpCount));
+initialOutput = systemObj.sensor(initialTime,initialState,initialFlowTime,initialJumpCount);
 
 TVector = [initialTime finalTime];
 QPlus = [initialState;initialFlowTime;initialJumpCount]; % General state vector with control parameters
@@ -212,8 +212,8 @@ while 1
         x = Q(end,1:end-2)';
         f = Q(end,end-1);
         j = Q(end,end);
-        u = systemObj.controller(t,x,f,j);
-        y = systemObj.observer(t,x,u,f,j);
+        u = systemObj.inputConstraint(systemObj.policy(t,x,f,j));
+        y = systemObj.sensor(t,x,f,j);
         
         dCnt = dCnt + 1;
         timeTapeD(1,dCnt) = t;
@@ -292,7 +292,7 @@ while 1
                 timeTapeD(1,dCnt + 1) = TD;
                 stateTape(:,cCnt + 1) = XPlus;
                 inputTape(:,dCnt + 1) = zeros(systemObj.nInputs,1);
-                outputTape(:,dCnt + 1) = systemObj.observer(TC,XPlus,zeros(systemObj.nInputs,1),TFlow,JCnt+1);
+                outputTape(:,dCnt + 1) = systemObj.sensor(TC,XPlus,TFlow,JCnt+1);
                 flowTimeTape(1,dCnt + 1) = TFlow;
                 jumpCountTape(1,dCnt + 1) = JCnt+1;
                 break;
@@ -352,7 +352,7 @@ end
             js = jumpCountTape(1,dCnt);
         end
         
-        us = systemObj.controller(ts,xs,fs,js);
+        us = systemObj.inputConstraint(systemObj.policy(ts,xs,fs,js));
         dx = systemObj.flowMap(t,x,us,f,j);
         df = 1;
         dj = 0;

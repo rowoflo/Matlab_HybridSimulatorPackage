@@ -19,11 +19,11 @@ classdef system < dynamicprops
 
 %% Properties ------------------------------------------------------------------
 properties (Access = public)
-    name = ''; % (string) Name of the system.
+    name; % (string) Name of the system.
     stateNames % (? x 1 cell array of strings) Names of the state variables. One per state.
     inputNames % (? x 1 cell array of strings) Names of the input variables. One per input.
     outputNames % (? x 1 cell array of strings) Names of the output variables. One per output.
-    phaseStatePairs = [1 2]; % (? x 2 positive integer) State pairs for the phase plot. One pair per row of the matrix. The first column is the x-axis and the second column is the y-axis.
+    phaseStatePairs; % (? x 2 positive integer) State pairs for the phase plot. One pair per row of the matrix. The first column is the x-axis and the second column is the y-axis.
 end
 
 properties (Abstract = true, SetAccess = private)
@@ -31,6 +31,7 @@ properties (Abstract = true, SetAccess = private)
 end
 
 properties (Access = public) % TODO: Add set methods for all of these properties
+    % Graphics
     graphicsFlag = false; % (1 x 1 logical) Flag determining if graphics are drawn during simulation.
     legendFlag = true; % (1 x 1 logical) Flag determining if legends are displayed in plots.
     
@@ -78,11 +79,15 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     setPriority = 'jump'; % ('flow','jump', or 'random') Sets the priority to what takes place if the state is both in the flow set and the jump set.
     maxFlowTime = inf; % (1 x 1 positive number) Maximum flow time for the simulation.
     maxJumpCount = inf; % (1 x 1 positive integer) Maximum jump count for the simulation.
-end
-
-properties (Access = public) % TODO: Create set method for this property
+    
+    % ODE solver
     odeSolver = @ode113; % (ODE function handle) ODE solver function handle.
     odeOptions % (ODE options structure) Stores the options of the ODE solver. See "odeset" and "odeget".
+    
+    % Open-loop controller
+    openLoopControl = false; % (1 x 1 logical) Determines if open-loop control is used or closed loop control.
+    openLoopTimeTape = []; % (1 x ? real number) Open-loop control time tape.
+    openLoopInputTape = []; % (1 x ? real number) Open-loop control input tape.
 end
 
 properties (SetAccess = protected)
@@ -511,7 +516,7 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   dStates - (? x 1 number)
+    %   stateDot - (? x 1 number)
     %       Updated state derivatives. A "systemObj.nStates" x 1 vector.
     %
     %---------------------------------------------------------------------------
@@ -554,9 +559,9 @@ methods (Abstract = true)
     % place.
     %
     % SYNTAX:
-    %   flowSetValue = systemObj.flowSet(time,state,input)
-    %   flowSetValue = systemObj.flowSet(time,state,input,flowTime)
-    %   flowSetValue = systemObj.flowSet(time,state,input,flowTime,jumpCount)
+    %   flowSetValue = systemObj.flowSet(time,state)
+    %   flowSetValue = systemObj.flowSet(time,state,flowTime)
+    %   flowSetValue = systemObj.flowSet(time,state,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -567,9 +572,6 @@ methods (Abstract = true)
     %
     %   state - (? x 1 real number)
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
-    %
-    %   input - (? x 1 real number)
-    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
     %
     %   flowTime - (1 x 1 semi-positive real number) [0]
     %       Current flow time value.
@@ -590,9 +592,9 @@ methods (Abstract = true)
     % place.
     %
     % SYNTAX:
-    %   jumpSetValue = systemObj.jumpSet(time,state,input)
-    %   jumpSetValue = systemObj.jumpSet(time,state,input,flowTime)
-    %   jumpSetValue = systemObj.jumpSet(time,state,input,flowTime,jumpCount)
+    %   jumpSetValue = systemObj.jumpSet(time,state)
+    %   jumpSetValue = systemObj.jumpSet(time,state,flowTime)
+    %   jumpSetValue = systemObj.jumpSet(time,state,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -603,9 +605,6 @@ methods (Abstract = true)
     %
     %   state - (? x 1 real number)
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
-    %
-    %   input - (? x 1 number)
-    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
     %
     %   flowTime - (1 x 1 semi-positive real number) [0]
     %       Current flow time value.
@@ -653,13 +652,13 @@ methods (Abstract = true)
     %---------------------------------------------------------------------------
     input = controller(systemObj,time,state,flowTime,jumpCount)
     
-    % The "observer" method will produce output values given the current
-    % time and state of the system.
+    % The "observer" method will produce estimates of the state values
+    % given the current time, state, and input of the system.
     %
     % SYNTAX:
-    %   output = systemObj.observer(time,state)
-    %   output = systemObj.observer(time,state,input,flowTime)
-    %   output = systemObj.observer(time,state,input,flowTime,jumpCount)
+    %   stateHat = systemObj.observer(time,state)
+    %   stateHat = systemObj.observer(time,state,input,flowTime)
+    %   stateHat = systemObj.observer(time,state,input,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -681,17 +680,48 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   output - (? x 1 number)
-    %       Output values for the plant. A "systemObj.nOutputs" x 1 vector.
+    %   stateHat - (? x 1 number)
+    %       Estimates of the states of the system. A "systemObj.nStates" x 1 vector.
     %
     %---------------------------------------------------------------------------
     output = observer(systemObj,time,state,input,flowTime,jumpCount)
     
-    % The "jacobian" method outputs the system's jacobian matrices
+    % The "sensor" method will produce output values given the current
+    % time and state of the system.
+    %
+    % SYNTAX:
+    %   output = systemObj.sensor(time,state)
+    %   output = systemObj.sensor(time,state,flowTime)
+    %   output = systemObj.sensor(time,state,flowTime,jumpCount)
+    %
+    % INPUTS:
+    %   SYSTEM_NAMEObj - (1 x 1 simulate.system)
+    %       An instance of the "simulate.system" class.
+    %
+    %   time - (1 x 1 real number)
+    %       Current time.
+    %
+    %   state - (? x 1 real number)
+    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %
+    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %       Current flow time value.
+    %
+    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %       Current jump count value.
+    %
+    % OUTPUTS:
+    %   output - (? x 1 number)
+    %       Output values for the plant. A "systemObj.nOutputs" x 1 vector.
+    %
+    %---------------------------------------------------------------------------
+    output = sensor(systemObj,time,state,input,flowTime,jumpCount)
+    
+    % The "linearize" method outputs the system's linearize matrices
     % evaluated at the the given operating point.
 	%
     % SYNTAX:
-    %   [A,B,C,D] = systemObj.jacobian(stateOP,inputOP)
+    %   [A,B,C,D] = systemObj.linearize(stateOP,inputOP)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -723,18 +753,37 @@ methods (Abstract = true)
     %       "systemObj.nInputs" matrix.
     %
     %---------------------------------------------------------------------------
-    [A,B,C,D] = jacobian(systemObj,stateOP,inputOP)
+    [A,B,C,D] = linearize(systemObj,stateOP,inputOP)
     
-    % The "sketchGraphics" is called by the "sketch" method, which will
-    % draw the system at either the given time and state or the current
-    % system time and state in its draw axis or create a new axis if it
-    % doesn't have one.
+    % The "inputConstraint" method constrains the input values for the
+    % system.
     %
     % SYNTAX:
-    %   systemObj.sketch()
-    %   systemObj.sketch(time)
-    %   systemObj.sketch(time,state)
-    %   systemObj.sketch(. . .,'PropertyName',PropertyValue,. . .)
+    %   inputOut = systemObj.inputConstraint(inputIn)
+    %
+    % INPUTS:
+    %   SYSTEM_NAMEObj - (1 x 1 simulate.system)
+    %       An instance of the "simulate.system" class.
+    %
+    %   inputIn - (? x 1 real number)
+    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+    %
+    % OUTPUTS:
+    %   inputOut - (? x 1 number)
+    %       Constrained input values. A "systemObj.nInputs" x 1 vector.
+    %
+    %---------------------------------------------------------------------------
+    inputOut = inputConstraint(systemObj,inputIn)
+    
+    % The "sketchGraphics" is called by the "sketch" method and will draw
+    % the system at a given time and state in the sketch axis or create a
+    % new axis if it doesn't have one.
+    %
+    % SYNTAX:
+    %   systemObj.sketchGraphics()
+    %   systemObj.sketchGraphics(time)
+    %   systemObj.sketchGraphics(time,state)
+    %   systemObj.sketchGraphics(. . .,'PropertyName',PropertyValue,. . .)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -757,6 +806,10 @@ end
 %-------------------------------------------------------------------------------
 
 %% Methods in separte files ----------------------------------------------------
+methods (Access = private)
+    input = policy(systemObj,time,state,flowTime,jumpCount)
+end
+
 methods (Access = public)
     [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
         simulate(systemObj,timeVector,initialState,initialFlowTime,initialJumpCount,varargin)
@@ -768,6 +821,10 @@ methods (Access = public)
     sketch(systemObj,time,state,varargin)
     phase(systemObj,time,state,timeTapeC,stateTape,varargin)
     replay(systemObj,varargin)
+end
+
+methods (Static = true)
+    createNew(systemName,systemLocation);
 end
 %-------------------------------------------------------------------------------
     

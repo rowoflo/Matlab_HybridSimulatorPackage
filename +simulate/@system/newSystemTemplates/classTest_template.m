@@ -1,14 +1,15 @@
-%% botTest.m
-% The "botTest" script ...  TODO: Add description
+%% SYSTEM_NAMETest.m
+% The "SYSTEM_NAMETest" script is used to test the "SYSTEM_NAME" system class.
 %
 % NOTES:
 %
-% NECESSARY FILES AND/OR PACKAGES: TODO: Add necessary files
+% NECESSARY FILES AND/OR PACKAGES:
+%   +simulate, @SYSTEM_NAME
 %
 % AUTHOR:
-%   26-AUG-2011 by Rowland O'Flaherty
+%   DD-MMM-YYYY by FULL_NAME
 %
-% SEE ALSO: TODO: Add see alsos
+% SEE ALSO:
 %
 %-------------------------------------------------------------------------------
 
@@ -19,52 +20,45 @@ ccc
 
 
 %% Initialize
-t0 = 0;
-dt = .5;
-tEnd = 20;
-x0 = zeros(3,1);
-
-groundLimit = 5;
+tEnd = 1;
 
 % System parameters
-m = 1;
-I = 1;
-w = 1;
-l = 1;
 
 % Create System
-S = simulate.bot(m,I,w,l,t0,x0,dt);
+S = SYSTEM_NAME();
 
 %% Set up graphics
 S.graphicsFlag = true;
 S.plotStateFlag = true;
 S.plotInputFlag = true;
-S.plotOutputFlag = false;
+S.plotOutputFlag = true;
 S.sketchFlag = true;
 S.phaseFlag = true;
 
 S.stateFigureProperties = {'Position',[1   420   480   387]};
 S.inputFigureProperties = {'Position',[481   420   480   387]};
+S.outputFigureProperties = {'Position',[961   420   480   387]};
 S.sketchFigureProperties = {'Position',[1   -17   480   387]};
 S.phaseFigureProperties = {'Position',[481   -17   480   387]};
 
 S.stateAxisProperties = {...
-    'XLim',[0 tEnd],'YLim',[min(-groundLimit,-pi) max(groundLimit,pi)],...
+    'XLim',[0 tEnd],...
     'XGrid','on','YGrid','on'};
 S.inputAxisProperties = {...
-    'XLim',[0 tEnd],'YLim',[min(S.inputLimits(:,1)) max(S.inputLimits(:,2))],...
+    'XLim',[0 tEnd],...
+    'XGrid','on','YGrid','on'};
+S.outputAxisProperties = {...
+    'XLim',[0 tEnd],...
     'XGrid','on','YGrid','on'};
 S.sketchAxisProperties = {...
-    'XLim',groundLimit*[-1 1],'YLim',groundLimit*[-1 1],...
      'XGrid','on','YGrid','on'};
 S.phaseAxisProperties = {...
     'DataAspectRatio',[1 1 1],...
-    'XLim',groundLimit*[-1 1],'YLim',groundLimit*[-1 1],...
     'XGrid','on','YGrid','on'};
 
 
 %%
-timeVector = t0:dt:tEnd;
-initialState = x0;
+timeVector = S.time:S.timeStep:1;
+initialState = S.state;
 [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
     S.simulate(timeVector,initialState);

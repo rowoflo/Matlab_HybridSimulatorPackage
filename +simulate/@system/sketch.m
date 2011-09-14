@@ -74,7 +74,7 @@ if isempty(systemObj.sketchAxisHandle) || ~ishghandle(systemObj.sketchAxisHandle
         set(systemObj.sketchAxisHandle,systemObj.sketchAxisProperties{:});
     end
 end
-title(systemObj.sketchAxisHandle,[systemObj.name ' (Time = ' num2str(time,'%.1f') ')'])
+title(systemObj.sketchAxisHandle,[systemObj.name ' Sketch Plot (Time = ' num2str(time,'%.1f') ')'])
 
 %% Sketch
 systemObj.sketchGraphics(time,state,varargin{:});
