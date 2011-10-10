@@ -25,9 +25,14 @@ function phase(systemObj,state,stateTape,varargin)
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   23-APR-2011 by Rowland O'Flaherty
+% SEE ALSO:
+%   plot.m | plotInput.m | plotOutput.m | plotState.m | sketch.m
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 23-APR-2011
 %-------------------------------------------------------------------------------
 
 %% Check Input Arguments
@@ -92,7 +97,7 @@ if isempty(systemObj.phaseAxisHandle) || ~ishghandle(systemObj.phaseAxisHandle)
     systemObj.phaseAxisHandle = gca;
     set(systemObj.phaseAxisHandle,'DrawMode','fast')
     title(systemObj.phaseAxisHandle,[systemObj.name ' Phase Plot'])
-    set(systemObj.phaseAxisHandle,'NextPlot','replacechildren');
+    set(systemObj.phaseAxisHandle,'NextPlot','add');
     if ~isempty(systemObj.phaseAxisProperties)
         set(systemObj.phaseAxisHandle,systemObj.phaseAxisProperties{:});
     end

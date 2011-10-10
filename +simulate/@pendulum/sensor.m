@@ -1,11 +1,11 @@
-function input = controller(pendulumObj,time,state,flowTime,jumpCount)
-% The "controller" method will produce input values given the current
+function output = sensor(pendulumObj,time,state,flowTime,jumpCount)
+% The "sensor" method will produce output values given the current
 % time and state of the system.
 %
 % SYNTAX:
-%   input = controller(pendulumObj,time,state)
-%   input = controller(pendulumObj,time,state,flowTime)
-%   input = controller(pendulumObj,time,state,flowTime,jumpCount)
+%   output = pendulumObj.sensor(time,state)
+%   output = pendulumObj.sensor(time,state,flowTime)
+%   output = pendulumObj.sensor(time,state,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -14,7 +14,7 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %   time - (1 x 1 real number)
 %       Current time.
 %
-%   state - (? x 1 number)
+%   state - (? x 1 real number)
 %       Current state. Must be a "pendulumObj.nStates" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [0]
@@ -24,8 +24,8 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %       Current jump count value.
 %
 % OUTPUTS:
-%   input - (? x 1 number)
-%       Input values for the system. A "pendulumObj.nInputs" x 1 vector.
+%   output - (? x 1 number)
+%       Output values for the plant. A "pendulumObj.nOutputs" x 1 vector.
 %
 % NOTES:
 %
@@ -40,8 +40,8 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 4, flowTime = 0; end
-if nargin < 5, jumpCount = 0; end
+if nargin < 5, flowTime = 0; end
+if nargin < 6, jumpCount = 0; end
 
 %% Parameters
 
@@ -49,11 +49,10 @@ if nargin < 5, jumpCount = 0; end
 %% Variables
 
 
-%% Controller Definition
+%% Sensor Definition
 
 
-%% Set input
-input = zeros(pendulumObj.nInputs,1);
-
+%% Set output
+output = zeros(pendulumObj.nOutputs,1);
 
 end

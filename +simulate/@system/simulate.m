@@ -73,9 +73,14 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   17-APR-2011 by Rowland O'Flaherty
+% SEE ALSO:
+%   run.m | replay.m | policy.m
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 17-APR-2011
 %-------------------------------------------------------------------------------
 
 %% Check Input Arguments
@@ -394,7 +399,7 @@ end
                     systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1),'LegendFlag',false);
                 end
                 if systemObj.sketchFlag
-                    systemObj.sketch(td(1,end),x(:,end));
+                    systemObj.sketch(x(:,end),td(1,end));
                 end
                 if systemObj.phaseFlag
                     systemObj.phase(x(:,end),x(:,1:end-1),'LegendFlag',false);
@@ -455,7 +460,7 @@ end
                     systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1),'LegendFlag',false);
                 end
                 if systemObj.sketchFlag
-                    systemObj.sketch(td(1,end),x(:,end));
+                    systemObj.sketch(x(:,end),td(1,end));
                 end
                 if systemObj.phaseFlag
                     systemObj.phase(x(:,end),x(:,1:end-1),'LegendFlag',false);

@@ -7,8 +7,8 @@ function statePlus = jumpMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %   statePlus = jumpMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
-%   SYSTEM_NAMEObj - (1 x 1 simulate.SYSTEM_NAME)
-%       An instance of the "simulate.SYSTEM_NAME" class.
+%   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+%       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
 %   time - (1 x 1 real number)
 %       Current time.
@@ -32,11 +32,13 @@ function statePlus = jumpMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   +simulate
+%   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%   DD-MMM-YYYY by FULL_NAME
+%    FULL_NAME
 %
+% VERSION: 
+%   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
 %% Apply default values

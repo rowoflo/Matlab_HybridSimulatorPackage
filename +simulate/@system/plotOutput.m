@@ -29,9 +29,14 @@ function plotOutput(systemObj,time,timeTape,outputTape,varargin)
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   12-MAY-2011 by Rowland O'Flaherty
+% SEE ALSO:
+%   plot.m | plotInput.m | plotState.m | sketch.m | phase.m
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 23-APR-2011 
 %-------------------------------------------------------------------------------
 
 %% Check Output Arguments

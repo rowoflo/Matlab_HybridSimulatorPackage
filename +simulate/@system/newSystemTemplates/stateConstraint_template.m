@@ -6,8 +6,8 @@ function stateOut = stateConstraint(SYSTEM_NAMEObj,stateIn)
 %   stateOut = SYSTEM_NAMEObj.stateConstraint(stateIn)
 %
 % INPUTS:
-%   SYSTEM_NAMEObj - (1 x 1 simulate.system)
-%       An instance of the "simulate.system" class.
+%   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+%       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
 %   stateIn - (? x 1 real number)
 %       Current input value. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
@@ -19,11 +19,13 @@ function stateOut = stateConstraint(SYSTEM_NAMEObj,stateIn)
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   +simulate
+%   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%   DD-MMM-YYYY by FULL_NAME
+%    FULL_NAME
 %
+% VERSION: 
+%   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
 %% Parameters

@@ -1,9 +1,9 @@
-function [A,B,C,D] = jacobian(pendulumObj,stateOP,~)
-% The "jacobian" method outputs the pendulum's jacobian matrices evaluated at
+function [A,B,C,D] = linearize(pendulumObj,stateOP,inputOP)
+% The "linearize" method outputs the system's linearize matrices evaluated at
 % the the given operating point.
 %
 % SYNTAX:
-%   [A,B,C,D] = pendulumObj.jacobian(stateOP,inputOP)
+%   [A,B,C,D] = pendulumObj.linearize(stateOP,inputOP)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -37,46 +37,29 @@ function [A,B,C,D] = jacobian(pendulumObj,stateOP,~)
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   +simulate
+%   +simulate, +simulate
 %
 % AUTHOR:
-%   25-APR-2011 by Rowland O'Flaherty
+%    Rowland O'Flaherty
 %
+% VERSION: 
+%   Created 01-OCT-2011
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-
-% Check number of arguments
-error(nargchk(2,2,nargin))
-
-% Check arguments for errors
-assert(isa(pendulumObj,'simulate.pendulum') && numel(pendulumObj) == 1,...
-    'simulate:pendulum:jacobian:pendulumObj',...
-    'Input argument "pendulumObj" must be a 1 x 1 simulate.pendulum object.')
-
-assert(isnumeric(stateOP) && isequal(size(stateOP),[pendulumObj.nStates,1]),...
-    'simulate:pendulum:jacobian:stateOP',...
-    'Input argument "stateOP" must be a %d x 1 vector of numbers.',pendulumObj.nStates)
-
 %% Parameters
-l = pendulumObj.l;
-m = pendulumObj.m;
-b = pendulumObj.b;
-g = pendulumObj.g;
+
 
 %% Variables
-x = stateOP(1,1);
-dx = stateOP(2,1); %#ok<NASGU>
+
 
 %% Linearize
-A = [0           1;...
-    -g/l*cos(x)  -b/(m*l^2)];
+A = [];
 
-B = [0;...
-     1/(m*l^2)];
+B = [];
+ 
+C = [];
 
-C = A;
-
-D = zeros(2,2);
+D = [];
 
 end
+

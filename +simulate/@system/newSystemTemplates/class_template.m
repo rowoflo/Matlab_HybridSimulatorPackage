@@ -1,24 +1,30 @@
 classdef SYSTEM_NAME < simulate.system
-% The "simulate.SYSTEM_NAME" class ... TODO: Add description
+% The "PACKAGE_NAME_D_SYSTEM_NAME" class ... TODO: Add description
 %
 % NOTES:
-%   To get more information on this class type "doc simulate.SYSTEM_NAME" into the
+%   To get more information on this class type "doc PACKAGE_NAME_D_SYSTEM_NAME" into the
 %   command window.
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   +simulate
-%
-% AUTHOR:
-%   DD-MMM-YYYY by FULL_NAME
+%   NECESSARY_PACKAGE+simulate
 %
 % SEE ALSO: TODO: Add see alsos
 %    relatedFunction1 | relatedFunction2
 %
+% AUTHOR:
+%    FULL_NAME
+%
+% VERSION: 
+%   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
+properties (Access = private, Hidden = true)
+    superVersion = 'VERSION_NUMBER' % (string) Current version of the super class.
+end
+
 properties (SetAccess = private) % Superclass Abstract Properties
-    type = 'SYSTEM_NAME'; % (string) Type of system.
+    type = 'SYSTEM_NAME' % (string) Type of system.
 end
 
 properties (SetAccess = private)
@@ -49,7 +55,7 @@ methods
         %
         % OUTPUTS:
         %   SYSTEM_NAMEObj - (1 x 1 SYSTEM_NAME object) 
-        %       A new instance of the "simulate.SYSTEM_NAME" class.
+        %       A new instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
         %
         % NOTES:
         %
@@ -65,15 +71,15 @@ methods
         
         % Check input arguments for errors
         assert(isnumeric(x0) && isreal(x0) && length(x0) == NSTATES,...
-            'simulate:SYSTEM_NAME:x0',...
+            'PACKAGE_NAME_C_SYSTEM_NAME:x0',...
             'Input argument "x0" must be a NSTATES x 1 vector of real numbers.')
         
         assert(isnumeric(t0) && isreal(t0) && length(t0) == 1,...
-            'simulate:SYSTEM_NAME:t0',...
+            'PACKAGE_NAME_C_SYSTEM_NAME:t0',...
             'Input argument "t0" must be a 1 x 1 real number.')
         
         assert(isnumeric(dt) && isreal(dt) && length(dt) == 1 && dt > 0,...
-            'simulate:SYSTEM_NAME:dt',...
+            'PACKAGE_NAME_C_SYSTEM_NAME:dt',...
             'Input argument "dt" must be a 1 x 1 positive real number.')
         
         % Initialize Superclass
@@ -81,12 +87,19 @@ methods
         nOutputs = NOUTPUTS;
         SYSTEM_NAMEObj = SYSTEM_NAMEObj@simulate.system(dt,t0,x0,nInputs,nOutputs);
         
+        % Check class compatibility with super class
+        assert(strcmp(SYSTEM_NAMEObj.systemVersion,SYSTEM_NAMEObj.superVersion),...
+            'PACKAGE_NAME_C_SYSTEM_NAME:version',...
+            ['The simulate.system class has been updated to version %s ',... 
+            'and the SYSTEM_NAME class is only compatible with version %s.'],...
+            SYSTEM_NAMEObj.systemVersion,SYSTEM_NAMEObj.superVersion)
+        
         % Assign properties
-        SYSTEM_NAMEObj.name = 'SYSTEM_NAME';
-        SYSTEM_NAMEObj.stateNames = {'x'};
-        SYSTEM_NAMEObj.inputNames = {'u'};
-        SYSTEM_NAMEObj.outputNames = {'x'};
-        SYSTEM_NAMEObj.phaseStatePairs = [1 1];
+        SYSTEM_NAMEObj.name = 'SSYSTEM_NAME';
+        SYSTEM_NAMEObj.stateNames = STATE_NAMES;
+        SYSTEM_NAMEObj.inputNames = INPUT_NAMES;
+        SYSTEM_NAMEObj.outputNames = OUTPUT_NAMES;
+        SYSTEM_NAMEObj.phaseStatePairs = PHASE_STATE_PAIRS;
         
     end
 end
@@ -104,7 +117,7 @@ end
 %         %
 %         %-----------------------------------------------------------------------
 %         assert(isnumeric(arg1) && isreal(arg1) && isequal(size(arg1),[1,1]),...
-%             'simulate:SYSTEM_NAME:set:prop1',...
+%             'PACKAGE_NAME_C_SYSTEM_NAME:set:prop1',...
 %             'Property "prop1" must be set to a 1 x 1 real number.')
 % 
 %         SYSTEM_NAMEObj.prop1 = prop1;
@@ -134,15 +147,15 @@ end
 %         %   SYSTEM_NAMEObj = SYSTEM_NAMEObj.method_name(arg1)
 %         %
 %         % INPUTS:
-%         %   SYSTEM_NAMEObj - (1 x 1 simulate.SYSTEM_NAME)
-%         %       An instance of the "simulate.SYSTEM_NAME" class.
+%         %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+%         %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %         %
 %         %   arg1 - (size type) [defaultArgumentValue] 
 %         %       Description.
 %         %
 %         % OUTPUTS:
-%         %   SYSTEM_NAMEObj - (1 x 1 simulate.SYSTEM_NAME)
-%         %       An instance of the "simulate.SYSTEM_NAME" class ... 
+%         %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+%         %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class ... 
 %         %
 %         % NOTES:
 %         %
@@ -156,7 +169,7 @@ end
 %         
 %         % Check arguments for errors
 %         assert(isnumeric(arg1) && isreal(arg1) && isequal(size(arg1),[?,?]),...
-%             'simulate:SYSTEM_NAME:method_name:arg1',...
+%             'PACKAGE_NAME_C_SYSTEM_NAME:method_name:arg1',...
 %             'Input argument "arg1" must be a ? x ? matrix of real numbers.')
 %         
 %     end
@@ -190,15 +203,15 @@ end
 %     %   SYSTEM_NAMEObj = SYSTEM_NAMEObj.method_name(arg1)
 %     %
 %     % INPUTS: TODO: Add inputs
-%     %   SYSTEM_NAMEObj - (1 x 1 simulate.SYSTEM_NAME)
-%     %       An instance of the "simulate.SYSTEM_NAME" class.
+%     %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+%     %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %     %
 %     %   arg1 - (size type) [defaultArgumentValue] 
 %     %       Description.
 %     %
 %     % OUTPUTS: TODO: Add outputs
-%     %   SYSTEM_NAMEObj - (1 x 1 simulate.SYSTEM_NAME)
-%     %       An instance of the "simulate.SYSTEM_NAME" class . . . ???.
+%     %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+%     %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class . . . ???.
 %     %
 %     % NOTES:
 %     %
@@ -220,7 +233,7 @@ methods (Access = public) % Superclass Abstract Methods
     stateOut = stateConstraint(SYSTEM_NAMEObj,stateIn)
     inputOut = inputConstraint(SYSTEM_NAMEObj,inputIn)
     [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
-    sketchGraphics(SYSTEM_NAMEObj,time,state,varargin)
+    sketchGraphics(SYSTEM_NAMEObj,state,time,varargin)
 end
 %-------------------------------------------------------------------------------
     

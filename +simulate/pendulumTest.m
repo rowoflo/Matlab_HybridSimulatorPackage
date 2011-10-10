@@ -1,20 +1,20 @@
-%% SYSTEM_NAMETest.m
-% The "SYSTEM_NAMETest" script is used to test the
-% "PACKAGE_NAME_D_SYSTEM_NAME" system class.
+%% pendulumTest.m
+% The "pendulumTest" script is used to test the
+% "simulate.pendulum" system class.
 %
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   NECESSARY_PACKAGE+simulate, @SYSTEM_NAME
+%   +simulate, +simulate, @pendulum
 %
 % SEE ALSO: TODO: Add see alsos
 %    relatedFunction1 | relatedFunction2
 %
 % AUTHOR:
-%    FULL_NAME
+%    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created DD-MMM-YYYY
+%   Created 01-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Clear
@@ -24,12 +24,13 @@ ccc
 
 
 %% Initialize
-tEnd = 1;
+x0 = [pi;0];
+tEnd = 10;
 
 % System parameters
 
 % Create System
-S = PACKAGE_NAME_D_SYSTEM_NAME();
+S = simulate.pendulum(x0);
 
 %% Set up graphics
 S.graphicsFlag = true;
@@ -57,8 +58,8 @@ S.outputAxisProperties = {...
 S.sketchAxisProperties = {...
      'XGrid','on','YGrid','on'};
 S.phaseAxisProperties = {...
-    'XLim',10*[-1,1],...
-    'YLim',10*[-1,1],...
+    'XLim',2*pi*[-1,1],...
+    'YLim',5*[-1,1],...
     'DataAspectRatio',[1 1 1],...
     'XGrid','on','YGrid','on'};
 

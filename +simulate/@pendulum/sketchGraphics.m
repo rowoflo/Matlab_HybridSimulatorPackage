@@ -1,59 +1,43 @@
-function sketchGraphics(pendulumObj,time,state,varargin)
-% The "sketchGraphics" is called by the "sketch" method, which will
-% draw the system at either the given time and state or the current
-% system time and state in its draw axis or create a new axis if it
-% doesn't have one.
+function sketchGraphics(pendulumObj,state,time,varargin)
+% The "sketchGraphics" method will draw the system at a given time and
+% state in the sketch axis or create a new axis if it doesn't have one.
 %
 % SYNTAX:
 %   pendulumObj.sketchGraphics()
-%   pendulumObj.sketchGraphics(time)
-%   pendulumObj.sketchGraphics(time,state)
-%   pendulumObj.sketchGraphics(. . .,'PropertyName',PropertyValue,. . .)
+%   pendulumObj.sketchGraphics(state)
+%   pendulumObj.sketchGraphics(state,time)
+%   pendulumObj.sketchGraphics(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
-%   pendulumObj - (1 x 1 simulate.system)
-%       An instance of the "simulate.system" class.
+%   pendulumObj - (1 x 1 simulate.pendulum)
+%       An instance of the "simulate.pendulum" class.
 %
-%   time - (1 x 1 real number) [pendulumObj.time]
-%       The time that the system will be drawn at.
+%   state - (? x 1 real number) [pendulumObj.state] 
+%       The state that the pendulum will be drawn in.
 %
-%   state - (? x 1 real number) [pendulumObj.state]
-%       The state that the system will be drawn in.
-%
-% OUTPUTS:
-%
+%   time - (1 x 1 real number) [pendulumObj.time] 
+%       The time that the pendulum will be drawn at.
+%    
 % PROPERTIES:
-%   Use line properties for "PropertyName" and "PropertyValue" pairs.
 %
 % NOTES:
+%   Use line properties for "PropertyName" and "PropertyValue" pairs.
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   +simulate
+%   +simulate, +simulate
 %
 % AUTHOR:
-%   10-MAY-2011 by Rowland O'Flaherty
+%    Rowland O'Flaherty
 %
+% VERSION: 
+%   Created 01-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Check Input Arguments
 
 % Apply default values
-if nargin < 2, time = pendulumObj.time; end
-if nargin < 3, state = pendulumObj.state; end
-
-% Check arguments for errors
-assert(isa(pendulumObj,'simulate.pendulum') && numel(pendulumObj) == 1,...
-    'simulate:pendulum:sketchGraphics:pendulumObj',...
-    'Input argument "pendulumObj" must be a 1 x 1 simulate.pendulum object.')
-
-assert(isnumeric(time) && isreal(time) && isequal(size(time),[1,1]),...
-    'simulate:pendulum:sketchGraphics:time',...
-    'Input argument "time" must be a 1 x 1 real number.')
-
-assert(isnumeric(state) && isvector(state) && numel(state) == pendulumObj.nStates,...
-    'simulate:pendulum:sketchGraphics:state',...
-    'Input argument "state" must be a %d x 1 real number.',pendulumObj.nStates)
-state = state(:);
+if nargin < 2 || isempty(state), state = pendulumObj.state; end
+if nargin < 3 || isempty(time), time = pendulumObj.time; end
 
 %% Parameters
 w = pendulumObj.w;
@@ -66,8 +50,10 @@ pendulumColor = 'b';
 %% Variables
 theta = state(1);
 
+
 %% Initialize Sketch
-if isempty(pendulumObj.sketchGraphicsHandle) || ~ishghandle(pendulumObj.sketchGraphicsHandle)
+if isempty(pendulumObj.sketchGraphicsHandles) || all(~ishghandle(pendulumObj.sketchGraphicsHandles))
+    
     % Set axis limits
     xlim(1.5*[-l,l])
     ylim(1.5*[-l,l])
@@ -84,17 +70,22 @@ if isempty(pendulumObj.sketchGraphicsHandle) || ~ishghandle(pendulumObj.sketchGr
         -triEdgeLength/2*cosd(30)],...
         'FaceColor',triColor,...
         'EdgeColor','k',...
-        'LineWidth',2);
+        'LineWidth',2); %#ok<NASGU>
+    
     if ~isempty(varargin)
-        set(triangleHandle,varargin{:});
-    end
+        set(pendulumObj.sketchGraphicsHandles,varargin{:});
+    end 
+    
+    pendulumObj.sketchGraphicsHandles = [];
 end
 
+
 %% Update Sketch
-if isempty(pendulumObj.sketchGraphicsHandle) || ...
-        ~ismember(pendulumObj.sketchGraphicsHandle,get(pendulumObj.sketchAxisHandle,'Children'))
+if isempty(pendulumObj.sketchGraphicsHandles) || ...
+        any(~ismember(pendulumObj.sketchGraphicsHandles,get(pendulumObj.sketchAxisHandle,'Children')))
+    
     % Create dynamic objects
-    pendulumObj.sketchGraphicsHandle = patch('Parent',pendulumObj.sketchAxisHandle,...
+    pendulumObj.sketchGraphicsHandles = patch('Parent',pendulumObj.sketchAxisHandle,...
         'XData',...
         [-w/2*cos(theta);...
         w/2*cos(theta); ...
@@ -107,13 +98,16 @@ if isempty(pendulumObj.sketchGraphicsHandle) || ...
         -sqrt((w/2)^2+l^2)*cos(theta - atan((w/2)/l))],...
         'FaceColor',pendulumColor,...
         'EdgeColor','k',...
-        'LineWidth',2);
+        'LineWidth',2);   
+    
     if ~isempty(varargin)
-        set(pendulumObj.sketchGraphicsHandle,varargin{:});
+        set(pendulumObj.sketchGraphicsHandles,varargin{:});
     end
+    
 else
+    
     % Update dynamic objects
-    set(pendulumObj.sketchGraphicsHandle,...
+    set(pendulumObj.sketchGraphicsHandles,...
         'XData',...
         [-w/2*cos(theta);...
         w/2*cos(theta); ...
@@ -124,6 +118,6 @@ else
         w/2*sin(theta);...
         -sqrt((w/2)^2+l^2)*cos(theta + atan((w/2)/l));...
         -sqrt((w/2)^2+l^2)*cos(theta - atan((w/2)/l))]);
-end 
+end
 
 end

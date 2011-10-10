@@ -32,9 +32,14 @@ function plotState(systemObj,time,state,timeTape,stateTape,varargin)
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   19-APR-2011 by Rowland O'Flaherty
+% SEE ALSO:
+%   plot.m | plotInput.m | plotOutput.m | sketch.m | phase.m
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 23-APR-2011 
 %-------------------------------------------------------------------------------
 
 %% Check Input Arguments
@@ -97,6 +102,10 @@ assert(islogical(legendFlag) && numel(legendFlag) == 1,...
     'Property "legendFlag" must be a 1 x 1 logical.')
 
 %% Initialize
+% This function is currently being worked on to get everything correct.
+% Once that happens it should be copied to the input, output, and phase
+% plotting functions.
+
 % Create Figure
 if isempty(systemObj.stateFigureHandle) || ~ishghandle(systemObj.stateFigureHandle)
     systemObj.stateFigureHandle = figure;
@@ -117,10 +126,7 @@ if isempty(systemObj.stateAxisHandle) || ~ishghandle(systemObj.stateAxisHandle)
     if ~isempty(systemObj.stateAxisProperties)
         set(systemObj.stateAxisHandle,systemObj.stateAxisProperties{:});
     end
-end
-
-% Create Graphics
-if ~isempty(systemObj.stateTapeGraphicsHandle) && all(ishghandle(systemObj.stateGraphicsHandle))
+else
     nextPlotStatus = get(systemObj.stateAxisHandle,'NextPlot');
     set(systemObj.stateAxisHandle,'NextPlot','add');
 end
@@ -132,6 +138,7 @@ if ~isempty(state)
         for iState = 1:systemObj.nStates
             set(systemObj.stateGraphicsHandle(iState,1),'DisplayName',systemObj.stateNames{iState});
         end
+        set(systemObj.stateAxisHandle,'NextPlot','add');
     else % Update  marks
         set(systemObj.stateGraphicsHandle,{'XData' 'YData'},...
             [repmat({time},systemObj.nStates,1),...
@@ -141,16 +148,23 @@ if ~isempty(state)
 end
 
 if ~isempty(stateTape)
-    set(systemObj.stateAxisHandle,'NextPlot','add');
     if isempty(systemObj.stateTapeGraphicsHandle) || ~all(ishghandle(systemObj.stateTapeGraphicsHandle)) % Create new lines
         systemObj.stateTapeGraphicsHandle = plot(systemObj.stateAxisHandle,[timeTape time],[stateTape state]',systemObj.stateGraphicsProperties{:});
         for iState = 1:systemObj.nStates
             set(get(get(systemObj.stateTapeGraphicsHandle(iState,1),'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
         end
     else % Update lines
+        timeData = get(systemObj.stateTapeGraphicsHandle,'XData');
+        stateData = get(systemObj.stateTapeGraphicsHandle,'YData');
+        if iscell(timeData)
+            timeData = timeData{1};
+            stateData = cell2mat(stateData);
+        end
+        
+        dataToAdd = ~ismember(timeTape,timeData);
         set(systemObj.stateTapeGraphicsHandle,{'XData' 'YData'},...
-            [repmat({[timeTape time]},size(stateTape,1),1),...
-            mat2cell([stateTape state],ones(1,size(stateTape,1)),size(stateTape,2)+1)],...
+            [repmat({[timeData timeTape(dataToAdd) time]},size(stateTape,1),1),...
+            mat2cell([stateData stateTape(:,dataToAdd) state],ones(1,size(stateTape,1)),size([stateData stateTape(:,dataToAdd)],2)+1)],...
             systemObj.stateGraphicsProperties{:});
     end
 end

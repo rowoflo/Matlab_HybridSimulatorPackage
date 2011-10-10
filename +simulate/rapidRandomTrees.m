@@ -114,6 +114,7 @@ function [route,policy] = rapidRandomTrees(initialState,goalState,goalSize,state
 % SEE ALSO: TODO: Add see alsos
 %    relatedFunction1 | relatedFunction2
 %
+% VERSION: 1.0
 %-------------------------------------------------------------------------------
 
 %% Check Inputs

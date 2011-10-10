@@ -1,11 +1,10 @@
-function input = controller(pendulumObj,time,state,flowTime,jumpCount)
-% The "controller" method will produce input values given the current
-% time and state of the system.
+function statePlus = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
+% The "jumpMap" method sets the discrete time dynamics of the system.
 %
 % SYNTAX:
-%   input = controller(pendulumObj,time,state)
-%   input = controller(pendulumObj,time,state,flowTime)
-%   input = controller(pendulumObj,time,state,flowTime,jumpCount)
+%   statePlus = jumpMap(pendulumObj,time,state,input)
+%   statePlus = jumpMap(pendulumObj,time,state,input,flowTime)
+%   statePlus = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -17,6 +16,9 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %   state - (? x 1 number)
 %       Current state. Must be a "pendulumObj.nStates" x 1 vector.
 %
+%   input - (? x 1 number)
+%       Current input value. Must be a "pendulumObj.nInputs" x 1 vector.
+%
 %   flowTime - (1 x 1 semi-positive real number) [0]
 %       Current flow time value.
 %
@@ -24,8 +26,8 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %       Current jump count value.
 %
 % OUTPUTS:
-%   input - (? x 1 number)
-%       Input values for the system. A "pendulumObj.nInputs" x 1 vector.
+%   statePlus - (? x 1 number)
+%       Updated states. A "pendulumObj.nStates" x 1 vector.
 %
 % NOTES:
 %
@@ -40,8 +42,8 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 4, flowTime = 0; end
-if nargin < 5, jumpCount = 0; end
+if nargin < 5, flowTime = 0; end
+if nargin < 6, jumpCount = 0; end
 
 %% Parameters
 
@@ -49,11 +51,10 @@ if nargin < 5, jumpCount = 0; end
 %% Variables
 
 
-%% Controller Definition
+%% Updates To Motion
 
 
-%% Set input
-input = zeros(pendulumObj.nInputs,1);
-
+%% Output
+statePlus = state;
 
 end

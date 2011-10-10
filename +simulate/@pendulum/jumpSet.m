@@ -1,11 +1,11 @@
-function input = controller(pendulumObj,time,state,flowTime,jumpCount)
-% The "controller" method will produce input values given the current
-% time and state of the system.
+function jumpSetValue = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
+% The "jumpSet" method sets the set where discrete time dynamics take
+% place.
 %
 % SYNTAX:
-%   input = controller(pendulumObj,time,state)
-%   input = controller(pendulumObj,time,state,flowTime)
-%   input = controller(pendulumObj,time,state,flowTime,jumpCount)
+%   jumpSetValue = jumpSet(pendulumObj,time,state)
+%   jumpSetValue = jumpSet(pendulumObj,time,state,flowTime)
+%   jumpSetValue = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -24,8 +24,10 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %       Current jump count value.
 %
 % OUTPUTS:
-%   input - (? x 1 number)
-%       Input values for the system. A "pendulumObj.nInputs" x 1 vector.
+%   jumpSetValue - (1 x 1 number)
+%      A value that defines if the system is in the jump set.
+%      Positive values are in the set and negative values are outside
+%      the set.
 %
 % NOTES:
 %
@@ -49,11 +51,10 @@ if nargin < 5, jumpCount = 0; end
 %% Variables
 
 
-%% Controller Definition
+%% Set Definition
 
 
-%% Set input
-input = zeros(pendulumObj.nInputs,1);
-
+%% Status
+jumpSetValue = -1;
 
 end

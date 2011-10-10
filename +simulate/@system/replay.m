@@ -22,9 +22,14 @@ function replay(systemObj,varargin)
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   27-APR-2011 by Rowland O'Flaherty
+% SEE ALSO:
+%   simulate.m | run.m | policy.m
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 27-APR-2011
 %-------------------------------------------------------------------------------
 
 %% Check Input Arguments

@@ -7,10 +7,10 @@ function input = policy(systemObj,time,state,flowTime,jumpCount)
 % closed loop control is determined by the "controller" method.
 %
 % SYNTAX:
-%   input = controller(systemObj,time)
-%   input = controller(systemObj,time,state)
-%   input = controller(systemObj,time,state,flowTime)
-%   input = controller(systemObj,time,state,flowTime,jumpCount)
+%   input = policy(systemObj,time)
+%   input = policy(systemObj,time,state)
+%   input = policy(systemObj,time,state,flowTime)
+%   input = policy(systemObj,time,state,flowTime,jumpCount)
 %
 % INPUTS:
 %   systemObj - (1 x 1 simulate.system)
@@ -37,9 +37,14 @@ function input = policy(systemObj,time,state,flowTime,jumpCount)
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   13-SEP-2011 by Rowland O'Flaherty
+% SEE ALSO:
+%   simulate.m | run.m | replay.m | policy.m
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 11-SEP-2011
 %-------------------------------------------------------------------------------
 
 %% Apply default values
@@ -50,7 +55,11 @@ if nargin < 5, jumpCount = 0; end
 %% Input Policy
 if systemObj.openLoopControl
     timeIndex = find(time >= systemObj.openLoopTimeTape,1,'last');
-    input = systemObj.openLoopInputTape(:,timeIndex);
+    if isempty(timeIndex)
+        input = zeros(systemObj.nInputs,1);
+    else
+        input = systemObj.openLoopInputTape(:,timeIndex);
+    end
 else
     input = systemObj.controller(time,state,flowTime,jumpCount);
 end

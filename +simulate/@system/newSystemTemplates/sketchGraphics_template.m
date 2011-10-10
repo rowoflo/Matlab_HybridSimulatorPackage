@@ -1,22 +1,22 @@
-function sketchGraphics(SYSTEM_NAMEObj,time,state,varargin)
+function sketchGraphics(SYSTEM_NAMEObj,state,time,varargin)
 % The "sketchGraphics" method will draw the system at a given time and
 % state in the sketch axis or create a new axis if it doesn't have one.
 %
 % SYNTAX:
 %   SYSTEM_NAMEObj.sketchGraphics()
-%   SYSTEM_NAMEObj.sketchGraphics(time)
-%   SYSTEM_NAMEObj.sketchGraphics(time,state)
+%   SYSTEM_NAMEObj.sketchGraphics(state)
+%   SYSTEM_NAMEObj.sketchGraphics(state,time)
 %   SYSTEM_NAMEObj.sketchGraphics(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
-%   SYSTEM_NAMEObj - (1 x 1 simulate.SYSTEM_NAME)
-%       An instance of the "simulate.SYSTEM_NAME" class.
-%
-%   time - (1 x 1 real number) [SYSTEM_NAMEObj.time] 
-%       The time that the SYSTEM_NAME will be drawn at.
+%   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+%       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
 %   state - (? x 1 real number) [SYSTEM_NAMEObj.state] 
 %       The state that the SYSTEM_NAME will be drawn in.
+%
+%   time - (1 x 1 real number) [SYSTEM_NAMEObj.time] 
+%       The time that the SYSTEM_NAME will be drawn at.
 %    
 % PROPERTIES:
 %
@@ -24,18 +24,20 @@ function sketchGraphics(SYSTEM_NAMEObj,time,state,varargin)
 %   Use line properties for "PropertyName" and "PropertyValue" pairs.
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   +simulate
+%   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%   DD-MMM-YYYY by FULL_NAME
+%    FULL_NAME
 %
+% VERSION: 
+%   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
 %% Check Input Arguments
 
 % Apply default values
-if nargin < 2, time = SYSTEM_NAMEObj.time; end
-if nargin < 3, state = SYSTEM_NAMEObj.state; end
+if nargin < 2 || isempty(state), state = SYSTEM_NAMEObj.state; end
+if nargin < 3 || isempty(time), time = SYSTEM_NAMEObj.time; end
 
 %% Parameters
 

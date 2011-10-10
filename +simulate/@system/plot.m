@@ -35,9 +35,14 @@ function plot(systemObj,time,state,timeTape,stateTape,inputTape,varargin)
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   19-APR-2011 by Rowland O'Flaherty
+% SEE ALSO:
+%   plotInput.m | plotOutput.m | plotState.m | sketch.m | phase.m
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 23-APR-2011
 %-------------------------------------------------------------------------------
 
 %% Check Input Arguments

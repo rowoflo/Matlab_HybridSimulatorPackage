@@ -1,11 +1,12 @@
-function output = observer(~,~,state,~,~,~)
-% The "observer" method will produce output values given the current
-% time and state of the pendulum.
+function stateHat = observer(pendulumObj,time,state,input,flowTime,jumpCount)
+% The "observer" method will produce estimates of the state values given
+% the current time, state, and input of the system.
 %
 % SYNTAX:
-%   output = pendulumObj.observer(time,state)
-%   output = pendulumObj.observer(time,state,input,flowTime)
-%   output = pendulumObj.observer(time,state,input,flowTime,jumpCount)
+%   stateHat = pendulumObj.observer(time,state)
+%   stateHat = pendulumObj.observer(time,state,input)
+%   stateHat = pendulumObj.observer(time,state,input,flowTime)
+%   stateHat = pendulumObj.observer(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -17,7 +18,7 @@ function output = observer(~,~,state,~,~,~)
 %   state - (? x 1 real number)
 %       Current state. Must be a "pendulumObj.nStates" x 1 vector.
 %
-%   input - (? x 1 real number)
+%   input - (? x 1 real number) [zeros(pendulumObj.nInputs,1)]
 %       Current input. Must be a "pendulumObj.nInputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [0]
@@ -27,44 +28,37 @@ function output = observer(~,~,state,~,~,~)
 %       Current jump count value.
 %
 % OUTPUTS:
-%   output - (? x 1 number)
-%       Output values for the plant. A "pendulumObj.nOutputs" x 1 vector.
+%   stateHat - (? x 1 number)
+%       Estimates of the states of the system. A "pendulumObj.nStates" x
+%       1 vector.
 %
 % NOTES:
 %
-% NECESSARY FILES AND/OR PACKAGES
-%   +simulate
+% NECESSARY FILES AND/OR PACKAGES:
+%   +simulate, +simulate
 %
 % AUTHOR:
-%   11-MAY-2011 by Rowland O'Flaherty
+%    Rowland O'Flaherty
 %
+% VERSION: 
+%   Created 01-OCT-2011
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-% 
-% % Check number of arguments
-% error(nargchk(2,6,nargin))
-% 
-% % Check arguments for errors
-% assert(isa(pendulumObj,'simulate.pendulum') && numel(pendulumObj) == 1,...
-%     'simulate:pendulum:observer:pendulumObj',...
-%     'Input argument "pendulumObj" must be a 1 x 1 simulate.pendulum object.')
-% 
-% assert(isnumeric(time) && isreal(time) && isequal(size(time),[1,1]),...
-%     'simulate:pendulum:observer:time',...
-%     'Input argument "time" must be a 1 x 1 real numbers.')
-% 
-% assert(isnumeric(state) && isequal(size(state),[pendulumObj.nStates,1]),...
-%     'simulate:pendulum:observer:state',...
-%     'Input argument "state" must be a %d x 1 vector of numbers.',pendulumObj.nStates)
+%% Apply default values
+if nargin < 4, input = zeros(pendulumObj.nInputs,1);
+if nargin < 5, flowTime = 0; end
+if nargin < 6, jumpCount = 0; end
 
 %% Parameters
 
+
 %% Variables
 
-%% Observer
+
+%% Observer Definition
+
 
 %% Set output
-output = state;
+stateHat = state;
 
 end

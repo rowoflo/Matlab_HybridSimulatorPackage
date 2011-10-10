@@ -9,21 +9,27 @@ classdef system < dynamicprops
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate
 %
-% AUTHOR:
-%   17-APR-2011 by Rowland O'Flaherty
-%
 % SEE ALSO:
 %   simulate.map
 %
+% AUTHOR:
+%   Rowland O'Flaherty
+%
+% VERSION: 
+%   Created 17-APR-2011
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
+properties (Access = protected, Hidden = true)
+    systemVersion = '1.0' % (string) Current vesion of the simulate.system class.
+end
+
 properties (Access = public)
     name; % (string) Name of the system.
     stateNames % (? x 1 cell array of strings) Names of the state variables. One per state.
     inputNames % (? x 1 cell array of strings) Names of the input variables. One per input.
     outputNames % (? x 1 cell array of strings) Names of the output variables. One per output.
-    phaseStatePairs; % (? x 2 positive integer) State pairs for the phase plot. One pair per row of the matrix. The first column is the x-axis and the second column is the y-axis.
+    phaseStatePairs; % (? x 2 positive integer <= nStates) State pairs for the phase plot. One pair per row of the matrix. The first column is the x-axis and the second column is the y-axis.
 end
 
 properties (Abstract = true, SetAccess = private)
@@ -80,14 +86,16 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     maxFlowTime = inf; % (1 x 1 positive number) Maximum flow time for the simulation.
     maxJumpCount = inf; % (1 x 1 positive integer) Maximum jump count for the simulation.
     
-    % ODE solver
+    % ODE Solver
     odeSolver = @ode113; % (ODE function handle) ODE solver function handle.
     odeOptions % (ODE options structure) Stores the options of the ODE solver. See "odeset" and "odeget".
     
-    % Open-loop controller
+    % Control Properties
     openLoopControl = false; % (1 x 1 logical) Determines if open-loop control is used or closed loop control.
     openLoopTimeTape = []; % (1 x ? real number) Open-loop control time tape.
     openLoopInputTape = []; % (1 x ? real number) Open-loop control input tape.
+    stateOP; % (? x 1 real number) Operating point for the state used in feedback control.
+    inputOP; % (? x 1 real number) Operating point for the input used in feedback control.
 end
 
 properties (SetAccess = protected)
@@ -194,6 +202,9 @@ methods
         systemObj.setDefaultStateNames;
         systemObj.setDefaultInputNames;
         systemObj.setDefaultOutputNames;
+        
+        systemObj.stateOP = zeros(systemObj.nStates,1);
+        systemObj.inputOP = zeros(systemObj.nInputs,1);
         
     end
 end
@@ -317,6 +328,91 @@ methods
         systemObj.maxJumpCount = maxJumpCount;
     end
     
+    function set.stateAxisHandle(systemObj,stateAxisHandle)
+        % Overloaded assignment operator function for the "stateAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.stateAxisHandle = stateAxisHandle
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(stateAxisHandle)) && length(stateAxisHandle) == 1 && strcmp(get(stateAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:stateAxisHandle',...
+            'Property "stateAxisHandle" must be a 1 x 1 axis handle.')
+
+        systemObj.stateAxisHandle = stateAxisHandle;
+        systemObj.stateFigureHandle = get(systemObj.stateAxisHandle,'Parent');
+    end
+    
+    function set.inputAxisHandle(systemObj,inputAxisHandle)
+        % Overloaded assignment operator function for the "inputAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.inputAxisHandle = inputAxisHandle
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(inputAxisHandle)) && length(inputAxisHandle) == 1 && strcmp(get(inputAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:inputAxisHandle',...
+            'Property "inputAxisHandle" must be a 1 x 1 axis handle.')
+
+        systemObj.inputAxisHandle = inputAxisHandle;
+        systemObj.inputFigureHandle = get(systemObj.inputAxisHandle,'Parent');
+    end
+    
+    function set.outputAxisHandle(systemObj,outputAxisHandle)
+        % Overloaded assignment operator function for the "outputAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.outputAxisHandle = outputAxisHandle
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(outputAxisHandle)) && length(outputAxisHandle) == 1 && strcmp(get(outputAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:outputAxisHandle',...
+            'Property "outputAxisHandle" must be a 1 x 1 axis handle.')
+
+        systemObj.outputAxisHandle = outputAxisHandle;
+        systemObj.outputFigureHandle = get(systemObj.outputAxisHandle,'Parent');
+    end
+    
+    function set.sketchAxisHandle(systemObj,sketchAxisHandle)
+        % Overloaded assignment operator function for the "sketchAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.sketchAxisHandle = sketchAxisHandle
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(sketchAxisHandle)) && length(sketchAxisHandle) == 1 && strcmp(get(sketchAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:sketchAxisHandle',...
+            'Property "sketchAxisHandle" must be a 1 x 1 axis handle.')
+
+        systemObj.sketchAxisHandle = sketchAxisHandle;
+        systemObj.sketchFigureHandle = get(systemObj.sketchAxisHandle,'Parent');
+    end
+    
+    function set.phaseAxisHandle(systemObj,phaseAxisHandle)
+        % Overloaded assignment operator function for the "phaseAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.phaseAxisHandle = phaseAxisHandle
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(phaseAxisHandle)) && length(phaseAxisHandle) == 1 && strcmp(get(phaseAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:phaseAxisHandle',...
+            'Property "phaseAxisHandle" must be a 1 x 1 axis handle.')
+
+        systemObj.phaseAxisHandle = phaseAxisHandle;
+        systemObj.phaseFigureHandle = get(systemObj.phaseAxisHandle,'Parent');
+    end
+    
     function nStates = get.nStates(systemObj)
         %   Overloaded query operator function for the "nStates" property.
         %
@@ -361,13 +457,13 @@ methods (Access = public)
             'simulate:system:setTime:time',...
             'Input argument "time" must be a 1 x 1 real number.')
         
-        systemObj.timeTapeC = [systemObj.timeTapeC sytemObj.time];
-        systemObj.timeTapeD = [systemObj.timeTapeD sytemObj.time];
+        systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
+        systemObj.timeTapeD = [systemObj.timeTapeD systemObj.time];
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
         systemObj.inputTape = [systemObj.inputTape nan(systemObj.nInputs,1)];
         systemObj.outputTape = [systemObj.outputTape nan(systemObj.nOutputs,1)];
-        systemObj.flowTimeTape = [systemObj.flowTimeTape sytemObj.flowTimeTape];
-        systemObj.jumpCountTape = [systemObj.jumpCountTape sytemObj.jumpCountTape];
+        systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTimeTape];
+        systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCountTape];
         
         systemObj.time = time;
         
@@ -403,13 +499,13 @@ methods (Access = public)
             'simulate:system:setstate:state',...
             'Input argument "state" must be a %d x 1 real number.',systemObj.nStates)
         
-        systemObj.timeTapeC = [systemObj.timeTapeC sytemObj.time];
-        systemObj.timeTapeD = [systemObj.timeTapeD sytemObj.time];
+        systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
+        systemObj.timeTapeD = [systemObj.timeTapeD systemObj.time];
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
         systemObj.inputTape = [systemObj.inputTape nan(systemObj.nInputs,1)];
         systemObj.outputTape = [systemObj.outputTape nan(systemObj.nOutputs,1)];
-        systemObj.flowTimeTape = [systemObj.flowTimeTape sytemObj.flowTimeTape];
-        systemObj.jumpCountTape = [systemObj.jumpCountTape sytemObj.jumpCountTape];
+        systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTimeTape];
+        systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCountTape];
         
         systemObj.state = state;
         
@@ -781,26 +877,26 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   systemObj.sketchGraphics()
-    %   systemObj.sketchGraphics(time)
-    %   systemObj.sketchGraphics(time,state)
+    %   systemObj.sketchGraphics(state)
+    %   systemObj.sketchGraphics(state,time)
     %   systemObj.sketchGraphics(. . .,'PropertyName',PropertyValue,. . .)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   time - (1 x 1 real number) [systemObj.time] 
-    %       The time that the system will be drawn at.
-    %
     %   state - (? x 1 real number) [systemObj.state] 
     %       The state that the system will be drawn in.
+    %
+    %   time - (1 x 1 real number) [systemObj.time] 
+    %       The time that the system will be drawn at.
     %    
     % PROPERTIES:
     %
     % NOTES:
     %
     %---------------------------------------------------------------------------
-    sketchGraphics(systemObj,time,state,varargin)
+    sketchGraphics(systemObj,state,time,varargin)
     
 end
 %-------------------------------------------------------------------------------
@@ -818,13 +914,13 @@ methods (Access = public)
     plotState(systemObj,time,state,timeTapeC,stateTape,varargin)
     plotInput(systemObj,time,timeTapeD,inputTape,varargin)
     plotOutput(systemObj,time,timeTapeD,outputTape,varargin)
-    sketch(systemObj,time,state,varargin)
+    sketch(systemObj,state,time,varargin)
     phase(systemObj,time,state,timeTapeC,stateTape,varargin)
     replay(systemObj,varargin)
 end
 
 methods (Static = true)
-    createNew(systemName,systemLocation);
+    createNew(systemName,systemLocation,varargin);
 end
 %-------------------------------------------------------------------------------
     
