@@ -21,7 +21,7 @@ function plotInput(systemObj,time,timeTape,inputTape,varargin)
 %       The input tape used for plotting
 %
 % PROPERTIES:
-%   'legendFlag' - (1 x 1 logical) [true]
+%   'legendFlag' - (1 x 1 logical) [systemObj.legendFlag]
 %       Sets whether the legend will be displayed.
 %
 % NOTES:
@@ -85,7 +85,7 @@ for iParam = 1:propargin/2
 end
 
 % Set to default value if necessary
-if ~exist('legendFlag','var'), legendFlag = true; end
+if ~exist('legendFlag','var'), legendFlag = systemObj.legendFlag; end
 
 % Check property values for errors
 assert(islogical(legendFlag) && numel(legendFlag) == 1,...
@@ -118,7 +118,7 @@ end
 %% Plot Input
 if ~isempty(inputTape)
     if isempty(systemObj.inputTapeGraphicsHandle) || ~all(ishghandle(systemObj.inputTapeGraphicsHandle)) % Create new lines
-        systemObj.inputTapeGraphicsHandle = plot(systemObj.inputAxisHandle,[timeTape time],[inputTape inputTape],systemObj.inputGraphicsProperties{:});
+        systemObj.inputTapeGraphicsHandle = plot(systemObj.inputAxisHandle,timeTape,inputTape,systemObj.inputGraphicsProperties{:});
         for iInput = 1:systemObj.nInputs
             set(systemObj.inputTapeGraphicsHandle(iInput,1),'DisplayName',systemObj.inputNames{iInput});
         end
@@ -135,8 +135,10 @@ if ~isempty(inputTape)
 end
 
 %% Legend
-if legendFlag && systemObj.legendFlag
+if legendFlag
     legend(systemObj.inputAxisHandle,'Location','best')
+else
+    legend(systemObj.inputAxisHandle,'off')
 end
 
 end

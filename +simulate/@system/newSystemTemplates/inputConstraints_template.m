@@ -1,9 +1,9 @@
-function inputOut = inputConstraint(SYSTEM_NAMEObj,inputIn)
-% The "inputConstraint" method constrains the input values for the
+function inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
+% The "inputConstraints" method constrains the input values for the
 % system.
 %
 % SYNTAX:
-%   inputOut = SYSTEM_NAMEObj.inputConstraint(inputIn)
+%   inputOut = SYSTEM_NAMEObj.inputConstraints(inputIn)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)

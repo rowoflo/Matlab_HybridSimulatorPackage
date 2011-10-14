@@ -24,7 +24,7 @@ function plotState(systemObj,time,state,timeTape,stateTape,varargin)
 %       The state tape used for plotting.
 %
 % PROPERTIES:
-%   'legendFlag' - (1 x 1 logical) [true]
+%   'legendFlag' - (1 x 1 logical) [systemObj.legendFlag]
 %       Sets whether the legend will be displayed.
 %
 % NOTES:
@@ -94,7 +94,7 @@ for iParam = 1:propargin/2
 end
 
 % Set to default value if necessary
-if ~exist('legendFlag','var'), legendFlag = true; end
+if ~exist('legendFlag','var'), legendFlag = systemObj.legendFlag; end
 
 % Check property values for errors
 assert(islogical(legendFlag) && numel(legendFlag) == 1,...
@@ -126,12 +126,13 @@ if isempty(systemObj.stateAxisHandle) || ~ishghandle(systemObj.stateAxisHandle)
     if ~isempty(systemObj.stateAxisProperties)
         set(systemObj.stateAxisHandle,systemObj.stateAxisProperties{:});
     end
-else
-    nextPlotStatus = get(systemObj.stateAxisHandle,'NextPlot');
-    set(systemObj.stateAxisHandle,'NextPlot','add');
 end
 
 %% Plot State
+if isempty(stateTape)
+    cla(systemObj.stateAxisHandle);
+end
+
 if ~isempty(state)
     if isempty(systemObj.stateGraphicsHandle) || ~all(ishghandle(systemObj.stateGraphicsHandle)) % Create new marks
         systemObj.stateGraphicsHandle = plot(systemObj.stateAxisHandle,time,state,'o',systemObj.stateGraphicsProperties{:});
@@ -139,7 +140,7 @@ if ~isempty(state)
             set(systemObj.stateGraphicsHandle(iState,1),'DisplayName',systemObj.stateNames{iState});
         end
         set(systemObj.stateAxisHandle,'NextPlot','add');
-    else % Update  marks
+    else % Update marks
         set(systemObj.stateGraphicsHandle,{'XData' 'YData'},...
             [repmat({time},systemObj.nStates,1),...
             num2cell(state)],...
@@ -169,14 +170,12 @@ if ~isempty(stateTape)
     end
 end
 
-if exist('nextPlotStatus','var')
-    set(systemObj.stateAxisHandle,'NextPlot',nextPlotStatus);
-end
-
 
 %% Legend
-if legendFlag && systemObj.legendFlag
+if legendFlag
     legend(systemObj.stateAxisHandle,'Location','best')
+else
+    legend(systemObj.stateAxisHandle,'off')
 end
 
 end

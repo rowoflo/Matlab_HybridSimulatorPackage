@@ -51,7 +51,7 @@ if nargin < 6, jumpCount = 0; end
 %% Variables
 
 
-%% Updates To Motion
+%% Updates Of Motion
 
 
 %% Output

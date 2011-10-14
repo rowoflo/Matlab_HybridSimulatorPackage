@@ -21,7 +21,7 @@ classdef system < dynamicprops
 
 %% Properties ------------------------------------------------------------------
 properties (Access = protected, Hidden = true)
-    systemVersion = '1.0' % (string) Current vesion of the simulate.system class.
+    systemVersion = '1.1' % (string) Current vesion of the simulate.system class.
 end
 
 properties (Access = public)
@@ -851,11 +851,11 @@ methods (Abstract = true)
     %---------------------------------------------------------------------------
     [A,B,C,D] = linearize(systemObj,stateOP,inputOP)
     
-    % The "inputConstraint" method constrains the input values for the
+    % The "inputConstraints" method constrains the input values for the
     % system.
     %
     % SYNTAX:
-    %   inputOut = systemObj.inputConstraint(inputIn)
+    %   inputOut = systemObj.inputConstraints(inputIn)
     %
     % INPUTS:
     %   SYSTEM_NAMEObj - (1 x 1 simulate.system)
@@ -869,7 +869,7 @@ methods (Abstract = true)
     %       Constrained input values. A "systemObj.nInputs" x 1 vector.
     %
     %---------------------------------------------------------------------------
-    inputOut = inputConstraint(systemObj,inputIn)
+    inputOut = inputConstraints(systemObj,inputIn)
     
     % The "sketchGraphics" is called by the "sketch" method and will draw
     % the system at a given time and state in the sketch axis or create a

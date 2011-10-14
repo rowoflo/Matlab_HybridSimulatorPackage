@@ -155,7 +155,7 @@ catSize = 500;
 %% Initialize
 initialTime = timeVector(1);
 finalTime = timeVector(end);
-initialInput = systemObj.inputConstraint(systemObj.policy(initialTime,initialState,initialFlowTime,initialJumpCount));
+initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialFlowTime,initialJumpCount));
 initialOutput = systemObj.sensor(initialTime,initialState,initialFlowTime,initialJumpCount);
 
 TVector = [initialTime finalTime];
@@ -217,7 +217,7 @@ while 1
         x = Q(end,1:end-2)';
         f = Q(end,end-1);
         j = Q(end,end);
-        u = systemObj.inputConstraint(systemObj.policy(t,x,f,j));
+        u = systemObj.inputConstraints(systemObj.policy(t,x,f,j));
         y = systemObj.sensor(t,x,f,j);
         
         dCnt = dCnt + 1;
@@ -357,7 +357,7 @@ end
             js = jumpCountTape(1,dCnt);
         end
         
-        us = systemObj.inputConstraint(systemObj.policy(ts,xs,fs,js));
+        us = systemObj.inputConstraints(systemObj.policy(ts,xs,fs,js));
         dx = systemObj.flowMap(t,x,us,f,j);
         df = 1;
         dj = 0;
@@ -487,17 +487,19 @@ end
                     set(figureList(iFig),figureListProperties{iFig}{:});
                 end
                 
-                if systemObj.plotStateFlag
-                    systemObj.plotState([],[],[],[],'LegendFlag',true);
-                end
-                if systemObj.plotInputFlag
-                    systemObj.plotInput([],[],[],'LegendFlag',true);
-                end
-                if systemObj.plotOutputFlag
-                    systemObj.plotOutput([],[],[],'LegendFlag',true);
-                end
-                if systemObj.phaseFlag
-                    systemObj.phase([],[],'LegendFlag',true);
+                if systemObj.legendFlag
+                    if systemObj.plotStateFlag
+                        legend(systemObj.stateAxisHandle,'Location','best')
+                    end
+                    if systemObj.plotInputFlag
+                        legend(systemObj.inputAxisHandle,'Location','best')
+                    end
+                    if systemObj.plotOutputFlag
+                        legend(systemObj.outputAxisHandle,'Location','best')
+                    end
+                    if systemObj.phaseFlag
+                        legend(systemObj.phaseAxisHandle,'Location','best')
+                    end
                 end
                 
                 % Movie

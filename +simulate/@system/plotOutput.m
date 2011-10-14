@@ -21,7 +21,7 @@ function plotOutput(systemObj,time,timeTape,outputTape,varargin)
 %       The output tape used for plotting
 %
 % PROPERTIES:
-%   'legendFlag' - (1 x 1 logical) [true]
+%   'legendFlag' - (1 x 1 logical) [systemObj.legendFlag]
 %       Sets whether the legend will be displayed.
 %
 % NOTES:
@@ -85,7 +85,7 @@ for iParam = 1:propargin/2
 end
 
 % Set to default value if necessary
-if ~exist('legendFlag','var'), legendFlag = true; end
+if ~exist('legendFlag','var'), legendFlag = systemObj.legendFlag; end
 
 % Check property values for errors
 assert(islogical(legendFlag) && numel(legendFlag) == 1,...
@@ -135,6 +135,8 @@ if ~isempty(outputTape)
 end
 
 %% Legend
-if legendFlag && systemObj.legendFlag
+if legendFlag
     legend(systemObj.outputAxisHandle,'Location','best')
+else
+    legend(systemObj.outputAxisHandle,'off')
 end

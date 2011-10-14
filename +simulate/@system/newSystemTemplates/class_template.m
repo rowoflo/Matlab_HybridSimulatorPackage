@@ -230,8 +230,7 @@ methods (Access = public) % Superclass Abstract Methods
     input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
     output = sensor(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
-    stateOut = stateConstraint(SYSTEM_NAMEObj,stateIn)
-    inputOut = inputConstraint(SYSTEM_NAMEObj,inputIn)
+    inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
     [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
     sketchGraphics(SYSTEM_NAMEObj,state,time,varargin)
 end

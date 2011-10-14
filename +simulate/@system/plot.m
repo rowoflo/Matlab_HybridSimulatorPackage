@@ -1,10 +1,10 @@
-function plot(systemObj,time,state,timeTape,stateTape,inputTape,varargin)
+function plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,varargin)
 % The "plot" method plots the input and state history of the system or
 % plots the given state and input vs. the given time.
 %
 % SYNTAX:
 %   systemObj.plot()
-%   systemObj.plot(time,state,timeTape,stateTape,inputTape)
+%   systemObj.plot(time,state,timeTapeC,stateTape,timeTapeD,inputTape)
 %   systemObj.plot(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
@@ -17,11 +17,14 @@ function plot(systemObj,time,state,timeTape,stateTape,inputTape,varargin)
 %   state - (? x 1 number) [systemObj.state]
 %       Current state to be plotted.
 %
-%   timeTape - (1 x ? real number) [systemObj.timeTape]
-%       The time tape used for plotting the state tape and input tape.
+%   timeTapeC - (1 x ? real number) [systemObj.timeTapeC]
+%       The time tape used for plotting the state tape.
 %
 %   stateTape - (? x ? number) [systemObj.stateTape]
 %       The state tape used for plotting.
+%
+%   timeTapeD - (1 x ? real number) [systemObj.timeTapeD]
+%       The time tape used for plotting the input tape.
 %
 %   inputTape - (? x ? number) [systemObj.inputTape] 
 %       The input tape used for plotting
@@ -50,8 +53,9 @@ function plot(systemObj,time,state,timeTape,stateTape,inputTape,varargin)
 % Apply default values
 if nargin < 2, time = systemObj.time; end
 if nargin < 3, state = systemObj.state; end
-if nargin < 4, timeTape = systemObj.timeTape; end
+if nargin < 4, timeTapeC = systemObj.timeTapeC; end
 if nargin < 5, stateTape = systemObj.stateTape; end
+if nargin < 4, timeTapeD = systemObj.timeTapeD; end
 if nargin < 6, inputTape = systemObj.inputTape; end
 
 % Check arguments for errors
@@ -68,26 +72,32 @@ assert(isempty(state) || (isnumeric(state) && isvector(state) && numel(state) ==
     'Input argument "state" must be a %d x 1 vector of numbers.',systemObj.nStates)
 state = state(:);
 
-assert(isempty(timeTape) || (isnumeric(timeTape) && isreal(timeTape) && isvector(timeTape)),...
-    'simulate:system:plot:timeTape',...
-    'Input argument "timeTape" must be a 1 x ? vector of real numbers.')
-timeTape = timeTape(:)';
-nTimeTape = length(timeTape);
+assert(isempty(timeTapeC) || (isnumeric(timeTapeC) && isreal(timeTapeC) && isvector(timeTapeC)),...
+    'simulate:system:plot:timeTapeC',...
+    'Input argument "timeTapeC" must be a 1 x ? vector of real numbers.')
+timeTapeC = timeTapeC(:)';
+nTimeTapeC = length(timeTapeC);
 
-assert(isempty(stateTape) || (isnumeric(stateTape) && isequal(size(stateTape),[systemObj.nStates,nTimeTape])),...
+assert(isempty(stateTape) || (isnumeric(stateTape) && isequal(size(stateTape),[systemObj.nStates,nTimeTapeC])),...
     'simulate:system:plot:stateTape',...
-    'Input argument "stateTape" must be a %d x %d matrix of numbers.',systemObj.nStates,nTimeTape)
+    'Input argument "stateTape" must be a %d x %d matrix of numbers.',systemObj.nStates,nTimeTapeC)
 
-assert(isempty(inputTape) || (isnumeric(inputTape) && isequal(size(inputTape),[systemObj.nInputs,nTimeTape])),...
+assert(isempty(timeTapeD) || (isnumeric(timeTapeD) && isreal(timeTapeD) && isvector(timeTapeD)),...
+    'simulate:system:plot:timeTapeD',...
+    'Input argument "timeTapeD" must be a 1 x ? vector of real numbers.')
+timeTapeD = timeTapeD(:)';
+nTimeTapeD = length(timeTapeD);
+
+assert(isempty(inputTape) || (isnumeric(inputTape) && isequal(size(inputTape),[systemObj.nInputs,nTimeTapeD])),...
     'simulate:system:plot:inputTape',...
-    'Input argument "inputTape" must be a %d x %d matrix of numbers.',systemObj.nInputs,nTimeTape)
+    'Input argument "inputTape" must be a %d x %d matrix of numbers.',systemObj.nInputs,nTimeTapeD)
 
 %% Plot State
-systemObj.plotState(time,state,timeTape,stateTape,varargin{:});
+systemObj.plotState(time,state,timeTapeC,stateTape,varargin{:});
 
 
 %% Plot Input
-systemObj.plotInput(time,timeTape,inputTape,varargin{:});
+systemObj.plotInput(time,timeTapeD,inputTape,varargin{:});
 
 
 end
