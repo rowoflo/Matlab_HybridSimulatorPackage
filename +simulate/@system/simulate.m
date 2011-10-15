@@ -74,7 +74,7 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 %   +simulate
 %
 % SEE ALSO:
-%   run.m | replay.m | policy.m
+%   run.m | replay.m | plot.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -282,7 +282,7 @@ while 1
         case 'jump'
             % Enter jump set
             TC = timeTapeC(1,cCnt);
-            TD = timeTapeC(1,dCnt);
+            TD = timeTapeD(1,dCnt);
             XC = stateTape(:,cCnt);
             U = inputTape(:,dCnt);
             TFlow = flowTimeTape(1,dCnt);
@@ -296,7 +296,7 @@ while 1
                 timeTapeC(1,cCnt + 1) = TC;
                 timeTapeD(1,dCnt + 1) = TD;
                 stateTape(:,cCnt + 1) = XPlus;
-                inputTape(:,dCnt + 1) = zeros(systemObj.nInputs,1);
+                inputTape(:,dCnt + 1) = systemObj.inputConstraints(systemObj.policy(TC,XPlus,TFlow,JCnt+1));
                 outputTape(:,dCnt + 1) = systemObj.sensor(TC,XPlus,TFlow,JCnt+1);
                 flowTimeTape(1,dCnt + 1) = TFlow;
                 jumpCountTape(1,dCnt + 1) = JCnt+1;
@@ -340,24 +340,19 @@ end
         j = round(q(end));
         
         % Samples
-        if dCnt == 0
-            ts = timeVector(1);
+        ts = timeTapeD(1,dCnt);
+        c2dLogic = ts == timeTapeC;
+        if ~any(c2dLogic)
             xs = initialState;
-            fs = initialFlowTime;
-            js = initialJumpCount;
         else
-            ts = timeTapeD(1,dCnt);
-            c2dLogic = ts == timeTapeC;
-            if ~any(c2dLogic)
-                xs = initialState;
-            else
-                xs = stateTape(:,c2dLogic);
-            end
-            fs = flowTimeTape(1,dCnt);
-            js = jumpCountTape(1,dCnt);
+            xs = stateTape(:,c2dLogic);
         end
+        % us = systemObj.inputConstraints(systemObj.policy(ts,xs,fs,js));
+        us = inputTape(:,dCnt);
+        fs = flowTimeTape(1,dCnt);
+        js = jumpCountTape(1,dCnt);
         
-        us = systemObj.inputConstraints(systemObj.policy(ts,xs,fs,js));
+
         dx = systemObj.flowMap(t,x,us,f,j);
         df = 1;
         dj = 0;
@@ -370,12 +365,8 @@ end
         f = q(end-1);
         j = q(end);
         
-        if dCnt == 0
-            ts = systemObj.timeStep;
-        else
-            ts = timeTapeD(1,dCnt) + systemObj.timeStep;
-        end
-        
+        ts = timeTapeD(1,dCnt) + systemObj.timeStep;
+            
         value = [systemObj.flowSet(t,x,f,j);...
             systemObj.jumpSet(t,x,f,j);...
             systemObj.maxFlowTime-f;...
@@ -390,28 +381,32 @@ end
         switch flag
             case 'init'
                 if systemObj.plotStateFlag
-                    systemObj.plotState(tc(1,end),x(:,end),tc(1,1:end-1),x(:,1:end-1),'LegendFlag',false);
+                    systemObj.plotState(tc(1,end),x(:,end),tc(1,1:end-1),x(:,1:end-1));
+                    legend(systemObj.stateAxisHandle,'off')
                 end
                 if systemObj.plotInputFlag
-                    systemObj.plotInput(td(1,end),td(1,1:end-1),u(:,1:end-1),'LegendFlag',false);
+                    systemObj.plotInput(td(1,end),td(1,1:end-1),u(:,1:end-1));
+                    legend(systemObj.inputAxisHandle,'off')
                 end
                 if systemObj.plotOutputFlag
-                    systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1),'LegendFlag',false);
+                    systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1));
+                    legend(systemObj.outputAxisHandle,'off')
                 end
-                if systemObj.sketchFlag
-                    systemObj.sketch(x(:,end),td(1,end));
+                if systemObj.plotPhaseFlag
+                    systemObj.plotPhase(x(:,end),x(:,1:end-1));
+                    legend(systemObj.phaseAxisHandle,'off')
                 end
-                if systemObj.phaseFlag
-                    systemObj.phase(x(:,end),x(:,1:end-1),'LegendFlag',false);
+                if systemObj.plotSketchFlag
+                    systemObj.plotSketch(td(1,end),x(:,end));
                 end
-                
+                                
                 % Figure setup
                 figureList = [...
                     systemObj.stateFigureHandle;...
                     systemObj.inputFigureHandle;...
                     systemObj.outputFigureHandle;...
-                    systemObj.sketchFigureHandle;...
-                    systemObj.phaseFigureHandle];
+                    systemObj.phaseFigureHandle;...
+                    systemObj.sketchFigureHandle];
                 
                 figureList = unique(figureList);
                 figureListProperties = cell(size(figureList));
@@ -451,19 +446,19 @@ end
             case 'update'
                 
                 if systemObj.plotStateFlag
-                    systemObj.plotState(tc(1,end),x(:,end),tc(1,1:end-1),x(:,1:end-1),'LegendFlag',false);
+                    systemObj.plotState(tc(1,end),x(:,end),tc(1,1:end-1),x(:,1:end-1));
                 end
                 if systemObj.plotInputFlag
-                    systemObj.plotInput(td(1,end),td(1,1:end-1),u(:,1:end-1),'LegendFlag',false);
+                    systemObj.plotInput(td(1,end),td(1,1:end-1),u(:,1:end-1));
                 end
                 if systemObj.plotOutputFlag
-                    systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1),'LegendFlag',false);
+                    systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1));
                 end
-                if systemObj.sketchFlag
-                    systemObj.sketch(x(:,end),td(1,end));
+                if systemObj.plotPhaseFlag
+                    systemObj.plotPhase(x(:,end),x(:,1:end-1));
                 end
-                if systemObj.phaseFlag
-                    systemObj.phase(x(:,end),x(:,1:end-1),'LegendFlag',false);
+                if systemObj.plotSketchFlag
+                    systemObj.plotSketch(td(1,end),x(:,end));
                 end
                 
                 if stopFlag
@@ -497,7 +492,7 @@ end
                     if systemObj.plotOutputFlag
                         legend(systemObj.outputAxisHandle,'Location','best')
                     end
-                    if systemObj.phaseFlag
+                    if systemObj.plotPhaseFlag
                         legend(systemObj.phaseAxisHandle,'Location','best')
                     end
                 end
