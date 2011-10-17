@@ -33,9 +33,7 @@ function sketchGraphics(SYSTEM_NAMEObj,state,time,varargin)
 %   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-
-% Apply default values
+%% Apply default values
 if nargin < 2 || isempty(state), state = SYSTEM_NAMEObj.state; end
 if nargin < 3 || isempty(time), time = SYSTEM_NAMEObj.time; end
 

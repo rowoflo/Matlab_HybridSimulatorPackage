@@ -30,6 +30,9 @@ function jumpSetValue = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %      the set.
 %
 % NOTES:
+%   It works best when the function outputs a series of smooth decreasing or
+%   increasing values instead of boolean values for being in the set or out
+%   of the set.
 %
 % NECESSARY FILES AND/OR PACKAGES:
 %   NECESSARY_PACKAGE+simulate

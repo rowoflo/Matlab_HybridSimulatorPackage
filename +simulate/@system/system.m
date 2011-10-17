@@ -20,10 +20,6 @@ classdef system < dynamicprops
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
-properties (Access = protected, Hidden = true)
-    systemVersion = '1.1' % (string) Current vesion of the simulate.system class.
-end
-
 properties (Access = public)
     name; % (string) Name of the system.
     stateNames % (? x 1 cell array of strings) Names of the state variables. One per state.
@@ -66,14 +62,7 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     outputTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each output tape.
     outputGraphicsProperties = {}; % (1 x ? cell array) Output plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
     
-    sketchFlag = false; % (1 x 1 logical) Flag determining if the sketch plot is drawn during the simulation.
-    sketchFigureHandle = []; % (1 x 1 graphics object) Figure handle to where system animation drawing is done.
-    sketchFigureProperties = {}; % (1 x ? cell array) Sketch plot figure properties to be applied to the sketch method. (e.g. {'Color','w'})
-    sketchAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system animation drawing is done.
-    sketchAxisProperties = {}; % (1 x ? cell array) Sketch plot axis properties to be applied to the sketch method. (e.g. {'FontWeight','bold'})
-    sketchGraphicsHandles = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the system animation drawing.
-    
-    phaseFlag = false; % (1 x 1 logical) Flag determining if the phase plot is drawn during the simulation.
+    plotPhaseFlag = false; % (1 x 1 logical) Flag determining if the phase plot is drawn during the simulation.
     phaseFigureHandle = []; % (1 x 1 graphics object) Figure handle to where the system phase plot is drawn.
     phaseFigureProperties = {}; % (1 x ? cell array) Phase plot figure properties to be applied to the phase method. (e.g. {'Color','w'})
     phaseAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system phase plot is drawn.
@@ -81,6 +70,13 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     phaseGraphicsHandle = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the state in the phase plot.
     phaseTapeGraphicsHandle = [];  % (? x 1 graphics handle) Object handles to graphics objects associated with the state tape in the phase plot.
     phaseGraphicsProperties = {}; % (1 x ? cell array) Phase graphics properties to be applied to the phase method. (e.g {'LineWidth',2})
+    
+    plotSketchFlag = false; % (1 x 1 logical) Flag determining if the sketch plot is drawn during the simulation.
+    sketchFigureHandle = []; % (1 x 1 graphics object) Figure handle to where system animation drawing is done.
+    sketchFigureProperties = {}; % (1 x ? cell array) Sketch plot figure properties to be applied to the sketch method. (e.g. {'Color','w'})
+    sketchAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system animation drawing is done.
+    sketchAxisProperties = {}; % (1 x ? cell array) Sketch plot axis properties to be applied to the sketch method. (e.g. {'FontWeight','bold'})
+    sketchGraphicsHandles = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the system animation drawing.
     
     setPriority = 'jump'; % ('flow','jump', or 'random') Sets the priority to what takes place if the state is both in the flow set and the jump set.
     maxFlowTime = inf; % (1 x 1 positive number) Maximum flow time for the simulation.
@@ -379,23 +375,6 @@ methods
         systemObj.outputFigureHandle = get(systemObj.outputAxisHandle,'Parent');
     end
     
-    function set.sketchAxisHandle(systemObj,sketchAxisHandle)
-        % Overloaded assignment operator function for the "sketchAxisHandle" property.
-        %
-        % SYNTAX:
-        %   systemObj.sketchAxisHandle = sketchAxisHandle
-        %
-        % NOTES:
-        %
-        %-----------------------------------------------------------------------
-        assert(all(ishghandle(sketchAxisHandle)) && length(sketchAxisHandle) == 1 && strcmp(get(sketchAxisHandle,'Type'),'axes'),...
-            'simulate:system:set:sketchAxisHandle',...
-            'Property "sketchAxisHandle" must be a 1 x 1 axis handle.')
-
-        systemObj.sketchAxisHandle = sketchAxisHandle;
-        systemObj.sketchFigureHandle = get(systemObj.sketchAxisHandle,'Parent');
-    end
-    
     function set.phaseAxisHandle(systemObj,phaseAxisHandle)
         % Overloaded assignment operator function for the "phaseAxisHandle" property.
         %
@@ -411,6 +390,23 @@ methods
 
         systemObj.phaseAxisHandle = phaseAxisHandle;
         systemObj.phaseFigureHandle = get(systemObj.phaseAxisHandle,'Parent');
+    end
+    
+    function set.sketchAxisHandle(systemObj,sketchAxisHandle)
+        % Overloaded assignment operator function for the "sketchAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.sketchAxisHandle = sketchAxisHandle
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(sketchAxisHandle)) && length(sketchAxisHandle) == 1 && strcmp(get(sketchAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:sketchAxisHandle',...
+            'Property "sketchAxisHandle" must be a 1 x 1 axis handle.')
+
+        systemObj.sketchAxisHandle = sketchAxisHandle;
+        systemObj.sketchFigureHandle = get(systemObj.sketchAxisHandle,'Parent');
     end
     
     function nStates = get.nStates(systemObj)
@@ -871,7 +867,7 @@ methods (Abstract = true)
     %---------------------------------------------------------------------------
     inputOut = inputConstraints(systemObj,inputIn)
     
-    % The "sketchGraphics" is called by the "sketch" method and will draw
+    % The "sketchGraphics" is called by the "plotSketch" method and will draw
     % the system at a given time and state in the sketch axis or create a
     % new axis if it doesn't have one.
     %
@@ -903,19 +899,22 @@ end
 
 %% Methods in separte files ----------------------------------------------------
 methods (Access = private)
+    plotState(systemObj,time,state,timeTapeC,stateTape,varargin)
+    plotInput(systemObj,time,timeTapeD,inputTape,varargin)
+    plotOutput(systemObj,time,timeTapeD,outputTape,varargin)
+    plotPhase(systemObj,time,state,timeTapeC,stateTape,varargin)
+    plotSketch(systemObj,state,time,varargin)
+end
+
+methods (Access = protected)
     input = policy(systemObj,time,state,flowTime,jumpCount)
 end
 
 methods (Access = public)
     [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
-        simulate(systemObj,timeVector,initialState,initialFlowTime,initialJumpCount,varargin)
+        simulate(systemObj,timeInterval,initialState,initialFlowTime,initialJumpCount,varargin)
     run(systemObj,duration,varargin)
     plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,outputTape,varargin)
-    plotState(systemObj,time,state,timeTapeC,stateTape,varargin)
-    plotInput(systemObj,time,timeTapeD,inputTape,varargin)
-    plotOutput(systemObj,time,timeTapeD,outputTape,varargin)
-    sketch(systemObj,state,time,varargin)
-    phase(systemObj,time,state,timeTapeC,stateTape,varargin)
     replay(systemObj,varargin)
 end
 
@@ -923,5 +922,25 @@ methods (Static = true)
     createNew(systemName,systemLocation,varargin);
 end
 %-------------------------------------------------------------------------------
-    
+
+%% Method for tracking version of class ----------------------------------------
+methods (Static = true)
+    function version = currentVersion
+        % The "currentVersion" method returns the current version
+        % number of the simulate.system class.
+        %
+        % OUTPUTS:
+        %   version - (string)s
+        %       Current version of the simulate.system class.
+        %
+        % SYNTAX:
+        %   versionNumber = currentVersionNumber
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        version = '1.2';
+    end
+end
+%------------------------------------------------------------------------------- 
 end

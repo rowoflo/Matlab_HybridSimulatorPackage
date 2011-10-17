@@ -24,8 +24,6 @@ function plotState(systemObj,time,state,timeTape,stateTape,varargin)
 %       The state tape used for plotting.
 %
 % PROPERTIES:
-%   'legendFlag' - (1 x 1 logical) [systemObj.legendFlag]
-%       Sets whether the legend will be displayed.
 %
 % NOTES:
 %
@@ -33,7 +31,7 @@ function plotState(systemObj,time,state,timeTape,stateTape,varargin)
 %   +simulate
 %
 % SEE ALSO:
-%   plot.m | plotInput.m | plotOutput.m | sketch.m | phase.m
+%   plot.m | plotInput.m | plotOutput.m | plotSketch.m | plotPhase.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -42,64 +40,11 @@ function plotState(systemObj,time,state,timeTape,stateTape,varargin)
 %   Created 23-APR-2011 
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-
-% Apply default values
+%% Apply default values
 if nargin < 2, time = systemObj.time; end
 if nargin < 3, state = systemObj.state; end
 if nargin < 4, timeTape = systemObj.timeTape; end
 if nargin < 5, stateTape = systemObj.stateTape; end
-
-% Check arguments for errors
-assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
-    'simulate:system:plotState:systemObj',...
-    'Input argument "systemObj" must be a 1 x 1 simulate.system object.')
-
-assert(isempty(time) || (isnumeric(time) && isreal(time) && numel(time) == 1),...
-    'simulate:system:plotState:time',...
-    'Input argument "time" must be a 1 x 1 real number.')
-
-assert(isempty(state) || (isnumeric(state) && isvector(state) && numel(state) == systemObj.nStates),...
-    'simulate:system:plotState:time',...
-    'Input argument "state" must be a %d x 1 vector of numbers.',systemObj.nStates)
-state = state(:);
-
-assert(isempty(timeTape) || (isnumeric(timeTape) && isreal(timeTape) && isvector(timeTape)),...
-    'simulate:system:plotState:timeTape',...
-    'Input argument "timeTape" must be a 1 x ? vector of real numbers.')
-timeTape = timeTape(:)';
-nTimeTape = length(timeTape);
-
-assert(isempty(stateTape) || (isnumeric(stateTape) && isequal(size(stateTape),[systemObj.nStates,nTimeTape])),...
-    'simulate:system:plotState:stateTape',...
-    'Input argument "stateTape" must be a %d x %d matrix of numbers.',systemObj.nStates,nTimeTape)
-
-% Get and check properties
-propargin = size(varargin,2);
-
-assert(mod(propargin,2) == 0,'system:plotState:properties',...
-    'Properties must come in pairs of a "PropertyName" and a "PropertyValue".')
-
-propStrs = varargin(1:2:propargin);
-propValues = varargin(2:2:propargin);
-
-for iParam = 1:propargin/2
-    switch lower(propStrs{iParam})
-        case lower('legendFlag')
-            legendFlag = propValues{iParam};
-        otherwise
-            error('simulate:system:plotState:options',...
-              'Option string ''%s'' is not recognized.',propStrs{iParam})
-    end
-end
-
-% Set to default value if necessary
-if ~exist('legendFlag','var'), legendFlag = systemObj.legendFlag; end
-
-% Check property values for errors
-assert(islogical(legendFlag) && numel(legendFlag) == 1,...
-    'simulate:system:plotState:legendFlag',...
-    'Property "legendFlag" must be a 1 x 1 logical.')
 
 %% Initialize
 % This function is currently being worked on to get everything correct.
@@ -122,11 +67,11 @@ if isempty(systemObj.stateAxisHandle) || ~ishghandle(systemObj.stateAxisHandle)
     title(systemObj.stateAxisHandle,[systemObj.name ' State Plot'])
     xlabel(systemObj.stateAxisHandle,'Time')
     ylabel(systemObj.stateAxisHandle,'Value')
-    set(systemObj.stateAxisHandle,'NextPlot','replacechildren');
     if ~isempty(systemObj.stateAxisProperties)
         set(systemObj.stateAxisHandle,systemObj.stateAxisProperties{:});
     end
 end
+set(systemObj.stateAxisHandle,'NextPlot','replacechildren');
 
 %% Plot State
 if isempty(stateTape)
@@ -139,13 +84,13 @@ if ~isempty(state)
         for iState = 1:systemObj.nStates
             set(systemObj.stateGraphicsHandle(iState,1),'DisplayName',systemObj.stateNames{iState});
         end
-        set(systemObj.stateAxisHandle,'NextPlot','add');
     else % Update marks
         set(systemObj.stateGraphicsHandle,{'XData' 'YData'},...
             [repmat({time},systemObj.nStates,1),...
             num2cell(state)],...
             systemObj.stateGraphicsProperties{:});
     end
+    set(systemObj.stateAxisHandle,'NextPlot','add');
 end
 
 if ~isempty(stateTape)
@@ -168,14 +113,6 @@ if ~isempty(stateTape)
             mat2cell([stateData stateTape(:,dataToAdd) state],ones(1,size(stateTape,1)),size([stateData stateTape(:,dataToAdd)],2)+1)],...
             systemObj.stateGraphicsProperties{:});
     end
-end
-
-
-%% Legend
-if legendFlag
-    legend(systemObj.stateAxisHandle,'Location','best')
-else
-    legend(systemObj.stateAxisHandle,'off')
 end
 
 end

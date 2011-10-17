@@ -30,8 +30,7 @@ function plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,varar
 %       The input tape used for plotting
 %
 % PROPERTIES:
-%   Properties are passed to the plotState, plotInput, and plotOutput
-%   methods.
+%   Properties are not currently passed to anything right now.
 %
 % NOTES:
 %
@@ -39,7 +38,7 @@ function plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,varar
 %   +simulate
 %
 % SEE ALSO:
-%   plotInput.m | plotOutput.m | plotState.m | sketch.m | phase.m
+%   simulate.m | run.m | replay.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -92,12 +91,33 @@ assert(isempty(inputTape) || (isnumeric(inputTape) && isequal(size(inputTape),[s
     'simulate:system:plot:inputTape',...
     'Input argument "inputTape" must be a %d x %d matrix of numbers.',systemObj.nInputs,nTimeTapeD)
 
-%% Plot State
-systemObj.plotState(time,state,timeTapeC,stateTape,varargin{:});
-
-
-%% Plot Input
-systemObj.plotInput(time,timeTapeD,inputTape,varargin{:});
-
+%% Plot
+if systemObj.plotStateFlag
+    systemObj.plotState(time,state,timeTapeC,stateTape);
+    if systemObj.legendFlag
+        legend(systemObj.stateAxisHandle,'Location','best')
+    end
+end
+if systemObj.plotInputFlag
+    systemObj.plotInput(time,timeTapeD,inputTape);
+    if systemObj.legendFlag
+        legend(systemObj.inputAxisHandle,'Location','best')
+    end
+end
+if systemObj.plotOutputFlag
+    systemObj.plotOutput(time,timeTapeD,outputTape);
+    if systemObj.legendFlag
+        legend(systemObj.outputAxisHandle,'Location','best')
+    end
+end
+if systemObj.plotPhaseFlag
+    systemObj.plotPhase(state,stateTape);
+    if systemObj.legendFlag
+        legend(systemObj.phaseAxisHandle,'Location','best')
+    end
+end
+if systemObj.plotSketchFlag
+    systemObj.plotSketch(time,state);
+end
 
 end

@@ -21,8 +21,6 @@ function plotInput(systemObj,time,timeTape,inputTape,varargin)
 %       The input tape used for plotting
 %
 % PROPERTIES:
-%   'legendFlag' - (1 x 1 logical) [systemObj.legendFlag]
-%       Sets whether the legend will be displayed.
 %
 % NOTES:
 %
@@ -30,7 +28,7 @@ function plotInput(systemObj,time,timeTape,inputTape,varargin)
 %   +simulate
 %
 % SEE ALSO:
-%   plot.m | plotOutput.m | plotState.m | sketch.m | phase.m
+%   plot.m | plotOutput.m | plotState.m | plotSketch.m | plotPhase.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -39,58 +37,10 @@ function plotInput(systemObj,time,timeTape,inputTape,varargin)
 %   Created 23-APR-2011
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-
-% Apply default values
+%% Apply default values
 if nargin < 2, time = systemObj.time; end
 if nargin < 3, timeTape = systemObj.timeTape; end
 if nargin < 4, inputTape = systemObj.inputTape; end
-
-% Check arguments for errors
-assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
-    'simulate:system:plotInput:systemObj',...
-    'Input argument "systemObj" must be a 1 x 1 simulate.system object.')
-
-assert(isempty(time) || (isnumeric(time) && isreal(time) && numel(time) == 1),...
-    'simulate:system:plotInput:time',...
-    'Input argument "time" must be a 1 x 1 real number.')
-
-assert(isempty(timeTape) || (isnumeric(timeTape) && isreal(timeTape) && isvector(timeTape)),...
-    'simulate:system:plotInput:timeTape',...
-    'Input argument "timeTape" must be a 1 x ? vector of real numbers.')
-timeTape = timeTape(:)';
-nTimeTape = length(timeTape);
-
-assert(isempty(inputTape) || (isnumeric(inputTape) && isequal(size(inputTape),[systemObj.nInputs,nTimeTape])),...
-    'simulate:system:plotInput:inputTape',...
-    'Input argument "inputTape" must be a %d x %d matrix of numbers.',systemObj.nInputs,nTimeTape)
-
-% Get and check properties
-propargin = size(varargin,2);
-
-assert(mod(propargin,2) == 0,'system:plotInput:properties',...
-    'Properties must come in pairs of a "PropertyName" and a "PropertyValue".')
-
-propStrs = varargin(1:2:propargin);
-propValues = varargin(2:2:propargin);
-
-for iParam = 1:propargin/2
-    switch lower(propStrs{iParam})
-        case lower('legendFlag')
-            legendFlag = propValues{iParam};
-        otherwise
-            error('simulate:system:plotInput:options',...
-              'Option string ''%s'' is not recognized.',propStrs{iParam})
-    end
-end
-
-% Set to default value if necessary
-if ~exist('legendFlag','var'), legendFlag = systemObj.legendFlag; end
-
-% Check property values for errors
-assert(islogical(legendFlag) && numel(legendFlag) == 1,...
-    'simulate:system:plotInput:legendFlag',...
-    'Property "legendFlag" must be a 1 x 1 logical.')
 
 %% Initialize
 % Create Figure
@@ -109,16 +59,16 @@ if isempty(systemObj.inputAxisHandle) || ~ishghandle(systemObj.inputAxisHandle)
     title(systemObj.inputAxisHandle,[systemObj.name ' Input Plot'])
     xlabel(systemObj.inputAxisHandle,'Time')
     ylabel(systemObj.inputAxisHandle,'Value')
-    set(systemObj.inputAxisHandle,'NextPlot','replacechildren');
     if ~isempty(systemObj.inputAxisProperties)
         set(systemObj.inputAxisHandle,systemObj.inputAxisProperties{:});
     end
 end
+set(systemObj.inputAxisHandle,'NextPlot','replacechildren');
 
 %% Plot Input
 if ~isempty(inputTape)
     if isempty(systemObj.inputTapeGraphicsHandle) || ~all(ishghandle(systemObj.inputTapeGraphicsHandle)) % Create new lines
-        systemObj.inputTapeGraphicsHandle = plot(systemObj.inputAxisHandle,timeTape,inputTape,systemObj.inputGraphicsProperties{:});
+        systemObj.inputTapeGraphicsHandle = plot(systemObj.inputAxisHandle,[timeTape time],[inputTape inputTape],systemObj.inputGraphicsProperties{:});
         for iInput = 1:systemObj.nInputs
             set(systemObj.inputTapeGraphicsHandle(iInput,1),'DisplayName',systemObj.inputNames{iInput});
         end
@@ -132,13 +82,6 @@ if ~isempty(inputTape)
             mat2cell(inputVector,ones(1,size(inputVector,1)),size(inputVector,2))],...
             systemObj.inputGraphicsProperties{:});
     end
-end
-
-%% Legend
-if legendFlag
-    legend(systemObj.inputAxisHandle,'Location','best')
-else
-    legend(systemObj.inputAxisHandle,'off')
 end
 
 end

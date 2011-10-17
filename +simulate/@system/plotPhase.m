@@ -1,10 +1,10 @@
-function phase(systemObj,state,stateTape,varargin)
-% The "phase" method plots the phase history or the system or plots the
-% give state and state tape.
+function plotPhase(systemObj,state,stateTape,varargin)
+% The "plotPhase" method plots the phase history of the system (i.e plots the
+% give state and state tape).
 %
 % SYNTAX:
-%   systemObj.phase()
-%   systemObj.phase(state,stateTape)
+%   systemObj.plotPhase()
+%   systemObj.plotPhase(state,stateTape)
 %
 % INPUTS:
 %   systemObj - (1 x 1 simulate.system)
@@ -17,8 +17,6 @@ function phase(systemObj,state,stateTape,varargin)
 %       The state tape used for plotting.
 %
 % PROPERTIES:
-%   'legendFlag' - (1 x 1 logical) [systemObj.legendFlag]
-%       Sets whether the legend will be displayed.
 %
 % NOTES:
 %
@@ -26,7 +24,7 @@ function phase(systemObj,state,stateTape,varargin)
 %   +simulate
 %
 % SEE ALSO:
-%   plot.m | plotInput.m | plotOutput.m | plotState.m | sketch.m
+%   plot.m | plotInput.m | plotOutput.m | plotState.m | plotSketch.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -35,52 +33,9 @@ function phase(systemObj,state,stateTape,varargin)
 %   Created 23-APR-2011
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-
-% Apply default values
+%% Apply default values
 if nargin < 2, state = systemObj.state; end
 if nargin < 3, stateTape = systemObj.stateTape; end
-
-% Check arguments for errors
-assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
-    'simulate:system:phase:systemObj',...
-    'Input argument "systemObj" must be a 1 x 1 simulate.system object.')
-
-assert(isempty(state) || (isnumeric(state) && isvector(state) && numel(state) == systemObj.nStates),...
-    'simulate:system:phase:time',...
-    'Input argument "state" must be a %d x 1 vector of numbers.',systemObj.nStates)
-state = state(:);
-
-assert(isempty(stateTape) || (isnumeric(stateTape) && size(stateTape,1) == systemObj.nStates),...
-    'simulate:system:phase:stateTape',...
-    'Input argument "stateTape" must be a %d x ? matrix of numbers.',systemObj.nStates)
-
-% Get and check properties
-propargin = size(varargin,2);
-
-assert(mod(propargin,2) == 0,'system:phase:properties',...
-    'Properties must come in pairs of a "PropertyName" and a "PropertyValue".')
-
-propStrs = varargin(1:2:propargin);
-propValues = varargin(2:2:propargin);
-
-for iParam = 1:propargin/2
-    switch lower(propStrs{iParam})
-        case lower('legendFlag')
-            legendFlag = propValues{iParam};
-        otherwise
-            error('simulate:system:phase:options',...
-                'Option string ''%s'' is not recognized.',propStrs{iParam})
-    end
-end
-
-% Set to default value if necessary
-if ~exist('legendFlag','var'), legendFlag = systemObj.legendFlag; end
-
-% Check property values for errors
-assert(islogical(legendFlag) && numel(legendFlag) == 1,...
-    'simulate:system:phase:legendFlag',...
-    'Property "legendFlag" must be a 1 x 1 logical.')
 
 %% Initialize
 % Create Figure
@@ -103,6 +58,7 @@ if isempty(systemObj.phaseAxisHandle) || ~ishghandle(systemObj.phaseAxisHandle)
     end
 end
 colorOrder = get(systemObj.phaseAxisHandle,'ColorOrder');
+set(systemObj.phaseAxisHandle,'NextPlot','replacechildren');
 
 % Create Graphics
 if ~isempty(systemObj.phaseGraphicsHandle) && all(ishghandle(systemObj.phaseGraphicsHandle))
@@ -152,14 +108,6 @@ end
 
 if exist('nextPlotStatus','var')
     set(systemObj.phaseAxisHandle,'NextPlot',nextPlotStatus);
-end
-
-
-%% Legend
-if legendFlag
-    legend(systemObj.phaseAxisHandle,'Location','best')
-else
-    legend(systemObj.phaseAxisHandle,'off')
 end
 
 end

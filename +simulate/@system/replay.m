@@ -23,7 +23,7 @@ function replay(systemObj,varargin)
 %   +simulate
 %
 % SEE ALSO:
-%   simulate.m | run.m | policy.m
+%   simulate.m | run.m | plot.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -87,19 +87,23 @@ y = [systemObj.outputTape nan(systemObj.nOutputs,1)];
 %% Initialize
 iT = 1;
 if systemObj.plotStateFlag
-    systemObj.plotState(t(1,iT),x(:,iT),t(1,1:iT-1),x(:,1:iT-1),'LegendFlag',false);
+    systemObj.plotState(t(1,iT),x(:,iT),t(1,1:iT-1),x(:,1:iT-1));
+    legend(systemObj.stateAxisHandle,'Location','off')
 end
 if systemObj.plotInputFlag
-    systemObj.plotInput(t(1,iT),t(1,1:iT-1),u(:,1:iT-1),'LegendFlag',false);
+    systemObj.plotInput(t(1,iT),t(1,1:iT-1),u(:,1:iT-1));
+    legend(systemObj.inputAxisHandle,'Location','off')
 end
 if systemObj.plotOutputFlag
-    systemObj.plotOutput(t(1,iT),t(1,1:iT-1),y(:,1:iT-1),'LegendFlag',false);
+    systemObj.plotOutput(t(1,iT),t(1,1:iT-1),y(:,1:iT-1));
+    legend(systemObj.outputAxisHandle,'Location','off')
 end
-if systemObj.sketchFlag
-    systemObj.sketch(t(1,iT),x(:,iT));
+if systemObj.plotPhaseFlag
+    systemObj.plotPhase(x(:,iT),x(:,1:iT-1));
+    legend(systemObj.phaseAxisHandle,'Location','off')
 end
-if systemObj.phaseFlag
-    systemObj.phase(x(:,iT),x(:,1:iT-1),'LegendFlag',false);
+if systemObj.plotSketchFlag
+    systemObj.plotSketch(t(1,iT),x(:,iT));
 end
 
 if movieFlag
@@ -115,19 +119,19 @@ end
 %% Loop
 for iT = 1:length(t)
     if systemObj.plotStateFlag
-        systemObj.plotState(t(1,iT),x(:,iT),t(1,1:iT-1),x(:,1:iT-1),'LegendFlag',false);
+        systemObj.plotState(t(1,iT),x(:,iT),t(1,1:iT-1),x(:,1:iT-1));
     end
     if systemObj.plotInputFlag
-        systemObj.plotInput(t(1,iT),t(1,1:iT-1),u(:,1:iT-1),'LegendFlag',false);
+        systemObj.plotInput(t(1,iT),t(1,1:iT-1),u(:,1:iT-1));
     end
     if systemObj.plotOutputFlag
-        systemObj.plotOutput(t(1,iT),t(1,1:iT-1),y(:,1:iT-1),'LegendFlag',false);
+        systemObj.plotOutput(t(1,iT),t(1,1:iT-1),y(:,1:iT-1));
     end
-    if systemObj.sketchFlag
-        systemObj.sketch(t(1,iT),x(:,iT));
+    if systemObj.plotPhaseFlag
+        systemObj.plotPhase(x(:,iT),x(:,1:iT-1));
     end
-    if systemObj.phaseFlag
-        systemObj.phase(x(:,iT),x(:,1:iT-1),'LegendFlag',false);
+    if systemObj.plotSketchFlag
+        systemObj.plotSketch(t(1,iT),x(:,iT));
     end
     
     drawnow
@@ -140,17 +144,19 @@ end
 
 
 %% End
-if systemObj.plotStateFlag
-    systemObj.plotState([],[],[],[],'LegendFlag',true);
-end
-if systemObj.plotInputFlag
-    systemObj.plotInput([],[],[],'LegendFlag',true);
-end
-if systemObj.plotOutputFlag
-    systemObj.plotOutput([],[],[],'LegendFlag',true);
-end
-if systemObj.phaseFlag
-    systemObj.phase([],[],'LegendFlag',true);
+if systemObj.legendFlag
+    if systemObj.plotStateFlag
+        legend(systemObj.stateAxisHandle,'Location','best')
+    end
+    if systemObj.plotInputFlag
+        legend(systemObj.inputAxisHandle,'Location','best')
+    end
+    if systemObj.plotOutputFlag
+        legend(systemObj.outputAxisHandle,'Location','best')
+    end
+    if systemObj.plotPhaseFlag
+        legend(systemObj.phaseAxisHandle,'Location','best')
+    end
 end
 
 if movieFlag

@@ -84,11 +84,11 @@ assert(ischar(movieFile),...
 dt = systemObj.timeStep;
 t0 = systemObj.time;
 tFinal = t0 + duration;
-timeVector = t0:dt:tFinal;
+timeInterval = [t0 tFinal];
 
 %% Simulate
 [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape] = ...
-    simulate(systemObj,timeVector,systemObj.state,0,0,'movieFile',movieFile);
+    simulate(systemObj,timeInterval,systemObj.state,0,0,'movieFile',movieFile);
 
 %% Update
 systemObj.time = timeTapeC(1,end);

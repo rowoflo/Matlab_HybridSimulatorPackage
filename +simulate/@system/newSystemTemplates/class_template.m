@@ -19,8 +19,8 @@ classdef SYSTEM_NAME < simulate.system
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
-properties (Access = private, Hidden = true)
-    superVersion = 'VERSION_NUMBER' % (string) Current version of the super class.
+properties (Constant = true, Hidden = true)
+    systemVersion = 'VERSION_STR' % (string) Current version of the super class.
 end
 
 properties (SetAccess = private) % Superclass Abstract Properties
@@ -88,11 +88,11 @@ methods
         SYSTEM_NAMEObj = SYSTEM_NAMEObj@simulate.system(dt,t0,x0,nInputs,nOutputs);
         
         % Check class compatibility with super class
-        assert(strcmp(SYSTEM_NAMEObj.systemVersion,SYSTEM_NAMEObj.superVersion),...
+        assert(strcmp(SYSTEM_NAMEObj.systemVersion,simulate.system.currentVersion),...
             'PACKAGE_NAME_C_SYSTEM_NAME:version',...
             ['The simulate.system class has been updated to version %s ',... 
             'and the SYSTEM_NAME class is only compatible with version %s.'],...
-            SYSTEM_NAMEObj.systemVersion,SYSTEM_NAMEObj.superVersion)
+            simulate.system.currentVersion,SYSTEM_NAMEObj.systemVersion)
         
         % Assign properties
         SYSTEM_NAMEObj.name = 'SSYSTEM_NAME';

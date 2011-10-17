@@ -1,23 +1,23 @@
-function sketch(systemObj,state,time,varargin)
-% The "sketch" method will draw the system at either the given time and
+function plotSketch(systemObj,time,state,varargin)
+% The "plotSketch" method will draw the system at either the given time and
 % state or the current system object time and state in its sketch axis or create
 % a new axis if it doesn't have one.
 %
 % SYNTAX:
-%   systemObj.sketch()
-%   systemObj.sketch(state)
-%   systemObj.sketch(state,time)
-%   systemObj.sketch(...,'PropertyName',PropertyValue,...)
+%   systemObj.plotSketch()
+%   systemObj.plotSketch(time)
+%   systemObj.plotSketch(time,state)
+%   systemObj.plotSketch(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
 %   systemObj - (1 x 1 simulate.system)
 %       An instance of the "simulate.system" class.
 %
-%   state - (? x 1 real number) [systemObj.state]
-%       The state that the system will be drawn in.
-%
 %   time - (1 x 1 real number) [systemObj.time]
 %       The time that the system will be drawn at.
+%
+%   state - (? x 1 real number) [systemObj.state]
+%       The state that the system will be drawn in.
 %
 % PROPERTIES:
 %
@@ -29,7 +29,7 @@ function sketch(systemObj,state,time,varargin)
 %   +simulate
 %
 % SEE ALSO:
-%   plot.m | plotInput.m | plotOutput.m | plotState.m | phase.m
+%   plot.m | plotInput.m | plotOutput.m | plotState.m | plotPhase.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -38,25 +38,9 @@ function sketch(systemObj,state,time,varargin)
 %   Created 18-APR-2011
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-
-% Apply default values
-if nargin < 2 || isempty(state), state = systemObj.state; end
-if nargin < 3 || isempty(time), time = systemObj.time; end
-
-% Check arguments for errors
-assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
-    'simulate:system:sketch:systemObj',...
-    'Input argument "systemObj" must be a 1 x 1 simulate.system object.')
-
-assert(isnumeric(state) && isvector(state) && numel(state) == systemObj.nStates,...
-    'simulate:system:sketch:state',...
-    'Input argument "state" must be a %d x 1 real number.',systemObj.nStates)
-state = state(:);
-
-assert(isnumeric(time) && isreal(time) && isequal(size(time),[1,1]),...
-    'simulate:system:sketch:time',...
-    'Input argument "time" must be a 1 x 1 real number.')
+%% Apply default values
+if nargin < 2 || isempty(time), time = systemObj.time; end
+if nargin < 3 || isempty(state), state = systemObj.state; end
 
 %% Initialize
 % Create Figure

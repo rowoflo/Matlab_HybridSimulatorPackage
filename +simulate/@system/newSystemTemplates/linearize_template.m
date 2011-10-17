@@ -46,6 +46,9 @@ function [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
 %   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
+%% Apply default values
+
+
 %% Parameters
 
 

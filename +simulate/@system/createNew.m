@@ -214,7 +214,7 @@ assert(isnumeric(phaseStatePairs) && isreal(phaseStatePairs) && ...
     '<= %d.'],nStates)
 
 %% Parameters
-versionNumber = '1.1';
+version = simulate.system.currentVersion;
 
 systemClassPath = fileparts(which('simulate.system'));
 templateFolderName = 'newSystemTemplates';
@@ -308,7 +308,7 @@ edit(testDocPath);
                 if ~ischar(aLine),   break,   end
                 aLine = regexprep(aLine,'DD-MMM-YYYY',upper(date)); % Sets the current date
                 aLine = regexprep(aLine,'FULL_NAME',fullName); % Set the author name
-                aLine = regexprep(aLine,'VERSION_NUMBER',versionNumber); % Set the version number
+                aLine = regexprep(aLine,'VERSION_STR',version); % Set the version number
                 aLine = regexprep(aLine,'PACKAGE_NAME_D_SYSTEM_NAME',packageDsystemName); % Set the package name and system name with a dot between them
                 aLine = regexprep(aLine,'PACKAGE_NAME_C_SYSTEM_NAME',packageCsystemName); % Set the package name and system name with a colon between them
                 aLine = regexprep(aLine,'NECESSARY_PACKAGE',necessaryPackage); % Set the package name under necessary packages
