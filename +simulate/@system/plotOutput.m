@@ -68,7 +68,7 @@ set(systemObj.outputAxisHandle,'NextPlot','replacechildren');
 %% Plot Output
 if ~isempty(outputTape)
     if isempty(systemObj.outputTapeGraphicsHandle) || ~all(ishghandle(systemObj.outputTapeGraphicsHandle)) % Create new lines
-        systemObj.outputTapeGraphicsHandle = plot(systemObj.outputAxisHandle,[timeTape time],[outputTape outputTape],systemObj.outputGraphicsProperties{:});
+        systemObj.outputTapeGraphicsHandle = plot(systemObj.outputAxisHandle,[timeTape time],[outputTape outputTape(:,end)],systemObj.outputGraphicsProperties{:});
         for iOutput = 1:systemObj.nOutputs
             set(systemObj.outputTapeGraphicsHandle(iOutput,1),'DisplayName',systemObj.outputNames{iOutput});
         end

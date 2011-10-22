@@ -85,6 +85,7 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     % ODE Solver
     odeSolver = @ode113; % (ODE function handle) ODE solver function handle.
     odeOptions % (ODE options structure) Stores the options of the ODE solver. See "odeset" and "odeget".
+    zeroSize = 1e6*eps; % (1 x 1 positive real number) Used to set small numbers to zero. Absolute value of a number than this will be set to zero.
     
     % Control Properties
     openLoopControl = false; % (1 x 1 logical) Determines if open-loop control is used or closed loop control.

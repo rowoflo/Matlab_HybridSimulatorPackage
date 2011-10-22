@@ -1,10 +1,10 @@
-function plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,varargin)
+function plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,outputTape,varargin)
 % The "plot" method plots the input and state history of the system or
 % plots the given state and input vs. the given time.
 %
 % SYNTAX:
 %   systemObj.plot()
-%   systemObj.plot(time,state,timeTapeC,stateTape,timeTapeD,inputTape)
+%   systemObj.plot(time,state,timeTapeC,stateTape,timeTapeD,inputTape,outputTape)
 %   systemObj.plot(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
@@ -28,6 +28,9 @@ function plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,varar
 %
 %   inputTape - (? x ? number) [systemObj.inputTape] 
 %       The input tape used for plotting
+%
+%   outputTape - (? x ? number) [systemObj.outputTape] 
+%       The output tape used for plotting
 %
 % PROPERTIES:
 %   Properties are not currently passed to anything right now.
@@ -56,6 +59,7 @@ if nargin < 4, timeTapeC = systemObj.timeTapeC; end
 if nargin < 5, stateTape = systemObj.stateTape; end
 if nargin < 4, timeTapeD = systemObj.timeTapeD; end
 if nargin < 6, inputTape = systemObj.inputTape; end
+if nargin < 7, outputTape = systemObj.outputTape; end
 
 % Check arguments for errors
 assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
@@ -90,6 +94,10 @@ nTimeTapeD = length(timeTapeD);
 assert(isempty(inputTape) || (isnumeric(inputTape) && isequal(size(inputTape),[systemObj.nInputs,nTimeTapeD])),...
     'simulate:system:plot:inputTape',...
     'Input argument "inputTape" must be a %d x %d matrix of numbers.',systemObj.nInputs,nTimeTapeD)
+
+assert(isempty(outputTape) || (isnumeric(outputTape) && isequal(size(outputTape),[systemObj.nOutputs,nTimeTapeD])),...
+    'simulate:system:plot:outputTape',...
+    'Input argument "outputTape" must be a %d x %d matrix of numbers.',systemObj.nOutputs,nTimeTapeD)
 
 %% Plot
 if systemObj.plotStateFlag

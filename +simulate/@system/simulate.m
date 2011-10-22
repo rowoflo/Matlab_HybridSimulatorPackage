@@ -160,11 +160,12 @@ if isempty(options)
 else
     options = odeset(options{:},'Events',@odeEventsFunc);
 end
+zeroSize = systemObj.zeroSize;
 
 % Time variables
 initialTime = timeInterval(1);
 finalTime = timeInterval(end);
-timeVector = linspace(initialTime,finalTime,systemObj.timeStep);
+timeVector = initialTime:systemObj.timeStep:finalTime;
 nTimePoints = length(timeVector);
 tD = initialTime;
 ts = systemObj.timeStep;
@@ -185,6 +186,7 @@ timeTapeC(1, 1) = initialTime;
 stateTape(:, 1) = initialState;
 flowTimeTape(1, 1) = initialFlowTime;
 jumpCountTape(1, 1) = initialJumpCount;
+nTimePointsC = length(timeTapeC);
 jC = initialJumpCount;
 
 cntD = 1; % Discrete
@@ -194,6 +196,7 @@ outputTape = nan(systemObj.nOutputs,nTimePoints+catSize);
 timeTapeD(1, 1) = initialTime;
 inputTape(:, 1) = initialInput;
 outputTape(:, 1) = initialOutput;
+nTimePointsD = length(timeTapeD);
 jD = initialJumpCount;
 
 % ODE arguements
@@ -219,8 +222,19 @@ end
 %% Integrate
 while 1
     [T,Q,Te,~,Ie] = systemObj.odeSolver(@odeInputFunc,TSpan,QPlus,options);
-    discreteUpdateWJump = all(ismember([2;4],Ie));
-    if ~isempty(Te)
+    if ~isempty(Te(Ie == 2)) && ...
+            any(abs(Te(Ie == 2) - timeTapeC([0 diff(jumpCountTape)] == 1)) < zeroSize) % Remove repeated jump
+        Te = Te(Ie ~= 2);
+        Ie = Ie(Ie ~= 2);
+    end
+    Q(abs(Q) <= zeroSize) = 0; % Set Q's close to zero to zero
+    discreteUpdateWJump = all(ismember([2;4],Ie)); % Mark to do a discrete update with a jump
+    if any(Ie == 4) % Set T's with updates to update time
+        [~,ind] = min(abs(Te(Ie == 4) - timeVector));
+        T(T == Te(Ie == 4)) = timeVector(ind);
+        Te(Te == Te(Ie == 4)) = timeVector(ind);
+    end
+    if ~isempty(Te) % Only progress to next event
         T = T(T <= min(Te));
         Q = Q(T <= min(Te),:);
         Te = Te(Te == min(Te));
@@ -230,17 +244,17 @@ while 1
     % Continuous time update
     nT = size(T,1);
     tC = T(end);
-    tCDelta = tDNext - tC; if abs(tCDelta) <= 1e3*eps, tCDelta = 0; end
+    tCDelta = tDNext - tC; %tCDelta(abs(tCDelta) <= zeroSize) = 0;
     xC = Q(end, 1:end-1)';
     fC = Q(end, end);
     cntCPrev = cntC;
     cntC = cntC + nT - 1;
-    nTimePointsC = length(timeTapeC);
     if cntC > nTimePointsC
         timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
         stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
         flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
         jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
+        nTimePointsC = length(timeTapeC);
     end
     timeTapeC(1, cntCPrev+1:cntC) = T(2:end)';
     stateTape(:, cntCPrev+1:cntC) = Q(2:end, 1:end-1)';
@@ -249,7 +263,8 @@ while 1
     
     % Discrete time update
     if any(Ie == 4)
-        tD = T(end);
+        [~,ind] = min(abs(T(end) - timeVector));
+        tD = timeVector(ind);
         tDNext = tD + ts;
         xD = Q(end, 1:end-1)';
         fD = Q(end, end);
@@ -258,11 +273,11 @@ while 1
         yD = systemObj.sensor(tD,xD,fD,jD);
         
         cntD = cntD + 1;
-        nTimePointsD = length(timeTapeD);
         if cntD > nTimePointsD
             timeTapeD = [timeTapeD nan(1,catSize)]; %#ok<AGROW>
             inputTape = [inputTape nan(systemObj.nInputs,catSize)]; %#ok<AGROW>
             outputTape = [outputTape nan(systemObj.nOutputs,catSize)]; %#ok<AGROW>
+            nTimePointsD = length(timeTapeD);
         end
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
@@ -307,7 +322,7 @@ while 1
             break;
             
         elseif ~any(Ie == 1) && ~any(Ie == 2) && any(Ie == 4) % Time sample hit
-            TSpan(1) = T(end);
+            TSpan(1) = tD;
             QPlus = Q(end, :)';
             continue;
             
@@ -335,12 +350,12 @@ while 1
             
             % Continuous time
             cntC = cntC + 1;
-            nTimePointsC = length(timeTapeC);
             if cntC > nTimePointsC
                 timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
                 stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
                 flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
                 jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
+                nTimePointsC = length(timeTapeC);
             end
             timeTapeC(1, cntC) = tC;
             stateTape(:, cntC) = XPlus;
@@ -349,7 +364,7 @@ while 1
             
             % Discrete time
             if discreteUpdateWJump
-                tD = Te(Ie == 2);
+                tD = tC;
                 tDNext = tD + ts;
                 xD = XPlus;
                 fD = TFlowPlus;
@@ -358,11 +373,11 @@ while 1
                 yD = systemObj.sensor(tD,xD,fD,jD);
                 
                 cntD = cntD + 1;
-                nTimePointsD = length(timeTapeD);
                 if cntD > nTimePointsD
                     timeTapeD = [timeTapeD nan(1,catSize)]; %#ok<AGROW>
                     inputTape = [inputTape nan(systemObj.nInputs,catSize)]; %#ok<AGROW>
                     outputTape = [outputTape nan(systemObj.nOutputs,catSize)]; %#ok<AGROW>
+                    nTimePointsD = length(timeTapeD);
                 end
                 timeTapeD(1, cntD) = tD;
                 inputTape(:, cntD) = uD;

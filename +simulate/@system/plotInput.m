@@ -68,7 +68,7 @@ set(systemObj.inputAxisHandle,'NextPlot','replacechildren');
 %% Plot Input
 if ~isempty(inputTape)
     if isempty(systemObj.inputTapeGraphicsHandle) || ~all(ishghandle(systemObj.inputTapeGraphicsHandle)) % Create new lines
-        systemObj.inputTapeGraphicsHandle = plot(systemObj.inputAxisHandle,[timeTape time],[inputTape inputTape],systemObj.inputGraphicsProperties{:});
+        systemObj.inputTapeGraphicsHandle = plot(systemObj.inputAxisHandle,[timeTape time],[inputTape inputTape(:,end)],systemObj.inputGraphicsProperties{:});
         for iInput = 1:systemObj.nInputs
             set(systemObj.inputTapeGraphicsHandle(iInput,1),'DisplayName',systemObj.inputNames{iInput});
         end
