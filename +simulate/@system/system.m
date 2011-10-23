@@ -78,7 +78,7 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     sketchAxisProperties = {}; % (1 x ? cell array) Sketch plot axis properties to be applied to the sketch method. (e.g. {'FontWeight','bold'})
     sketchGraphicsHandles = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the system animation drawing.
     
-    setPriority = 'jump'; % ('flow','jump', or 'random') Sets the priority to what takes place if the state is both in the flow set and the jump set.
+    setPriority = 'jump'; % ('flow','jump', or 'random') Sets the priority to what takes place if the state is in both the flow set and the jump set.
     maxFlowTime = inf; % (1 x 1 positive number) Maximum flow time for the simulation.
     maxJumpCount = inf; % (1 x 1 positive integer) Maximum jump count for the simulation.
     
@@ -275,22 +275,6 @@ methods
             'Property "phaseStatePairs" must be ? x 2 matrix of integers between 1 and %d.',systemObj.nStates)
 
         systemObj.phaseStatePairs = phaseStatePairs;
-    end
-    
-    function set.setPriority(systemObj,setPriority)
-        % Overloaded assignment operator function for the "setPriority" property.
-        %
-        % SYNTAX:
-        %   systemObj.setPriority = setPriority
-        %
-        % NOTES:
-        %
-        %-----------------------------------------------------------------------
-        assert(ischar(setPriority) && ismember(setPriority,{'flow','jump','random'}),...
-            'simulate:system:set:setPriority',...
-            'Property "setPriority" must be either ''flow'', ''jump'', or ''random''.')
-
-        systemObj.setPriority = setPriority;
     end
 
     function set.maxFlowTime(systemObj,maxFlowTime)
@@ -585,9 +569,9 @@ methods (Abstract = true)
     % The "flowMap" method sets the continuous time dynamics of the system.
     %
     % SYNTAX:
-    %   dStates = systemObj.flowMap(time,state,input)
-    %   dStates = systemObj.flowMap(time,state,input,flowTime)
-    %   dStates = systemObj.flowMap(time,state,input,flowTime,jumpCount)
+    %   [stateDot,setPriority] = systemObj.flowMap(time,state,input)
+    %   [stateDot,setPriority] = systemObj.flowMap(time,state,input,flowTime)
+    %   [stateDot,setPriority] = systemObj.flowMap(time,state,input,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -609,18 +593,22 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   stateDot - (? x 1 number)
+    %   stateDot - (? x 1 real number)
     %       Updated state derivatives. A "systemObj.nStates" x 1 vector.
     %
+    %   setPriority - ('flow','jump', or 'random') 
+    %       Sets the priority to what takes place if the state is in both
+    %       the flow set and the jump set.
+    %
     %---------------------------------------------------------------------------
-    stateDot = flowMap(systemObj,time,state,input,flowTime,jumpCount)
+    [stateDot,setPriority] = flowMap(systemObj,time,state,input,flowTime,jumpCount)
     
     % The "jumpMap" method sets the discrete time dynamics of the system.
     %
     % SYNTAX:
-    %   statePlus = systemObj.jumpMap(time,state,input)
-    %   statePlus = systemObj.jumpMap(time,state,input,flowTime)
-    %   statePlus = systemObj.jumpMap(time,state,input,flowTime,jumpCount)
+    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input)
+    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input,flowTime)
+    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -642,11 +630,18 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   statePlus - (? x 1 number)
+    %   statePlus - (? x 1 real number)
     %       Updated states. A "systemObj.nStates" x 1 vector.
     %
+    %   timePlus - (1 x 1 real number)
+    %       Updated time.
+    %
+    %   setPriority - ('flow','jump', or 'random') 
+    %       Sets the priority to what takes place if the state is in both
+    %       the flow set and the jump set.
+    %
     %---------------------------------------------------------------------------
-    statePlus = jumpMap(systemObj,time,state,input,flowTime,jumpCount)
+    [statePlus,timePlus,setPriority] = jumpMap(systemObj,time,state,input,flowTime,jumpCount)
     
     % The "flowSet" method sets the set where continuous time dynamics take
     % place.
@@ -706,7 +701,7 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   jumpSetValue - (1 x 1 number)
+    %   jumpSetValue - (1 x 1 real number)
     %      A value that defining if the system is in the jump set.
     %      Positive values are in the set and negative values are outside
     %      the set.
@@ -739,7 +734,7 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   input - (? x 1 number)
+    %   input - (? x 1 real number)
     %       Input values for the plant. A "systemObj.nInputs" x 1 vector.
     %
     %---------------------------------------------------------------------------
@@ -804,7 +799,7 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   output - (? x 1 number)
+    %   output - (? x 1 real number)
     %       Output values for the plant. A "systemObj.nOutputs" x 1 vector.
     %
     %---------------------------------------------------------------------------
@@ -829,19 +824,19 @@ methods (Abstract = true)
     %       vector. 
     %
     % OUTPUTS:
-    %   A - (? x ? number)
+    %   A - (? x ? real number)
     %       Linearized A matrix (i.e. df/dx). A "systemObj.nStates" x
     %       "systemObj.nStates" matrix.
     %
-    %   B - (? x ? number)
+    %   B - (? x ? real number)
     %       Linearized B matrix (i.e. df/du). A "systemObj.nStates" x 
     %       "systemObj.nInputs" matrix.
     %
-    %   C - (? x ? number)
+    %   C - (? x ? real number)
     %       Linearized C matrix (i.e. dh/dx). A "systemObj.nOutputs" x
     %       "systemObj.nStates" matrix.
     %
-    %   D - (? x ? number)
+    %   D - (? x ? real number)
     %       Linearized D matrix (i.e. dh/du). A "systemObj.nOutputs" x
     %       "systemObj.nInputs" matrix.
     %
@@ -899,16 +894,13 @@ end
 %-------------------------------------------------------------------------------
 
 %% Methods in separte files ----------------------------------------------------
-methods (Access = private)
+methods (Access = protected)
+    input = policy(systemObj,time,state,flowTime,jumpCount)
     plotState(systemObj,time,state,timeTapeC,stateTape,varargin)
     plotInput(systemObj,time,timeTapeD,inputTape,varargin)
     plotOutput(systemObj,time,timeTapeD,outputTape,varargin)
     plotPhase(systemObj,time,state,timeTapeC,stateTape,varargin)
     plotSketch(systemObj,state,time,varargin)
-end
-
-methods (Access = protected)
-    input = policy(systemObj,time,state,flowTime,jumpCount)
 end
 
 methods (Access = public)
@@ -940,7 +932,7 @@ methods (Static = true)
         % NOTES:
         %
         %-----------------------------------------------------------------------
-        version = '1.2';
+        version = '1.3';
     end
 end
 %------------------------------------------------------------------------------- 

@@ -30,6 +30,9 @@ function jumpSetValue = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
 %      the set.
 %
 % NOTES:
+%   It works best when the function outputs a series of smooth decreasing or
+%   increasing values instead of boolean values for being in the set or out
+%   of the set.
 %
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate, +simulate
@@ -38,7 +41,7 @@ function jumpSetValue = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Apply default values

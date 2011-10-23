@@ -1,10 +1,10 @@
-function stateDot = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
+function [stateDot,setPriority] = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
 % The "flowMap" method sets the continuous time dynamics of the system.
 %
 % SYNTAX:
-%   stateDot = flowMap(pendulumObj,time,state,input)
-%   stateDot = flowMap(pendulumObj,time,state,input,flowTime)
-%   stateDot = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
+%   [stateDot,setPriority] = flowMap(pendulumObj,time,state,input)
+%   [stateDot,setPriority] = flowMap(pendulumObj,time,state,input,flowTime)
+%   [stateDot,setPriority] = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -29,6 +29,10 @@ function stateDot = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
 %   stateDot - (? x 1 number)
 %       Updated state derivatives. A "pendulumObj.nStates" x 1 vector.
 %
+%   setPriority - ('flow','jump', or 'random')
+%       Sets the priority to what takes place if the state is in both
+%       the flow set and the jump set.
+%
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
@@ -38,12 +42,13 @@ function stateDot = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Apply default values
 if nargin < 5, flowTime = 0; end
 if nargin < 6, jumpCount = 0; end
+setPriority = pendulumObj.setPriority;
 
 %% Parameters
 l = pendulumObj.l;

@@ -30,12 +30,10 @@ function sketchGraphics(pendulumObj,state,time,varargin)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
 
-%% Check Input Arguments
-
-% Apply default values
+%% Apply default values
 if nargin < 2 || isempty(state), state = pendulumObj.state; end
 if nargin < 3 || isempty(time), time = pendulumObj.time; end
 
@@ -49,7 +47,6 @@ pendulumColor = 'b';
 
 %% Variables
 theta = state(1);
-
 
 %% Initialize Sketch
 if isempty(pendulumObj.sketchGraphicsHandles) || all(~ishghandle(pendulumObj.sketchGraphicsHandles))

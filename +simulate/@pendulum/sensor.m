@@ -36,7 +36,7 @@ function output = sensor(pendulumObj,time,state,flowTime,jumpCount)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Apply default values
@@ -53,6 +53,6 @@ if nargin < 6, jumpCount = 0; end
 
 
 %% Set output
-output = zeros(pendulumObj.nOutputs,1);
+output = state;
 
 end

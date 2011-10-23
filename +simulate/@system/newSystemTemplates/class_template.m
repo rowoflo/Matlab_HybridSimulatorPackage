@@ -222,8 +222,8 @@ end
 
 %% Methods in separte files ----------------------------------------------------
 methods (Access = public) % Superclass Abstract Methods
-    stateDot = flowMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
-    statePlus = jumpMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
+    [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
+    [statePlus,timePlus,setPriority] = jumpMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
     flowState = flowSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     jumpState = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     

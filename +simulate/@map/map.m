@@ -47,7 +47,7 @@ methods
         % Constructor function for the "map" class.
         %
         % SYNTAX:
-        %   mapObj = map(features)
+        %   mapObj = map(limits,cellSize,features)
         %
         % INPUTS:
         %   limits - (1 x 4 real number) [zeros(1,4)]

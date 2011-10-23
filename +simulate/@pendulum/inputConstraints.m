@@ -1,9 +1,9 @@
-function inputOut = inputConstraint(pendulumObj,inputIn)
-% The "inputConstraint" method constrains the input values for the
+function inputOut = inputConstraints(pendulumObj,inputIn)
+% The "inputConstraints" method constrains the input values for the
 % system.
 %
 % SYNTAX:
-%   inputOut = pendulumObj.inputConstraint(inputIn)
+%   inputOut = pendulumObj.inputConstraints(inputIn)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -25,7 +25,7 @@ function inputOut = inputConstraint(pendulumObj,inputIn)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Parameters

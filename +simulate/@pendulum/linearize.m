@@ -43,8 +43,11 @@ function [A,B,C,D] = linearize(pendulumObj,stateOP,inputOP)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
+
+%% Apply default values
+
 
 %% Parameters
 

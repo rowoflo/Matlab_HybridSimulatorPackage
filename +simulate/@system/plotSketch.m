@@ -63,7 +63,9 @@ if isempty(systemObj.sketchAxisHandle) || ~ishghandle(systemObj.sketchAxisHandle
         set(systemObj.sketchAxisHandle,systemObj.sketchAxisProperties{:});
     end
 end
-title(systemObj.sketchAxisHandle,[systemObj.name ' Sketch Plot (Time = ' num2str(time,'%.1f') ')'])
+if ~isnan(time)
+    title(systemObj.sketchAxisHandle,[systemObj.name ' Sketch Plot (Time = ' num2str(time,'%.1f') ')'])
+end
 
 %% Sketch
 systemObj.sketchGraphics(state,time,varargin{:});

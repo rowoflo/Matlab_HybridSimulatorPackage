@@ -1,6 +1,5 @@
 classdef pendulum < simulate.system
-% The "simulate.pendulum" class simulates the canonical control system of
-% the pendulum.
+% The "simulate.pendulum" class ... TODO: Add description
 %
 % NOTES:
 %   To get more information on this class type "doc simulate.pendulum" into the
@@ -9,18 +8,18 @@ classdef pendulum < simulate.system
 % NECESSARY FILES AND/OR PACKAGES:
 %   +simulate, +simulate
 %
-% SEE ALSO:
+% SEE ALSO: TODO: Add see alsos
 %
 % AUTHOR:
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
-properties (Access = private, Hidden = true)
-    superVersion = '1.0' % (string) Current version of the super class.
+properties (Constant = true, Hidden = true)
+    systemVersion = '1.3' % (string) Current version of the super class.
 end
 
 properties (SetAccess = private) % Superclass Abstract Properties
@@ -45,7 +44,7 @@ methods
         % Constructor function for the "pendulum" class.
         %
         % SYNTAX:
-        %   pendulumObj = pendulum(x0,t0,dt)
+        %   pendulumObj = pendulum(x0,t0,dt,l,m,b)
         %
         % INPUTS:
         %   x0 - (2 x 1 number) [zeros(2,1)]
@@ -75,7 +74,7 @@ methods
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(0,3,nargin))
+        error(nargchk(0,6,nargin))
 
         % Apply default values
         if nargin < 1, x0 = zeros(2,1); end
@@ -116,14 +115,14 @@ methods
         pendulumObj = pendulumObj@simulate.system(dt,t0,x0,nInputs,nOutputs);
         
         % Check class compatibility with super class
-        assert(strcmp(pendulumObj.systemVersion,pendulumObj.superVersion),...
+        assert(strcmp(pendulumObj.systemVersion,simulate.system.currentVersion),...
             'simulate:pendulum:version',...
             ['The simulate.system class has been updated to version %s ',... 
             'and the pendulum class is only compatible with version %s.'],...
-            pendulumObj.systemVersion,pendulumObj.superVersion)
+            simulate.system.currentVersion,pendulumObj.systemVersion)
         
         % Assign properties
-        pendulumObj.name = 'pendulum';
+        pendulumObj.name = 'Pendulum';
         pendulumObj.stateNames = {'theta'; 'thetaDot'};
         pendulumObj.inputNames = {'torque'};
         pendulumObj.outputNames = {'theta'; 'thetaDot'};
@@ -131,7 +130,7 @@ methods
         pendulumObj.l = l;
         pendulumObj.m = m;
         pendulumObj.b = b;
-        pendulumObj.sketchFlag = true;
+        pendulumObj.plotSketchFlag = true;
         
     end
 end
@@ -254,16 +253,15 @@ end
 
 %% Methods in separte files ----------------------------------------------------
 methods (Access = public) % Superclass Abstract Methods
-    stateDot = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
-    statePlus = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
+    [stateDot,setPriority] = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
+    [statePlus,timePlus,setPriority] = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
     flowState = flowSet(pendulumObj,time,state,flowTime,jumpCount)
     jumpState = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
     
     input = controller(pendulumObj,time,state,flowTime,jumpCount)
     stateHat = observer(pendulumObj,time,state,input,flowTime,jumpCount)
     output = sensor(pendulumObj,time,state,flowTime,jumpCount)
-    stateOut = stateConstraint(pendulumObj,stateIn)
-    inputOut = inputConstraint(pendulumObj,inputIn)
+    inputOut = inputConstraints(pendulumObj,inputIn)
     [A,B,C,D] = linearize(pendulumObj,stateOP,inputOP)
     sketchGraphics(pendulumObj,state,time,varargin)
 end

@@ -162,16 +162,23 @@ else
 end
 zeroSize = systemObj.zeroSize;
 
+% Sim variables
+breakFlag = false;
+
 % Time variables
 initialTime = timeInterval(1);
 finalTime = timeInterval(end);
 timeVector = initialTime:systemObj.timeStep:finalTime;
 nTimePoints = length(timeVector);
+tD = initialTime;
+ts = systemObj.timeStep;
+tDNext = tD + ts;
+flowTimeOffset = initialFlowTime - initialTime;
 
 % Initial input/output variables
 initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialFlowTime,initialJumpCount));
 initialOutput = systemObj.sensor(initialTime,initialState,initialFlowTime,initialJumpCount);
-uD = initialInput; % Current input. Updated discretely.
+uD = initialInput;
 
 % Tape variables
 cntC = 1; % Continuous
@@ -184,6 +191,7 @@ stateTape(:, 1) = initialState;
 flowTimeTape(1, 1) = initialFlowTime;
 jumpCountTape(1, 1) = initialJumpCount;
 nTimePointsC = length(timeTapeC);
+jC = initialJumpCount;
 
 cntD = 1; % Discrete
 timeTapeD = nan(1,nTimePoints+catSize);
@@ -193,18 +201,11 @@ timeTapeD(1, 1) = initialTime;
 inputTape(:, 1) = initialInput;
 outputTape(:, 1) = initialOutput;
 nTimePointsD = length(timeTapeD);
+jD = initialJumpCount;
 
-% Sim variables
-breakFlag = false;
-tC = initialTime; % Current continuous time
-tD = initialTime; % Current discrete time
-xC = initialState; % Currrent continuous state
-fC = initialFlowTime; % Current continuous flow time
-jC = initialJumpCount; % Current continuous jump count
-ts = systemObj.timeStep; % Sampling time
-tDNext = tD + ts; % Next sample time
-fCDelta = fC - tC; % Offset between current time and current flow time
-tF = finalTime; % Final time of simulation
+% ODE arguements
+TSpan = [initialTime finalTime];
+XPlus = initialState; % General state vector with control parameters
 
 % Figure variables
 stopFlag = false;
@@ -222,50 +223,58 @@ if systemObj.graphicsFlag
         'init');
 end
 
-%% Simulate
+%% Integrate
 while 1
-    flowSetValue = systemObj.flowSet(tC,xC,fC,jC);
-    jumpSetValue = systemObj.jumpSet(tC,xC,fC,jC);
-    methodStr = updateMethod(flowSetValue,jumpSetValue);
-    
-    switch methodStr
-        case 'flow'
-            [T,X,F] = flow(tC,xC,fC);
-            nT = size(T,2);
-            cntCPrev = cntC;
-            cntC = cntC + nT - 1;
-            if cntC > nTimePointsC
-                timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
-                stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
-                flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
-                jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
-                nTimePointsC = length(timeTapeC);
-            end
-            tC = T(1, end);
-            xC = X(:, end);
-            fC = F(1, end);
-            timeTapeC(1, cntCPrev+1:cntC) = T(1, 2:end);
-            stateTape(:, cntCPrev+1:cntC) = X(:, 2:end);
-            flowTimeTape(1, cntCPrev+1:cntC) = F(1, 2:end);
-            jumpCountTape(1, cntCPrev+1:cntC) = jC*ones(1,nT-1);
-            
-        case 'jump'
-            [T,X,J] = jump(tC,xC,jC);
-            tC = T;
-            xC = X;
-            jC = J;
-            
-        case 'stop'
-            breakFlag = true;
-            
-        otherwise
-            error('simulate:system:simulate:updateMethod',...
-                ['Invalid update method: %s. ',...
-                'Property "setPriority" must be either ''flow'', ''jump'', or ''random''.'''],updateMethod(flowSetFlag,jumpSetFlag))
+    [T,X,Te,~,Ie] = systemObj.odeSolver(@odeInputFunc,TSpan,XPlus,options);
+    if ~isempty(Te(Ie == 2)) && ...
+            any(abs(Te(Ie == 2) - timeTapeC([0 diff(jumpCountTape)] == 1)) < zeroSize) % Remove repeated jump
+        Te = Te(Ie ~= 2);
+        Ie = Ie(Ie ~= 2);
+    end
+    X(abs(X) <= zeroSize) = 0; % Set X's close to zero to zero
+    discreteUpdateWJump = all(ismember([2;4],Ie)); % Mark to do a discrete update with a jump
+    if any(Ie == 4) % Set T's with updates to update time
+        [~,ind] = min(abs(Te(Ie == 4) - timeVector));
+        T(T == Te(Ie == 4)) = timeVector(ind);
+        Te(Te == Te(Ie == 4)) = timeVector(ind);
+    end
+    if ~isempty(Te) % Only progress to next event
+        T = T(T <= min(Te));
+        X = X(T <= min(Te),:);
+        Te = Te(Te == min(Te));
+        Ie = Ie(Te == min(Te));
     end
     
-    % Sample
-    if min(abs(T(1, end) - timeVector)) == 0
+    % Continuous time update
+    nT = size(T,1);
+    tC = T(end);
+    xC = X(end, :)';
+    fC = tC + flowTimeOffset;
+    cntCPrev = cntC;
+    cntC = cntC + nT - 1;
+    if cntC > nTimePointsC
+        timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
+        stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
+        flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
+        jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
+        nTimePointsC = length(timeTapeC);
+    end
+    timeTapeC(1, cntCPrev+1:cntC) = T(2:end)';
+    stateTape(:, cntCPrev+1:cntC) = X(2:end, :)';
+    flowTimeTape(1, cntCPrev+1:cntC) = fC;
+    jumpCountTape(1, cntCPrev+1:cntC) = jC*ones(1,nT-1);
+    
+    % Discrete time update
+    if any(Ie == 4)
+        [~,ind] = min(abs(T(end) - timeVector));
+        tD = timeVector(ind);
+        tDNext = tD + ts;
+        xD = X(end, :)';
+        fD = fC;
+        jD = jC;
+        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,fD,jD));
+        yD = systemObj.sensor(tD,xD,fD,jD);
+        
         cntD = cntD + 1;
         if cntD > nTimePointsD
             timeTapeD = [timeTapeD nan(1,catSize)]; %#ok<AGROW>
@@ -273,18 +282,10 @@ while 1
             outputTape = [outputTape nan(systemObj.nOutputs,catSize)]; %#ok<AGROW>
             nTimePointsD = length(timeTapeD);
         end
-        tD = T(1, end);
-        tDNext = tD + ts;
-        xD = X(:, end)';
-        fD = fC;
-        jD = jC;
-        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,fD,jD));
-        yD = systemObj.sensor(tD,xD,fD,jD);
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
         outputTape(:, cntD) = yD;
         
-        % Update graphics
         if systemObj.graphicsFlag
             odeGraphics(...
                 timeTapeC(1, 1:cntC),...
@@ -294,13 +295,121 @@ while 1
                 outputTape(:, 1:cntD),...
                 'update');
         end
+        if breakFlag
+            break;
+        end
     end
     
-    % Break
-    if breakFlag || tC == tF
+    % Finish simulating forward
+    if tC == finalTime || stopFlag
+        break;
+    end
+    
+    % Select set map to use
+    if ~isempty(Ie)
+        if ~any(Ie == 1) && any(Ie == 2) && ~any(Ie == 4) % In both flow set and jump set
+            if strcmp(systemObj.setPriority,'random')
+                if rand < .5
+                    setMapToUse = 'flow';
+                else
+                    setMapToUse = 'jump';
+                end
+            else
+                setMapToUse = systemObj.setPriority;
+            end
+            
+        elseif any(Ie == 1) && ~any(Ie == 2) % Left flow set
+            setMapToUse = 'flow';
+            
+        elseif ~any(Ie == 1) && any(Ie == 2) % Enter jump set
+                setMapToUse = 'jump';
+                
+        elseif ~any(Ie == 1) && ~any(Ie == 2) && any(Ie == 3) % Max flow time hit
+            break;
+            
+        elseif ~any(Ie == 1) && ~any(Ie == 2) && any(Ie == 4) % Time sample hit
+            TSpan(1) = tD;
+            XPlus = X(end, :)';
+            continue;
+            
+        else
+            error('simulate:system:simulate:selectSetMap',...
+                'Invalid number of simulation events: %d',numel(Ie))
+        end
+    else
+        % Stop button pushed
         break
     end
     
+    switch setMapToUse
+        case 'flow' % Left flow set
+            break;
+            
+        case 'jump' % Enter jump set
+            
+            % Update
+            xC = systemObj.jumpMap(tC,xC,uD,fC,jD);
+            fC = 0;
+            jC = jC + 1;
+            flowTimeOffset = -tC;
+            TSpan(1) = tC;
+            XPlus = xC;
+            
+            % Continuous time
+            cntC = cntC + 1;
+            if cntC > nTimePointsC
+                timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
+                stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
+                flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
+                jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
+                nTimePointsC = length(timeTapeC);
+            end
+            timeTapeC(1, cntC) = tC;
+            stateTape(:, cntC) = xC;
+            flowTimeTape(1, cntC) = fC;
+            jumpCountTape(1, cntC) = jC;
+            
+            % Discrete time
+            if discreteUpdateWJump
+                tD = tC;
+                tDNext = tD + ts;
+                xD = xC;
+                fD = fC;
+                jD = jC;
+                uD = systemObj.inputConstraints(systemObj.policy(tD,xD,fD,jD));
+                yD = systemObj.sensor(tD,xD,fD,jD);
+                
+                cntD = cntD + 1;
+                if cntD > nTimePointsD
+                    timeTapeD = [timeTapeD nan(1,catSize)]; %#ok<AGROW>
+                    inputTape = [inputTape nan(systemObj.nInputs,catSize)]; %#ok<AGROW>
+                    outputTape = [outputTape nan(systemObj.nOutputs,catSize)]; %#ok<AGROW>
+                    nTimePointsD = length(timeTapeD);
+                end
+                timeTapeD(1, cntD) = tD;
+                inputTape(:, cntD) = uD;
+                outputTape(:, cntD) = yD;
+                
+                if systemObj.graphicsFlag
+                    odeGraphics(...
+                        timeTapeC(1, 1:cntC),...
+                        stateTape(:, 1:cntC),...
+                        timeTapeD(1, 1:cntD),...
+                        inputTape(:, 1:cntD),...
+                        outputTape(:, 1:cntD),...
+                        'update');
+                end
+            end
+            
+            if jC >= systemObj.maxJumpCount
+                breakFlag = true;
+            end
+            
+            
+        otherwise
+            error('simulate:system:simulate:setMapToUse',...
+                'Unknown property value for "setPriority": %s',setMapToUse)
+    end
 end
 
 %% Output
@@ -333,70 +442,15 @@ if systemObj.graphicsFlag
     end
 end
 
-%% Nested Functions ------------------------------------------------------------
-%% Update Method Function
-    function methodStr = updateMethod(flowArg,jumpArg)
-        if flowArg >= 0 && jumpArg >= 0
-            if strcmp(systemObj.setPriority,'random')
-                if rand < .5
-                    methodStr = 'flow';
-                else
-                    methodStr = 'jump';
-                end
-            else
-                methodStr = systemObj.setPriority;
-            end
-        elseif flowArg >= 0
-            methodStr = 'flow';
-        elseif jumpAry >= 0
-            methodStr = 'jump';
-        else
-            methodStr = 'stop';
-        end
-        if stopFlag
-            methodStr = 'stop';
-        end
-    end
-
-%% Flow Function
-    function [t,x,f] = flow(t0,x0,f0)
-        [t,x,te,~,ie] = systemObj.odeSolver(@odeInputFunc,[t0 tF],x0,options);
-        if ~isempty(te(ie == 2)) && ...
-                any(abs(te(ie == 2) - timeTapeC([0 diff(jumpCountTape)] == 1)) < zeroSize) % Remove repeated jump
-            te = te(ie ~= 2);
-            ie = ie(ie ~= 2);
-        end
-        x(abs(x) <= zeroSize) = 0; % Set X's close to zero to zero
-        if any(ie == 4) % Set T's with updates to update time
-            [~,ind] = min(abs(te(ie == 4) - timeVector));
-            t(t == te(ie == 4)) = timeVector(ind);
-            te(te == te(ie == 4)) = timeVector(ind);
-        end
-        if ~isempty(te) % Only progress to next event
-            t = t(t <= min(te));
-            x = x(t <= min(te),:);
-        end
-        % Return
-        t = t';
-        x = x';
-        f = t - t0 + f0;
-    end
-
-%% Jump Function
-    function [t,x,j] = jump(t0,x0,j0)
-        [x,t,systemObj.setPriority] = systemObj.jumpMap(t0,x0,uD,fC,j0);
-        j = j0 + 1;
-    end
-
 %% ODE Input Function
     function dx = odeInputFunc(t,x)
-        f = t + fCDelta;
-        [dx,systemObj.setPriority] = systemObj.flowMap(t,x,uD,f,jC);
+        f = t + flowTimeOffset;
+        dx = systemObj.flowMap(t,x,uD,f,jC);
     end
 
 %% ODE Event Function
     function [value,isTerminal,direction] = odeEventsFunc(t,x)
-        f = t + fCDelta;
+        f = t + flowTimeOffset;
 
         value = [systemObj.flowSet(t,x,f,jC);...
             systemObj.jumpSet(t,x,f,jC);...

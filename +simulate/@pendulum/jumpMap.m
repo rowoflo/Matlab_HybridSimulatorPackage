@@ -1,10 +1,10 @@
-function statePlus = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
+function [statePlus,timePlus,setPriority] = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
 % The "jumpMap" method sets the discrete time dynamics of the system.
 %
 % SYNTAX:
-%   statePlus = jumpMap(pendulumObj,time,state,input)
-%   statePlus = jumpMap(pendulumObj,time,state,input,flowTime)
-%   statePlus = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
+%   [statePlus,timePlus,setPriority] = jumpMap(pendulumObj,time,state,input)
+%   [statePlus,timePlus,setPriority] = jumpMap(pendulumObj,time,state,input,flowTime)
+%   [statePlus,timePlus,setPriority] = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -29,6 +29,13 @@ function statePlus = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
 %   statePlus - (? x 1 number)
 %       Updated states. A "pendulumObj.nStates" x 1 vector.
 %
+%   timePlus - (1 x 1 real number)
+%       Updated time.
+%
+%   setPriority - ('flow','jump', or 'random')
+%       Sets the priority to what takes place if the state is in both
+%       the flow set and the jump set.
+%
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
@@ -38,12 +45,14 @@ function statePlus = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 01-OCT-2011
+%   Created 23-OCT-2011
 %-------------------------------------------------------------------------------
 
 %% Apply default values
 if nargin < 5, flowTime = 0; end
 if nargin < 6, jumpCount = 0; end
+timePlus = time;
+setPriority = pendulumObj.setPriority;
 
 %% Parameters
 
@@ -51,7 +60,7 @@ if nargin < 6, jumpCount = 0; end
 %% Variables
 
 
-%% Updates To Motion
+%% Updates Of Motion
 
 
 %% Output
