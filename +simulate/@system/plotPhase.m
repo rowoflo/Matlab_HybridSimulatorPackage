@@ -24,7 +24,7 @@ function plotPhase(systemObj,state,stateTape,varargin)
 %   +simulate
 %
 % SEE ALSO:
-%   plot.m | plotInput.m | plotOutput.m | plotState.m | plotSketch.m
+%   plot.m | plotState.m | plotInput.m | plotOutput.m | plotSketch.m
 %
 % AUTHOR:
 %   Rowland O'Flaherty
@@ -35,11 +35,14 @@ function plotPhase(systemObj,state,stateTape,varargin)
 
 %% Apply default values
 if nargin < 2, state = systemObj.state; end
-if nargin < 3, stateTape = systemObj.stateTape; end
+if nargin < 3, stateTape = zeros(systemObj.nStates,0); end
+
+%% Variables
+pairs = systemObj.phaseStatePairs;
 
 %% Initialize
 % Create Figure
-if isempty(systemObj.phaseFigureHandle) || ~ishghandle(systemObj.phaseFigureHandle)
+if isempty(systemObj.phaseFigureHandle) || ~ishghandle(systemObj.phaseFigureHandle) || ~ishghandle(systemObj.phaseAxisHandle)
     systemObj.phaseFigureHandle = figure;
     if ~isempty(systemObj.phaseFigureProperties)
         set(systemObj.phaseFigureHandle,systemObj.phaseFigureProperties{:});
@@ -52,62 +55,50 @@ if isempty(systemObj.phaseAxisHandle) || ~ishghandle(systemObj.phaseAxisHandle)
     systemObj.phaseAxisHandle = gca;
     set(systemObj.phaseAxisHandle,'DrawMode','fast')
     title(systemObj.phaseAxisHandle,[systemObj.name ' Phase Plot'])
-    set(systemObj.phaseAxisHandle,'NextPlot','add');
     if ~isempty(systemObj.phaseAxisProperties)
         set(systemObj.phaseAxisHandle,systemObj.phaseAxisProperties{:});
     end
 end
+set(systemObj.phaseAxisHandle,'NextPlot','add');
 colorOrder = get(systemObj.phaseAxisHandle,'ColorOrder');
-set(systemObj.phaseAxisHandle,'NextPlot','replacechildren');
-
-% Create Graphics
-if ~isempty(systemObj.phaseGraphicsHandle) && all(ishghandle(systemObj.phaseGraphicsHandle))
-    nextPlotStatus = get(systemObj.phaseAxisHandle,'NextPlot');
-    set(systemObj.phaseAxisHandle,'NextPlot','add');
-end
 
 %% Phase plot
-nPairs = size(systemObj.phaseStatePairs,1);
+nPairs = size(pairs,1);
 if ~isempty(state)
     if isempty(systemObj.phaseGraphicsHandle) || ~all(ishghandle(systemObj.phaseGraphicsHandle)) % Create new marks
         systemObj.phaseGraphicsHandle = zeros(nPairs,1);
         for iPair = 1:nPairs
             systemObj.phaseGraphicsHandle(iPair,1) = plot(systemObj.phaseAxisHandle,...
-                state(systemObj.phaseStatePairs(iPair,1)),state(systemObj.phaseStatePairs(iPair,2)),...
+                state(pairs(iPair,1)),state(pairs(iPair,2)),...
                 'o','Color',colorOrder(iPair,:),systemObj.phaseGraphicsProperties{:});
             set(systemObj.phaseGraphicsHandle(iPair,1),'DisplayName',...
-                [systemObj.stateNames{systemObj.phaseStatePairs(iPair,2)} ' vs. ' systemObj.stateNames{systemObj.phaseStatePairs(iPair,1)}]);
+                [systemObj.stateNames{pairs(iPair,2)} ' vs. ' systemObj.stateNames{pairs(iPair,1)}]);
         end
     else % Update  marks
         set(systemObj.phaseGraphicsHandle,{'XData' 'YData'},...
-            [num2cell(state(systemObj.phaseStatePairs(:,1))),...
-            num2cell(state(systemObj.phaseStatePairs(:,2)))],...
+            [num2cell(state(pairs(:,1))),...
+            num2cell(state(pairs(:,2)))],...
             systemObj.phaseGraphicsProperties{:});
     end
 end
 
-if ~isempty(stateTape)
-    set(systemObj.phaseAxisHandle,'NextPlot','add');
+
+if ~isempty([systemObj.stateTape stateTape])
+    totalStateTape = [systemObj.stateTape stateTape state];
     if isempty(systemObj.phaseTapeGraphicsHandle) || ~all(ishghandle(systemObj.phaseTapeGraphicsHandle)) % Create new lines
         systemObj.phaseTapeGraphicsHandle = zeros(nPairs,1);
         for iPair = 1:nPairs
             systemObj.phaseTapeGraphicsHandle(iPair,1) = plot(systemObj.phaseAxisHandle,...
-                [stateTape(systemObj.phaseStatePairs(iPair,1),:) state(systemObj.phaseStatePairs(iPair,1))],...
-                [stateTape(systemObj.phaseStatePairs(iPair,2),:) state(systemObj.phaseStatePairs(iPair,2))],...
+                totalStateTape(pairs(iPair,1),:), totalStateTape(pairs(iPair,2),:),...
                 'Color',colorOrder(iPair,:),systemObj.phaseGraphicsProperties{:});
             set(get(get(systemObj.phaseTapeGraphicsHandle(iPair,1),'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
-        end
-        
+        end        
     else % Update lines
         set(systemObj.phaseTapeGraphicsHandle,{'XData' 'YData'},...
-            [mat2cell([stateTape(systemObj.phaseStatePairs(:,1),:) state(systemObj.phaseStatePairs(:,1))],ones(1,nPairs),size(stateTape,2)+1) ...
-            mat2cell([stateTape(systemObj.phaseStatePairs(:,2),:) state(systemObj.phaseStatePairs(:,2))],ones(1,nPairs),size(stateTape,2)+1)],...
+            [mat2cell(totalStateTape(systemObj.phaseStatePairs(:,1),:),ones(1,nPairs),size(totalStateTape,2)) ...
+            mat2cell(totalStateTape(systemObj.phaseStatePairs(:,2),:),ones(1,nPairs),size(totalStateTape,2))],...
             systemObj.phaseGraphicsProperties{:});
     end
-end
-
-if exist('nextPlotStatus','var')
-    set(systemObj.phaseAxisHandle,'NextPlot',nextPlotStatus);
 end
 
 end

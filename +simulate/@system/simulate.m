@@ -233,7 +233,7 @@ while 1
             [T,X,F] = flow(tC,xC,fC);
             nT = size(T,2);
             cntCPrev = cntC;
-            cntC = cntC + nT - 1;
+            cntC = cntC + nT;
             if cntC > nTimePointsC
                 timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
                 stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
@@ -244,16 +244,40 @@ while 1
             tC = T(1, end);
             xC = X(:, end);
             fC = F(1, end);
-            timeTapeC(1, cntCPrev+1:cntC) = T(1, 2:end);
-            stateTape(:, cntCPrev+1:cntC) = X(:, 2:end);
-            flowTimeTape(1, cntCPrev+1:cntC) = F(1, 2:end);
-            jumpCountTape(1, cntCPrev+1:cntC) = jC*ones(1,nT-1);
+            timeTapeC(1, cntCPrev+1:cntC) = T;
+            stateTape(:, cntCPrev+1:cntC) = X;
+            flowTimeTape(1, cntCPrev+1:cntC) = F;
+            jumpCountTape(1, cntCPrev+1:cntC) = jC*ones(1,nT);
+            
+            if fC >= systemObj.maxFlowTime
+                breakFlag = true;
+            end
             
         case 'jump'
             [T,X,J] = jump(tC,xC,jC);
+            nT = size(T,2);
+            cntCPrev = cntC;
+            cntC = cntC + nT;
+            if cntC > nTimePointsC
+                timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
+                stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
+                flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
+                jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
+                nTimePointsC = length(timeTapeC);
+            end
             tC = T;
             xC = X;
             jC = J;
+            fC = 0;
+            fCDelta = tC;
+            timeTapeC(1, cntCPrev+1:cntC) = T;
+            stateTape(:, cntCPrev+1:cntC) = X;
+            flowTimeTape(1, cntCPrev+1:cntC) = fC*ones(1,nT);
+            jumpCountTape(1, cntCPrev+1:cntC) = jC*ones(1,nT);
+            
+            if jC >= systemObj.maxJumpCount
+                breakFlag = true;
+            end
             
         case 'stop'
             breakFlag = true;
@@ -275,7 +299,7 @@ while 1
         end
         tD = T(1, end);
         tDNext = tD + ts;
-        xD = X(:, end)';
+        xD = X(:, end);
         fD = fC;
         jD = jC;
         uD = systemObj.inputConstraints(systemObj.policy(tD,xD,fD,jD));
@@ -313,7 +337,7 @@ timeTapeD = timeTapeD(1,timeLogicD);
 inputTape = inputTape(:,timeLogicD);
 outputTape = outputTape(:,timeLogicD);
 flowTimeTape = flowTimeTape(1,timeLogicC);
-jumpCountTape = jumpCountTape(1,timeLogicD);
+jumpCountTape = jumpCountTape(1,timeLogicC);
 
 %% Finalize Graphics
 if systemObj.graphicsFlag
@@ -377,9 +401,10 @@ end
             x = x(t <= min(te),:);
         end
         % Return
-        t = t';
-        x = x';
+        t = t(2:end, :)';
+        x = x(2:end, :)';
         f = t - t0 + f0;
+        [~,systemObj.setPriority] = systemObj.flowMap(t(end),x(:,end),uD,f(end),jC);
     end
 
 %% Jump Function

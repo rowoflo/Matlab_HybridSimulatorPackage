@@ -38,8 +38,8 @@ S.graphicsFlag = true;
 S.plotStateFlag = true;
 S.plotInputFlag = true;
 S.plotOutputFlag = true;
-S.plotSketchFlag = true;
 S.plotPhaseFlag = true;
+S.plotSketchFlag = true;
 
 S.stateFigureProperties = {'Position', [1   420   480   387]};
 S.inputFigureProperties = {'Position', [481   420   480   387]};

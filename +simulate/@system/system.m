@@ -38,6 +38,9 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     legendFlag = true; % (1 x 1 logical) Flag determining if legends are displayed in plots.
     
     plotStateFlag = true; % (1 x 1 logical) Flag determining if the state plot is drawn during the simulation.
+    statesToPlot = []; % (1 x ? positive integer <= nStates) List of states to include in the state plot.
+    plotParamsFlag = true; % (1 x 1 logical) Flag determing if the flow time and jump count will be plotted with the states.
+    paramsToPlot = []; % (1 x ? 1 or 2 or [1 2]) List of parameters to include in the state plot.
     stateFigureHandle = []; % (1 x 1 graphics object) Figure handle to where state tape is plotted.
     stateFigureProperties = {}; % (1 x ? cell array) State plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
     stateAxisHandle = []; % (1 x 1 graphics object) Axis handle to where state tape is plotted.
@@ -47,6 +50,7 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     stateGraphicsProperties = {}; % (1 x ? cell array) State plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
     
     plotInputFlag = true; % (1 x 1 logical) Flag determining if the input plot is drawn during the simulation.
+    inputsToPlot = []; % (1 x ? positive integer <= nInputs) List of inputs to include in the input plot.
     inputFigureHandle = []; % (1 x 1 graphics object) Figure handle to where input tape is plotted.
     inputFigureProperties = {}; % (1 x ? cell array) Input plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
     inputAxisHandle = []; % (1 x 1 graphics object) Axis handle to where input tape is plotted.
@@ -55,6 +59,7 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     inputGraphicsProperties = {}; % (1 x ? cell array) Input plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
     
     plotOutputFlag = true; % (1 x 1 logical) Flag determining if the output plot is drawn during the simulation.
+    outputsToPlot = []; % (1 x ? positive integer <= nOutputs) List of outputs to include in the output plot.
     outputFigureHandle = []; % (1 x 1 graphics object) Figure handle to where output tape is plotted.
     outputFigureProperties = {}; % (1 x ? cell array) Output plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
     outputAxisHandle = []; % (1 x 1 graphics object) Axis handle to where output tape is plotted.
@@ -63,6 +68,7 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     outputGraphicsProperties = {}; % (1 x ? cell array) Output plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
     
     plotPhaseFlag = false; % (1 x 1 logical) Flag determining if the phase plot is drawn during the simulation.
+    phasePairsToPlot = []; % (1 x ? positive integer <= nPhasePairs) List of phase to include in the phase plot.
     phaseFigureHandle = []; % (1 x 1 graphics object) Figure handle to where the system phase plot is drawn.
     phaseFigureProperties = {}; % (1 x ? cell array) Phase plot figure properties to be applied to the phase method. (e.g. {'Color','w'})
     phaseAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system phase plot is drawn.
@@ -117,6 +123,7 @@ end
 
 properties (Dependent = true)
     nStates % (1 x 1 positive integer) Number of states in the system.
+    nPhaseStatePairs % (1 x 1 semi-positive integer) Number of phase state pairs.
 end
 
 %% Constructor -----------------------------------------------------------------
@@ -403,6 +410,17 @@ methods
         %---------------------------------------------------------------------
 
         nStates = length(systemObj.state);
+    end
+    
+    function nPhaseStatePairs = get.nPhaseStatePairs(systemObj)
+        %   Overloaded query operator function for the "nPhaseStatePairs" property.
+        %
+        % SYNTAX:
+        %	  nPhaseStatePairs = systemObj.nPhaseStatePairs
+        %
+        %---------------------------------------------------------------------
+
+        nPhaseStatePairs = size(systemObj.phaseStatePairs,1);
     end
 end
 %-------------------------------------------------------------------------------
@@ -907,7 +925,7 @@ methods (Access = public)
     [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
         simulate(systemObj,timeInterval,initialState,initialFlowTime,initialJumpCount,varargin)
     run(systemObj,duration,varargin)
-    plot(systemObj,time,state,timeTapeC,stateTape,timeTapeD,inputTape,outputTape,varargin)
+    plot(systemObj,varargin)
     replay(systemObj,varargin)
 end
 

@@ -44,7 +44,7 @@ if nargin < 3 || isempty(state), state = systemObj.state; end
 
 %% Initialize
 % Create Figure
-if isempty(systemObj.sketchFigureHandle) || ~ishghandle(systemObj.sketchFigureHandle)
+if isempty(systemObj.sketchFigureHandle) || ~ishghandle(systemObj.sketchFigureHandle) || ~ishghandle(systemObj.sketchAxisHandle)
     systemObj.sketchFigureHandle = figure;
     if ~isempty(systemObj.sketchFigureProperties)
         set(systemObj.sketchFigureHandle,systemObj.sketchFigureProperties{:});
