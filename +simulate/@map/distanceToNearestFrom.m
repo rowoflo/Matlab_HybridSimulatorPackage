@@ -57,9 +57,12 @@ for iType = 1:nTypes
 end
 
 %% Nearest
-[minDists,minInds] = min(allDistances,[],1);
-minInds = sub2ind(size(directions),minInds,1:nPoints);
-distances = directions(minInds).*minDists;
+minDists = min(allDistances,[],1);
+minDirs = directions .* (allDistances == repmat(minDists,mapObj.nFeatures,1));
+minDirs(minDirs == 0) = nan;
+minDirs = mode(minDirs,1);
+minDirs(isnan(minDirs)) = 0;
+distances = minDists.*minDirs;
 
 %% Output
 if nargout >= 2

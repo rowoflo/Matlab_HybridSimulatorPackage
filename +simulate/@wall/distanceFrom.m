@@ -58,7 +58,7 @@ l = repmat([wallObjs.extent]',[1 nPoints]); % Length of walls
 wP = repmat([wallObjs.position],[1 1 nPoints]); % Origin of walls
 wE = repmat([wallObjs.endpoint],[1 1 nPoints]); % Endpoint of walls
 wuv = repmat([wallObjs.unitVector],[1 1 nPoints]); % Wall unit vectors
-wnv = repmat([wallObjs.normalVector],[1 1 nPoints]); % Wall unit vectors
+wnv = repmat([wallObjs.normalVector],[1 1 nPoints]); % Wall normal vectors
 
 %% Calculations
 pP = p - wP; % Point vector from wall origins

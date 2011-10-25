@@ -1,6 +1,6 @@
 function plotPhase(systemObj,state,stateTape,varargin)
 % The "plotPhase" method plots the phase history of the system (i.e plots the
-% give state and state tape).
+% given state and state tape).
 %
 % SYNTAX:
 %   systemObj.plotPhase()
@@ -81,7 +81,6 @@ if ~isempty(state)
             systemObj.phaseGraphicsProperties{:});
     end
 end
-
 
 if ~isempty([systemObj.stateTape stateTape])
     totalStateTape = [systemObj.stateTape stateTape state];

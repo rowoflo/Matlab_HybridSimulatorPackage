@@ -456,13 +456,15 @@ methods (Access = public)
             'simulate:system:setTime:time',...
             'Input argument "time" must be a 1 x 1 real number.')
         
+        input = systemObj.inputConstraints(systemObj.policy(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount));
+        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount);
         systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
         systemObj.timeTapeD = [systemObj.timeTapeD systemObj.time];
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
-        systemObj.inputTape = [systemObj.inputTape nan(systemObj.nInputs,1)];
-        systemObj.outputTape = [systemObj.outputTape nan(systemObj.nOutputs,1)];
-        systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTimeTape];
-        systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCountTape];
+        systemObj.inputTape = [systemObj.inputTape input];
+        systemObj.outputTape = [systemObj.outputTape output];
+        systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTime];
+        systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCount];
         
         systemObj.time = time;
         
@@ -498,13 +500,15 @@ methods (Access = public)
             'simulate:system:setstate:state',...
             'Input argument "state" must be a %d x 1 real number.',systemObj.nStates)
         
+        input = systemObj.inputConstraints(systemObj.policy(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount));
+        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount);
         systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
         systemObj.timeTapeD = [systemObj.timeTapeD systemObj.time];
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
-        systemObj.inputTape = [systemObj.inputTape nan(systemObj.nInputs,1)];
-        systemObj.outputTape = [systemObj.outputTape nan(systemObj.nOutputs,1)];
-        systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTimeTape];
-        systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCountTape];
+        systemObj.inputTape = [systemObj.inputTape input];
+        systemObj.outputTape = [systemObj.outputTape output];
+        systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTime];
+        systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCount];
         
         systemObj.state = state;
         

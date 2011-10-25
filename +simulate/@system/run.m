@@ -49,9 +49,9 @@ assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
     'simulate:system:run:systemObj',...
     'Input argument "systemObj" must be a 1 x 1 simulate.system object.')
 
-assert(isnumeric(duration) && isreal(duration) && isequal(size(duration),[1,1]) && duration >= 0 && mod(duration,systemObj.timeStep) == 0,...
+assert(isnumeric(duration) && isreal(duration) && isequal(size(duration),[1,1]) && duration >= systemObj.timeStep,...
     'simulate:system:run:duration',...
-    'Input argument "duration" must be a 1 x 1 semi-positive real number and be an integer mulitple of %f.',systemObj.timeStep)
+    'Input argument "duration" must be a 1 x 1 semi-positive real number and greater than or equal to %f.',systemObj.timeStep)
 
 % Get and check properties
 propargin = size(varargin,2);
@@ -81,14 +81,13 @@ assert(ischar(movieFile),...
     'Property "movieFile" must be a string.')
 
 %% Initialize
-dt = systemObj.timeStep;
 t0 = systemObj.time;
 tFinal = t0 + duration;
 timeInterval = [t0 tFinal];
 
 %% Simulate
 [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape] = ...
-    simulate(systemObj,timeInterval,systemObj.state,0,0,'movieFile',movieFile);
+    simulate(systemObj,timeInterval,systemObj.state,systemObj.flowTime,systemObj.jumpCount,'movieFile',movieFile);
 
 %% Update
 systemObj.time = timeTapeC(1,end);
@@ -96,12 +95,20 @@ systemObj.state = stateTape(:,end);
 systemObj.flowTime = flowTimeTape(1,end);
 systemObj.jumpCount = jumpCountTape(1,end);
 
-systemObj.timeTapeC = [systemObj.timeTapeC timeTapeC(1,1:end-1)];
-systemObj.timeTapeD = [systemObj.timeTapeD timeTapeD(1,1:end-1)];
-systemObj.stateTape = [systemObj.stateTape stateTape(:,1:end-1)];
-systemObj.inputTape = [systemObj.inputTape inputTape(:,1:end-1)];
-systemObj.outputTape = [systemObj.outputTape outputTape(:,1:end-1)];
-systemObj.flowTimeTape = [systemObj.flowTimeTape flowTimeTape(:,1:end-1)];
-systemObj.jumpCountTape = [systemObj.jumpCountTape jumpCountTape(:,1:end-1)];
+% systemObj.timeTapeC = [systemObj.timeTapeC timeTapeC(1,1:end-1)];
+% systemObj.timeTapeD = [systemObj.timeTapeD timeTapeD(1,1:end-1)];
+% systemObj.stateTape = [systemObj.stateTape stateTape(:,1:end-1)];
+% systemObj.inputTape = [systemObj.inputTape inputTape(:,1:end-1)];
+% systemObj.outputTape = [systemObj.outputTape outputTape(:,1:end-1)];
+% systemObj.flowTimeTape = [systemObj.flowTimeTape flowTimeTape(:,1:end-1)];
+% systemObj.jumpCountTape = [systemObj.jumpCountTape jumpCountTape(:,1:end-1)];
+
+systemObj.timeTapeC = [systemObj.timeTapeC timeTapeC];
+systemObj.timeTapeD = [systemObj.timeTapeD timeTapeD];
+systemObj.stateTape = [systemObj.stateTape stateTape];
+systemObj.inputTape = [systemObj.inputTape inputTape];
+systemObj.outputTape = [systemObj.outputTape outputTape];
+systemObj.flowTimeTape = [systemObj.flowTimeTape flowTimeTape];
+systemObj.jumpCountTape = [systemObj.jumpCountTape jumpCountTape];
 
 end

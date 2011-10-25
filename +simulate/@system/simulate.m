@@ -51,19 +51,19 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 %
 %   inputTape - (? x ? number)
 %       Recording of input values during simulation.  A
-%       "pendulumObj.nInputs" x "length(timeTape)" maxtrix.
+%       "pendulumObj.nInputs" x "length(timeTapeD)" maxtrix.
 %
 %   outputTape - (? x ? number)
 %       Recording of output values during simulation.  A
-%       "pendulumObj.nOutputs" x "length(timeTape)" maxtrix.
+%       "pendulumObj.nOutputs" x "length(timeTapeD)" maxtrix.
 %
 %   flowTimeTape - (1 x ? semi-positive real number)
 %       Recording of flow time values during simulation. A 1 x
-%       "length(timeTape)" vector.
+%       "length(timeTapeC)" vector.
 %
 %   jumpCountTape - (1 x ? semi-positive integer)
 %       Recording of jump count values during simulation. A 1 x
-%       "length(timeTape)" vector.
+%       "length(timeTapeC)" vector.
 %
 %   stopFlag - (1 x 1 logical)
 %       True if the stop button was pushed during simulation.
@@ -360,7 +360,7 @@ end
 %% Nested Functions ------------------------------------------------------------
 %% Update Method Function
     function methodStr = updateMethod(flowArg,jumpArg)
-        if flowArg >= 0 && jumpArg >= 0
+        if flowArg >= -systemObj.zeroSize && jumpArg >= -systemObj.zeroSize
             if strcmp(systemObj.setPriority,'random')
                 if rand < .5
                     methodStr = 'flow';
@@ -370,9 +370,9 @@ end
             else
                 methodStr = systemObj.setPriority;
             end
-        elseif flowArg >= 0
+        elseif flowArg >= -systemObj.zeroSize
             methodStr = 'flow';
-        elseif jumpAry >= 0
+        elseif jumpAry >= -systemObj.zeroSize
             methodStr = 'jump';
         else
             methodStr = 'stop';
@@ -385,8 +385,10 @@ end
 %% Flow Function
     function [t,x,f] = flow(t0,x0,f0)
         [t,x,te,~,ie] = systemObj.odeSolver(@odeInputFunc,[t0 tF],x0,options);
+        totalTimeTapeC = [systemObj.timeTapeC timeTapeC(1, 1:cntC)];
+        totalJumpCountTape = [systemObj.jumpCountTape jumpCountTape(1, 1:cntC)];
         if ~isempty(te(ie == 2)) && ...
-                any(abs(te(ie == 2) - timeTapeC([0 diff(jumpCountTape)] == 1)) < zeroSize) % Remove repeated jump
+                any(abs(te(ie == 2) - totalTimeTapeC([0 diff(totalJumpCountTape)] == 1)) < zeroSize) % Remove repeated jump
             te = te(ie ~= 2);
             ie = ie(ie ~= 2);
         end
@@ -401,8 +403,12 @@ end
             x = x(t <= min(te),:);
         end
         % Return
-        t = t(2:end, :)';
-        x = x(2:end, :)';
+        if length(t) > 1
+            t = t(2:end, :)';
+            x = x(2:end, :)';
+        else
+            x = x';
+        end
         f = t - t0 + f0;
         [~,systemObj.setPriority] = systemObj.flowMap(t(end),x(:,end),uD,f(end),jC);
     end
