@@ -19,7 +19,7 @@ classdef pendulum < simulate.system
 
 %% Properties ------------------------------------------------------------------
 properties (Constant = true, Hidden = true)
-    systemVersion = '1.3' % (string) Current version of the super class.
+    systemVersion = '1.4' % (string) Current version of the super class.
 end
 
 properties (SetAccess = private) % Superclass Abstract Properties
@@ -263,7 +263,7 @@ methods (Access = public) % Superclass Abstract Methods
     output = sensor(pendulumObj,time,state,flowTime,jumpCount)
     inputOut = inputConstraints(pendulumObj,inputIn)
     [A,B,C,D] = linearize(pendulumObj,stateOP,inputOP)
-    sketchGraphics(pendulumObj,state,time,varargin)
+    sketch(pendulumObj,state,time,varargin)
 end
 %-------------------------------------------------------------------------------
     

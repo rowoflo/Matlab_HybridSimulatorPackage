@@ -95,14 +95,6 @@ systemObj.state = stateTape(:,end);
 systemObj.flowTime = flowTimeTape(1,end);
 systemObj.jumpCount = jumpCountTape(1,end);
 
-% systemObj.timeTapeC = [systemObj.timeTapeC timeTapeC(1,1:end-1)];
-% systemObj.timeTapeD = [systemObj.timeTapeD timeTapeD(1,1:end-1)];
-% systemObj.stateTape = [systemObj.stateTape stateTape(:,1:end-1)];
-% systemObj.inputTape = [systemObj.inputTape inputTape(:,1:end-1)];
-% systemObj.outputTape = [systemObj.outputTape outputTape(:,1:end-1)];
-% systemObj.flowTimeTape = [systemObj.flowTimeTape flowTimeTape(:,1:end-1)];
-% systemObj.jumpCountTape = [systemObj.jumpCountTape jumpCountTape(:,1:end-1)];
-
 systemObj.timeTapeC = [systemObj.timeTapeC timeTapeC];
 systemObj.timeTapeD = [systemObj.timeTapeD timeTapeD];
 systemObj.stateTape = [systemObj.stateTape stateTape];

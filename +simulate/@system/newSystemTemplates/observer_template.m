@@ -3,6 +3,8 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 % the current time, state, and input of the system.
 %
 % SYNTAX:
+%   stateHat = SYSTEM_NAMEObj.observer()
+%   stateHat = SYSTEM_NAMEObj.observer(time)
 %   stateHat = SYSTEM_NAMEObj.observer(time,state)
 %   stateHat = SYSTEM_NAMEObj.observer(time,state,input)
 %   stateHat = SYSTEM_NAMEObj.observer(time,state,input,flowTime)
@@ -12,19 +14,19 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
-%   time - (1 x 1 real number)
+%   time - (1 x 1 real number) [SYSTEM_NAMEObj.time]
 %       Current time.
 %
-%   state - (? x 1 real number)
+%   state - (? x 1 number) [SYSTEM_NAMEObj.state]
 %       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
 %
-%   input - (? x 1 real number) [zeros(SYSTEM_NAMEObj.nInputs,1)]
-%       Current input. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
+%   input - (? x 1 number) [SYSTEM_NAMEObj.input]
+%       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
 %
-%   flowTime - (1 x 1 semi-positive real number) [0]
+%   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.
 %
-%   jumpCount - (1 x 1 semi-positive integer) [0] 
+%   jumpCount - (1 x 1 semi-positive integer) [SYSTEM_NAMEObj.jumpCount] 
 %       Current jump count value.
 %
 % OUTPUTS:
@@ -45,9 +47,11 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 4, input = zeros(SYSTEM_NAMEObj.nInputs,1);
-if nargin < 5, flowTime = 0; end
-if nargin < 6, jumpCount = 0; end
+if nargin < 2, time = SYSTEM_NAMEObj.time; end
+if nargin < 3, state = SYSTEM_NAMEObj.state; end
+if nargin < 4, input = SYSTEM_NAMEObj.input; end
+if nargin < 5, flowTime = SYSTEM_NAMEObj.flowTime; end
+if nargin < 6, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 
 %% Parameters
 

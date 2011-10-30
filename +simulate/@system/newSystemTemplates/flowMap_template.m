@@ -2,27 +2,30 @@ function [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTi
 % The "flowMap" method sets the continuous time dynamics of the system.
 %
 % SYNTAX:
-%   [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input)
-%   [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTime)
-%   [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
+%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap()
+%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time)
+%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state)
+%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state,input)
+%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state,input,flowTime)
+%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
-%   time - (1 x 1 real number)
+%   time - (1 x 1 real number) [SYSTEM_NAMEObj.time]
 %       Current time.
 %
-%   state - (? x 1 number)
+%   state - (? x 1 number) [SYSTEM_NAMEObj.state]
 %       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
 %
-%   input - (? x 1 number)
+%   input - (? x 1 number) [SYSTEM_NAMEObj.input]
 %       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
 %
-%   flowTime - (1 x 1 semi-positive real number) [0]
+%   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.
 %
-%   jumpCount - (1 x 1 semi-positive integer) [0] 
+%   jumpCount - (1 x 1 semi-positive integer) [SYSTEM_NAMEObj.jumpCount] 
 %       Current jump count value.
 %
 % OUTPUTS:
@@ -46,8 +49,11 @@ function [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTi
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 5, flowTime = 0; end
-if nargin < 6, jumpCount = 0; end
+if nargin < 2, time = SYSTEM_NAMEObj.time; end
+if nargin < 3, state = SYSTEM_NAMEObj.state; end
+if nargin < 4, input = SYSTEM_NAMEObj.input; end
+if nargin < 5, flowTime = SYSTEM_NAMEObj.flowTime; end
+if nargin < 6, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 setPriority = SYSTEM_NAMEObj.setPriority;
 
 %% Parameters

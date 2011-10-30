@@ -68,6 +68,6 @@ if ~isnan(time)
 end
 
 %% Sketch
-systemObj.sketchGraphics(state,time,varargin{:});
+systemObj.sketch(state,time,varargin{:});
 
 end

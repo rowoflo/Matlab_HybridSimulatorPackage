@@ -1,12 +1,12 @@
-function sketchGraphics(pendulumObj,state,time,varargin)
-% The "sketchGraphics" method will draw the system at a given time and
+function sketch(pendulumObj,state,time,varargin)
+% The "sketch" method will draw the system at a given time and
 % state in the sketch axis or create a new axis if it doesn't have one.
 %
 % SYNTAX:
-%   pendulumObj.sketchGraphics()
-%   pendulumObj.sketchGraphics(state)
-%   pendulumObj.sketchGraphics(state,time)
-%   pendulumObj.sketchGraphics(...,'PropertyName',PropertyValue,...)
+%   pendulumObj.sketch()
+%   pendulumObj.sketch(state)
+%   pendulumObj.sketch(state,time)
+%   pendulumObj.sketch(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)

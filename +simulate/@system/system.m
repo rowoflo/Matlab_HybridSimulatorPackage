@@ -22,9 +22,9 @@ classdef system < dynamicprops
 %% Properties ------------------------------------------------------------------
 properties (Access = public)
     name; % (string) Name of the system.
-    stateNames % (? x 1 cell array of strings) Names of the state variables. One per state.
-    inputNames % (? x 1 cell array of strings) Names of the input variables. One per input.
-    outputNames % (? x 1 cell array of strings) Names of the output variables. One per output.
+    stateNames % (nStates x 1 cell array of strings) Names of the state variables. One per state.
+    inputNames % (nInputs x 1 cell array of strings) Names of the input variables. One per input.
+    outputNames % (nOutputs x 1 cell array of strings) Names of the output variables. One per output.
     phaseStatePairs; % (? x 2 positive integer <= nStates) State pairs for the phase plot. One pair per row of the matrix. The first column is the x-axis and the second column is the y-axis.
 end
 
@@ -89,6 +89,7 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     maxJumpCount = inf; % (1 x 1 positive integer) Maximum jump count for the simulation.
     
     % ODE Solver
+    odeMethod = 'odeSolver'; % ('odeSolver' or 'euler') Selects how the ODE is solved.
     odeSolver = @ode113; % (ODE function handle) ODE solver function handle.
     odeOptions % (ODE options structure) Stores the options of the ODE solver. See "odeset" and "odeget".
     zeroSize = 1e6*eps; % (1 x 1 positive real number) Used to set small numbers to zero. Absolute value of a number than this will be set to zero.
@@ -97,21 +98,21 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     openLoopControl = false; % (1 x 1 logical) Determines if open-loop control is used or closed loop control.
     openLoopTimeTape = []; % (1 x ? real number) Open-loop control time tape.
     openLoopInputTape = []; % (1 x ? real number) Open-loop control input tape.
-    stateOP; % (? x 1 real number) Operating point for the state used in feedback control.
-    inputOP; % (? x 1 real number) Operating point for the input used in feedback control.
+    stateOP; % (nStates x 1 real number) Operating point for the state used in feedback control.
+    inputOP; % (nInputs x 1 real number) Operating point for the input used in feedback control.
 end
 
 properties (SetAccess = protected)
     timeStep % (1 x 1 positive real number) Sampling time of the system.
     time % (1 x 1 real number) System time.
-    state % (? x 1 real number) System state. A "nStates" x 1 vector.
+    state % (nStates x 1 real number) System state. A "nStates" x 1 vector.
     flowTime = 0; % (1 x 1 semi-positive real number) System current flow time.
     jumpCount = 0; % (1 x 1 semi-positive integer) System current jump count.
     timeTapeC % (1 x ? real number) Recording of past system continuous times.
     timeTapeD % (1 x ? real number) Recording of past system discrete times.
-    stateTape % (? x ? real number) Recording of past system states. The length is the same as "timeTapeC".
-    inputTape % (? x ? real number) Recording of past system inputs. The length is the same as "timeTapeD".
-    outputTape % (? x ? real number) Recording of past system outputs. The length is the same as "timeTapeD".
+    stateTape % (nStates x ? real number) Recording of past system states. The length is the same as "timeTapeC".
+    inputTape % (nInputs x ? real number) Recording of past system inputs. The length is the same as "timeTapeD".
+    outputTape % (nOutputs x ? real number) Recording of past system outputs. The length is the same as "timeTapeD".
     flowTimeTape % (1 x ? semi-positive real number) Recording of past flow time. The length is the same as "timeTapeD".
     jumpCountTape % (1 x ? semi-positive integer) Recording of past jump count. The length is the same as "timeTapeD".
 end
@@ -124,6 +125,8 @@ end
 properties (Dependent = true)
     nStates % (1 x 1 positive integer) Number of states in the system.
     nPhaseStatePairs % (1 x 1 semi-positive integer) Number of phase state pairs.
+    input % (nInputs x 1 number) Current input to the system.
+    output % (nOutputs x 1 number) Current output from the system.
 end
 
 %% Constructor -----------------------------------------------------------------
@@ -222,6 +225,9 @@ methods
         % SYNTAX:
         %   systemObj.name = name
         %
+        % INPUT:
+        %   name - (string)
+        %
         % NOTES:
         %
         %---------------------------------------------------------------------
@@ -238,10 +244,13 @@ methods
         % SYNTAX:
         %   systemObj.stateNames = stateNames
         %
+        % INPUT:
+        %   stateNames - (cell array of strings)
+        %
         % NOTES:
         %
         %---------------------------------------------------------------------
-        assert(iscellstr(stateNames),...
+        assert(iscellstr(stateNames),...,...
             'simulate:system:set:stateNames',...
             'Property "stateNames" must be a cell array of strings.')
         stateNames = stateNames(:);
@@ -255,6 +264,9 @@ methods
         % SYNTAX:
         %   systemObj.inputNames = inputNames
         %
+        % INPUT:
+        %   inputNames - (cell array of strings)
+        %
         % NOTES:
         %
         %---------------------------------------------------------------------
@@ -266,11 +278,34 @@ methods
         systemObj.inputNames = inputNames;
     end
     
+    function set.outputNames(systemObj,outputNames)
+        % Overloaded assignment operator function for the "inputNames" property.
+        %
+        % SYNTAX:
+        %   systemObj.outputNames = outputNames
+        %
+        % INPUT:
+        %   outputNames - (cell array of strings)
+        %
+        % NOTES:
+        %
+        %---------------------------------------------------------------------
+        assert(iscellstr(outputNames),...
+            'simulate:system:set:outputNames',...
+            'Property "outputNames" must be a cell array of strings.')
+        outputNames = outputNames(:);
+
+        systemObj.outputNames = outputNames;
+    end
+    
     function set.phaseStatePairs(systemObj,phaseStatePairs)
         % Overloaded assignment operator function for the "phaseStatePairs" property.
         %
         % SYNTAX:
         %   systemObj.phaseStatePairs = phaseStatePairs
+        %
+        % INPUT:
+        %   phaseStatePairs - (? x 2 positive integer <= nStates)
         %
         % NOTES:
         %
@@ -290,6 +325,9 @@ methods
         % SYNTAX:
         %   systemObj.maxFlowTime = maxFlowTime
         %
+        % INPUT:
+        %   maxFlowTime - (1 x 1 positive number)
+        %
         % NOTES:
         %
         %-----------------------------------------------------------------------
@@ -306,6 +344,9 @@ methods
         % SYNTAX:
         %   systemObj.maxJumpCount = maxJumpCount
         %
+        % INPUT:
+        %   maxJumpCount - (1 x 1 positive integer)
+        %
         % NOTES:
         %
         %-----------------------------------------------------------------------
@@ -321,6 +362,9 @@ methods
         %
         % SYNTAX:
         %   systemObj.stateAxisHandle = stateAxisHandle
+        %
+        % INPUT:
+        %   stateAxisHandle - (1 x 1 graphics handle)
         %
         % NOTES:
         %
@@ -339,6 +383,9 @@ methods
         % SYNTAX:
         %   systemObj.inputAxisHandle = inputAxisHandle
         %
+        % INPUT:
+        %   inputAxisHandle - (1 x 1 graphics handle)
+        %
         % NOTES:
         %
         %-----------------------------------------------------------------------
@@ -355,6 +402,9 @@ methods
         %
         % SYNTAX:
         %   systemObj.outputAxisHandle = outputAxisHandle
+        %
+        % INPUT:
+        %   outputAxisHandle - (1 x 1 graphics handle)
         %
         % NOTES:
         %
@@ -373,6 +423,9 @@ methods
         % SYNTAX:
         %   systemObj.phaseAxisHandle = phaseAxisHandle
         %
+        % INPUT:
+        %   phaseAxisHandle - (1 x 1 graphics handle)
+        %
         % NOTES:
         %
         %-----------------------------------------------------------------------
@@ -390,6 +443,9 @@ methods
         % SYNTAX:
         %   systemObj.sketchAxisHandle = sketchAxisHandle
         %
+        % INPUT:
+        %   sketchAxisHandle - (1 x 1 graphics handle)
+        %
         % NOTES:
         %
         %-----------------------------------------------------------------------
@@ -401,11 +457,33 @@ methods
         systemObj.sketchFigureHandle = get(systemObj.sketchAxisHandle,'Parent');
     end
     
+    function set.odeMethod(systemObj,odeMethod)
+        % Overloaded assignment operator function for the "odeMethod" property.
+        %
+        % SYNTAX:
+        %   systemObj.odeMethod = odeMethod
+        %
+        % INPUT:
+        %   odeMethod - (string)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(ischar(odeMethod),...
+            'simulate:system:set:odeMethod',...
+            'Property "odeMethod" must be a string.')
+
+        systemObj.odeMethod = odeMethod;
+    end
+    
     function nStates = get.nStates(systemObj)
         %   Overloaded query operator function for the "nStates" property.
         %
         % SYNTAX:
         %	  nStates = systemObj.nStates
+        %
+        % OUTPUT:
+        %   nStates - (1 x 1 positive integer)
         %
         %---------------------------------------------------------------------
 
@@ -418,10 +496,43 @@ methods
         % SYNTAX:
         %	  nPhaseStatePairs = systemObj.nPhaseStatePairs
         %
+        % OUTPUT:
+        %   nPhaseStatePairs - (? x 2 positive integer)
+        %
         %---------------------------------------------------------------------
 
         nPhaseStatePairs = size(systemObj.phaseStatePairs,1);
     end
+    
+    function input = get.input(systemObj)
+        %   Overloaded query operator function for the "input" property.
+        %
+        % SYNTAX:
+        %	  input = systemObj.input
+        %
+        % OUTPUT:
+        %   input - (nInputs x 1 real number)
+        %
+        %---------------------------------------------------------------------
+
+        input = systemObj.inputConstraints(systemObj.policy(...
+            systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount));
+    end
+    
+    function output = get.output(systemObj)
+        %   Overloaded query operator function for the "output" property.
+        %
+        % SYNTAX:
+        %	  output = systemObj.output
+        %
+        % OUTPUT:
+        %   output - (nOutputs x 1 real number)
+        %
+        %---------------------------------------------------------------------
+
+        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount);
+    end
+    
 end
 %-------------------------------------------------------------------------------
 
@@ -591,6 +702,9 @@ methods (Abstract = true)
     % The "flowMap" method sets the continuous time dynamics of the system.
     %
     % SYNTAX:
+    %   [stateDot,setPriority] = systemObj.flowMap()
+    %   [stateDot,setPriority] = systemObj.flowMap(time)
+    %   [stateDot,setPriority] = systemObj.flowMap(time,state)
     %   [stateDot,setPriority] = systemObj.flowMap(time,state,input)
     %   [stateDot,setPriority] = systemObj.flowMap(time,state,input,flowTime)
     %   [stateDot,setPriority] = systemObj.flowMap(time,state,input,flowTime,jumpCount)
@@ -599,19 +713,19 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   time - (1 x 1 real number)
+    %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 real number)
+    %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
     %
-    %   input - (? x 1 real number)
+    %   input - (? x 1 number) [systemObj.input]
     %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
     %
-    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
-    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
     % OUTPUTS:
@@ -628,6 +742,9 @@ methods (Abstract = true)
     % The "jumpMap" method sets the discrete time dynamics of the system.
     %
     % SYNTAX:
+    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap()
+    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time)
+    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state)
     %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input)
     %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input,flowTime)
     %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input,flowTime,jumpCount)
@@ -636,19 +753,19 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   time - (1 x 1 real number)
+    %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 real number)
+    %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
     %
-    %   input - (? x 1 real number)
+    %   input - (? x 1 number) [systemObj.input]
     %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
     %
-    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
-    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
     % OUTPUTS:
@@ -669,6 +786,8 @@ methods (Abstract = true)
     % place.
     %
     % SYNTAX:
+    %   flowSetValue = systemObj.flowSet()
+    %   flowSetValue = systemObj.flowSet(time)
     %   flowSetValue = systemObj.flowSet(time,state)
     %   flowSetValue = systemObj.flowSet(time,state,flowTime)
     %   flowSetValue = systemObj.flowSet(time,state,flowTime,jumpCount)
@@ -677,16 +796,16 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   time - (1 x 1 real number)
+    %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 real number)
+    %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
     %
-    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
-    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
     % OUTPUTS:
@@ -702,6 +821,9 @@ methods (Abstract = true)
     % place.
     %
     % SYNTAX:
+    %   jumpSetValue = systemObj.jumpSet()
+    %   jumpSetValue = systemObj.jumpSet(time)
+    %   jumpSetValue = systemObj.jumpSet(time,state)
     %   jumpSetValue = systemObj.jumpSet(time,state)
     %   jumpSetValue = systemObj.jumpSet(time,state,flowTime)
     %   jumpSetValue = systemObj.jumpSet(time,state,flowTime,jumpCount)
@@ -710,16 +832,16 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   time - (1 x 1 real number)
+    %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 real number)
+    %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
     %
-    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
-    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
     % OUTPUTS:
@@ -735,24 +857,26 @@ methods (Abstract = true)
     % time and state of the system.
     %
     % SYNTAX:
+    %   input = systemObj.controller()
+    %   input = systemObj.controller(time)
     %   input = systemObj.controller(time,state)
     %   input = systemObj.controller(time,state,flowTime)
     %   input = systemObj.controller(time,state,flowTime,jumpCount)
     %
     % INPUTS:
-    %   systemObj - (1 x 1 simulate.system)
-    %       An instance of the "simulate.system" class.
+    %   systemObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
+    %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
     %
-    %   time - (1 x 1 real number)
+    %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 real number)
+    %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
     %
-    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
-    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
     % OUTPUTS:
@@ -766,6 +890,8 @@ methods (Abstract = true)
     % given the current time, state, and input of the system.
     %
     % SYNTAX:
+    %   stateHat = systemObj.observer()
+    %   stateHat = systemObj.observer(time)
     %   stateHat = systemObj.observer(time,state)
     %   stateHat = systemObj.observer(time,state,input,flowTime)
     %   stateHat = systemObj.observer(time,state,input,flowTime,jumpCount)
@@ -774,19 +900,19 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   time - (1 x 1 real number)
+    %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 real number)
+    %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
     %
-    %   input - (? x 1 real number)
-    %       Current input. Must be a "systemObj.nInputs" x 1 vector.
+    %   input - (? x 1 number) [systemObj.input]
+    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
     %
-    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
-    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
     % OUTPUTS:
@@ -800,24 +926,26 @@ methods (Abstract = true)
     % time and state of the system.
     %
     % SYNTAX:
+    %   output = systemObj.sensor()
+    %   output = systemObj.sensor(time)
     %   output = systemObj.sensor(time,state)
     %   output = systemObj.sensor(time,state,flowTime)
     %   output = systemObj.sensor(time,state,flowTime,jumpCount)
     %
     % INPUTS:
-    %   SYSTEM_NAMEObj - (1 x 1 simulate.system)
+    %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   time - (1 x 1 real number)
+    %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 real number)
+    %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
     %
-    %   flowTime - (1 x 1 semi-positive real number) [0]
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
-    %   jumpCount - (1 x 1 semi-positive integer) [0] 
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
     % OUTPUTS:
@@ -872,7 +1000,7 @@ methods (Abstract = true)
     %   inputOut = systemObj.inputConstraints(inputIn)
     %
     % INPUTS:
-    %   SYSTEM_NAMEObj - (1 x 1 simulate.system)
+    %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
     %   inputIn - (? x 1 real number)
@@ -885,15 +1013,15 @@ methods (Abstract = true)
     %---------------------------------------------------------------------------
     inputOut = inputConstraints(systemObj,inputIn)
     
-    % The "sketchGraphics" is called by the "plotSketch" method and will draw
+    % The "sketch" is called by the "plotSketch" method and will draw
     % the system at a given time and state in the sketch axis or create a
     % new axis if it doesn't have one.
     %
     % SYNTAX:
-    %   systemObj.sketchGraphics()
-    %   systemObj.sketchGraphics(state)
-    %   systemObj.sketchGraphics(state,time)
-    %   systemObj.sketchGraphics(. . .,'PropertyName',PropertyValue,. . .)
+    %   systemObj.sketch()
+    %   systemObj.sketch(state)
+    %   systemObj.sketch(state,time)
+    %   systemObj.sketch(. . .,'PropertyName',PropertyValue,. . .)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -910,7 +1038,7 @@ methods (Abstract = true)
     % NOTES:
     %
     %---------------------------------------------------------------------------
-    sketchGraphics(systemObj,state,time,varargin)
+    sketch(systemObj,state,time,varargin)
     
 end
 %-------------------------------------------------------------------------------
@@ -954,7 +1082,7 @@ methods (Static = true)
         % NOTES:
         %
         %-----------------------------------------------------------------------
-        version = '1.3';
+        version = '1.4';
     end
 end
 %------------------------------------------------------------------------------- 

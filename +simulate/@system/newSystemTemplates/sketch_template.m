@@ -1,12 +1,12 @@
-function sketchGraphics(SYSTEM_NAMEObj,state,time,varargin)
-% The "sketchGraphics" method will draw the system at a given time and
+function sketch(SYSTEM_NAMEObj,state,time,varargin)
+% The "sketch" method will draw the system at a given time and
 % state in the sketch axis or create a new axis if it doesn't have one.
 %
 % SYNTAX:
-%   SYSTEM_NAMEObj.sketchGraphics()
-%   SYSTEM_NAMEObj.sketchGraphics(state)
-%   SYSTEM_NAMEObj.sketchGraphics(state,time)
-%   SYSTEM_NAMEObj.sketchGraphics(...,'PropertyName',PropertyValue,...)
+%   SYSTEM_NAMEObj.sketch()
+%   SYSTEM_NAMEObj.sketch(state)
+%   SYSTEM_NAMEObj.sketch(state,time)
+%   SYSTEM_NAMEObj.sketch(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)

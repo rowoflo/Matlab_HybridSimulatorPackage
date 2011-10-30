@@ -153,14 +153,26 @@ movieQuality = 60;
 catSize = 500;
 
 %% Initialize
-% ODE options
-options = systemObj.odeOptions;
-if isempty(options)
-    options = odeset('Events',@odeEventsFunc);
-else
-    options = odeset(options{:},'Events',@odeEventsFunc);
-end
 zeroSize = systemObj.zeroSize;
+
+% ODE options
+switch systemObj.odeMethod
+    case 'odeSolver'
+        options = systemObj.odeOptions;
+        if isempty(options)
+            options = odeset('Events',@odeEventsFunc);
+        else
+            options = odeset(options{:},'Events',@odeEventsFunc);
+        end
+    case 'euler'
+        systemObj.odeSolver = @euler;
+        options.timeStep = systemObj.timeStep;
+        options.events = @odeEventsFunc;
+    otherwise
+        error('simulate:system:simulate:odeMethod',...
+            'Property "odeMethod" must be either ''odeSolver'' or ''euler''.')
+end
+
 
 % Time variables
 initialTime = timeInterval(1);
@@ -280,7 +292,7 @@ while 1
             end
             
         case 'stop'
-            breakFlag = true;
+            break
             
         otherwise
             error('simulate:system:simulate:updateMethod',...
@@ -372,7 +384,7 @@ end
             end
         elseif flowArg >= -systemObj.zeroSize
             methodStr = 'flow';
-        elseif jumpAry >= -systemObj.zeroSize
+        elseif jumpArg >= -systemObj.zeroSize
             methodStr = 'jump';
         else
             methodStr = 'stop';
@@ -579,4 +591,21 @@ end
 
 end
 
+%% Helper Functions ------------------------------------------------------------
+function [T,X,TE,XE,IE] = euler(odefun,tspan,x0,options)
+    eventsFun = options.events;
+    t0 = tspan(1);
+    ts = options.timeStep;
+    t = t0 + ts;
+    dx = odefun(t0,x0);
+    x = x0 + dx*ts;
+    [value,isTerminal,direction] = eventsFun(t,x); %#ok<NASGU,ASGLU>
+    T(1,1) = t0;
+    T(2,1) = t;
+    X(1,:) = x0';
+    X(2,:) = x';
+    TE = T(2,1);
+    XE = X(2,:);
+    IE = 4;
+end
 

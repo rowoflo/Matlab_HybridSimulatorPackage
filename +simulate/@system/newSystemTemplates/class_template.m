@@ -113,6 +113,9 @@ end
 %         % SYNTAX:
 %         %   SYSTEM_NAMEObj.prop1 = prop1
 %         %
+%         % INPUT:
+%         %   prop1 - (1 x 1 real number)
+%         %
 %         % NOTES:
 %         %
 %         %-----------------------------------------------------------------------
@@ -128,6 +131,9 @@ end
 %         %
 %         % SYNTAX:
 %         %	  prop1 = SYSTEM_NAMEObj.prop1
+%         %
+%         % OUTPUT:
+%         %   prop1 - (1 x 1 real number)
 %         %
 %         % NOTES:
 %         %
@@ -232,7 +238,7 @@ methods (Access = public) % Superclass Abstract Methods
     output = sensor(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
     [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
-    sketchGraphics(SYSTEM_NAMEObj,state,time,varargin)
+    sketch(SYSTEM_NAMEObj,state,time,varargin)
 end
 %-------------------------------------------------------------------------------
     
