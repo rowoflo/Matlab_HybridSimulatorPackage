@@ -184,6 +184,7 @@ end
 %% Methods in separte files ----------------------------------------------------
 methods (Access = public)
     [d,D] = distance(planeObjs,points)
+    pts = intercept(planeObjs)
     graphicsHandles = sketch(planeObjs,axisHandle,varargin)
 end
 %-------------------------------------------------------------------------------

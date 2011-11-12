@@ -8,7 +8,7 @@ function graphicsHandles = sketch(planeObjs,axisHandle,varargin)
 %
 % INPUTS:
 %   planeObjs - (simulate.plane)
-%       Instances of the "simulate.plane" class.
+%       Instances of the "simulate.plane" class with dimension 2.
 %
 %   axisHandle - (1 x 1 axis handle) [gca]
 %       Handle to the axis that the "planeObjs" will be plotted in.
@@ -41,9 +41,9 @@ if nargin < 2, axisHandle = gca;
 end
 
 % Check arguments for errors
-assert(isa(planeObjs,'simulate.plane'),...
+assert(isa(planeObjs,'simulate.plane') && all([planeObjs.dimension] == 2),...
     'simulate:plane:sketch:planeObjs',...
-    'Input argument "planeObjs" must be "simulate.plane" objects.')
+    'Input argument "planeObjs" must be "simulate.plane" objects with dimension equal to 2.')
 
 assert(ishghandle(axisHandle),...
     'simulate:plane:sketch:axisHandle',...
@@ -51,6 +51,7 @@ assert(ishghandle(axisHandle),...
 
 %% Parameters
 lineLength = 10;
+normLength = .5;
 
 %% Sketch
 nPlanes = numel(planeObjs);
@@ -82,7 +83,7 @@ xY = nan(1,3*nPlanes);
 yY = nan(1,3*nPlanes);
 
 for iPlane = 1:nPlanes
-    pt1 = planeObjs(iPlane).direction + planeObjs(iPlane).location;
+    pt1 = normLength*planeObjs(iPlane).direction + planeObjs(iPlane).location;
     xY(3*iPlane-2) = planeObjs(iPlane).location(1);
     yY(3*iPlane-2) = planeObjs(iPlane).location(2);
     xY(3*iPlane-1) = pt1(1);
@@ -93,7 +94,7 @@ graphicsHandles(2) = plot(axisHandle,xY,yY,...
     'g','lineWidth',2,...
     varargin{:});
 
-%% Dots
+%% Location Dots
 xDots = nan(1,nPlanes);
 yDots = nan(1,nPlanes);
 for iPlane = 1:nPlanes
@@ -102,6 +103,17 @@ for iPlane = 1:nPlanes
 end
 
 graphicsHandles(3) = plot(axisHandle,xDots,yDots,...
+    'o',...
+    'MarkerEdgeColor','g',...
+    'MarkerFaceColor','g',...
+    varargin{:});
+
+%% Interception Dots
+pts = intercept(planeObjs);
+pts = squeeze(reshape(pts,1,nPlanes^2,2))';
+pts = pts(:,~isnan(pts(1,:)));
+
+graphicsHandles(4) = plot(axisHandle,pts(1,:),pts(2,:),...
     'o',...
     'MarkerEdgeColor','r',...
     'MarkerFaceColor','r',...
