@@ -136,6 +136,43 @@ methods
 end
 %-------------------------------------------------------------------------------
 
+
+%% Save & Load Methods ---------------------------------------------------------
+methods
+    function planeStruct = saveobj(planeObj)
+        % Save method
+        %
+        % NOTES:
+        %   This method is called when the class is saved to a file.
+        %
+        %-----------------------------------------------------------------------
+        
+        planeStruct.location = planeObj.location;
+        planeStruct.direction = planeObj.direction;
+        planeStruct.dimension = planeObj.dimension;
+    end
+end
+
+methods (Static)
+    function planeObj = loadobj(planeStruct)
+        % Load method
+        %
+        % SYNTAX:
+        %   planeObj = plane.loadobj(planeStruct)
+        %
+        % NOTES:
+        %   This method is called when the class is loaded from a file.
+        %
+        %-----------------------------------------------------------------------
+        
+        planeObj = simulate.plane(planeStruct.dimension);
+        planeObj.location = planeStruct.location;
+        planeObj.direction = planeStruct.direction;
+    end
+end
+%-------------------------------------------------------------------------------
+
+
 %% General Methods -------------------------------------------------------------
 methods (Access = public)
     function planeObj = setAngle(planeObj,angle)

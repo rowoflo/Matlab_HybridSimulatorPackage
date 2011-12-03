@@ -64,8 +64,8 @@ propValues = varargin(2:2:propargin);
 
 for iParam = 1:propargin/2
     switch lower(propStrs{iParam})
-        case lower('movieFile')
-            movieFile = propValues{iParam};
+%         case lower('movieFile')
+%             movieFile = propValues{iParam};
         otherwise
             error('simulate:system:run:options',...
               'Option string ''%s'' is not recognized.',propStrs{iParam})

@@ -88,6 +88,13 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     maxFlowTime = inf; % (1 x 1 positive number) Maximum flow time for the simulation.
     maxJumpCount = inf; % (1 x 1 positive integer) Maximum jump count for the simulation.
     
+    % Movie
+    movieFileName = 'systemMovie'; % (string) Name of file the movie will be saved to, with no extension.
+    movieFlag = false; % (1 x 1 logical) If true a movie will be created.
+    movieObj = {}; % (? x 1 cell array of VideoWriter Objects) Video objects.
+    movieQuality = 60; % (1 x 1 positive integer) Sets movie quality. 0 - 100.
+    movieFrameRate = 20; % (1 x 1 positive integer) Sets movie frames per second.
+    
     % ODE Solver
     odeMethod = 'odeSolver'; % ('odeSolver' or 'euler') Selects how the ODE is solved.
     odeSolver = @ode113; % (ODE function handle) ODE solver function handle.
@@ -530,7 +537,7 @@ methods
         %
         %---------------------------------------------------------------------
 
-        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount);
+        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.input,systemObj.flowTime,systemObj.jumpCount);
     end
     
 end
@@ -567,13 +574,11 @@ methods (Access = public)
             'simulate:system:setTime:time',...
             'Input argument "time" must be a 1 x 1 real number.')
         
-        input = systemObj.inputConstraints(systemObj.policy(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount));
-        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount);
         systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
         systemObj.timeTapeD = [systemObj.timeTapeD systemObj.time];
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
-        systemObj.inputTape = [systemObj.inputTape input];
-        systemObj.outputTape = [systemObj.outputTape output];
+        systemObj.inputTape = [systemObj.inputTape systemObj.input];
+        systemObj.outputTape = [systemObj.outputTape systemObj.output];
         systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTime];
         systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCount];
         
@@ -611,13 +616,11 @@ methods (Access = public)
             'simulate:system:setstate:state',...
             'Input argument "state" must be a %d x 1 real number.',systemObj.nStates)
         
-        input = systemObj.inputConstraints(systemObj.policy(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount));
-        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount);
         systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
         systemObj.timeTapeD = [systemObj.timeTapeD systemObj.time];
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
-        systemObj.inputTape = [systemObj.inputTape input];
-        systemObj.outputTape = [systemObj.outputTape output];
+        systemObj.inputTape = [systemObj.inputTape systemObj.input];
+        systemObj.outputTape = [systemObj.outputTape systemObj.output];
         systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTime];
         systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCount];
         
@@ -692,6 +695,31 @@ methods (Access = public)
         for iName = 1:systemObj.nOutputs
             systemObj.outputNames{iName} = ['output' num2str(iName)];
         end
+    end
+    
+    function saveMovie(systemObj)
+        % The "saveMovie" method is save a movie to a file.
+        %
+        % SYNTAX:
+        %   systemObj = systemObj.saveMovie()
+        %
+        % INPUTS:
+        %   systemObj - (1 x 1 simulate.system)
+        %       An instance of the "simulate.system" class.
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        
+        % Check number of arguments
+        error(nargchk(1,1,nargin))
+        
+        if systemObj.movieFlag && ~isempty(systemObj.movieObj)
+            for iFigCnt = 1:length(systemObj.movieObj)
+                systemObj.movieObj{iFigCnt}.close;
+            end
+        end
+        systemObj.movieObj = {};
     end
 end
 
@@ -929,8 +957,9 @@ methods (Abstract = true)
     %   output = systemObj.sensor()
     %   output = systemObj.sensor(time)
     %   output = systemObj.sensor(time,state)
-    %   output = systemObj.sensor(time,state,flowTime)
-    %   output = systemObj.sensor(time,state,flowTime,jumpCount)
+    %   output = systemObj.sensor(time,state,input)
+    %   output = systemObj.sensor(time,state,input,flowTime)    
+    %   output = systemObj.sensor(time,state,input,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
@@ -941,6 +970,9 @@ methods (Abstract = true)
     %
     %   state - (? x 1 number) [systemObj.state]
     %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %
+    %   input - (? x 1 number) [systemObj.input]
+    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -1082,7 +1114,7 @@ methods (Static = true)
         % NOTES:
         %
         %-----------------------------------------------------------------------
-        version = '1.4';
+        version = '1.5';
     end
 end
 %------------------------------------------------------------------------------- 

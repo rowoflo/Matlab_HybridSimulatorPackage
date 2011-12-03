@@ -135,21 +135,21 @@ for iParam = 1:propargin/2
 end
 
 % Set to default value if necessary
-if ~exist('movieFile','var'), movieFile = ''; end
+% if ~exist('movieFile','var'), movieFile = ''; end
 
 % Check property values for errors
-assert(ischar(movieFile),...
-    'simulate:system:simulate:movieFile',...
-    'Property "movieFile" must be a string.')
-if isempty(movieFile)
-    movieFlag = false;
-else
-    movieFlag = true;
-end
+% assert(ischar(movieFile),...
+%     'simulate:system:simulate:movieFile',...
+%     'Property "movieFile" must be a string.')
+% if isempty(movieFile)
+%     movieFlag = false;
+% else
+%     movieFlag = true;
+% end
 
 %% Parameters
-movieFrameRate = 20; % TODO: Add these paramerters to input
-movieQuality = 60;
+% movieFrameRate = 20; % TODO: Add these paramerters to input
+% movieQuality = 60;
 catSize = 500;
 
 %% Initialize
@@ -182,7 +182,7 @@ nTimePoints = length(timeVector);
 
 % Initial input/output variables
 initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialFlowTime,initialJumpCount));
-initialOutput = systemObj.sensor(initialTime,initialState,initialFlowTime,initialJumpCount);
+initialOutput = systemObj.sensor(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount);
 uD = initialInput; % Current input. Updated discretely.
 
 % Tape variables
@@ -315,7 +315,7 @@ while 1
         fD = fC;
         jD = jC;
         uD = systemObj.inputConstraints(systemObj.policy(tD,xD,fD,jD));
-        yD = systemObj.sensor(tD,xD,fD,jD);
+        yD = systemObj.sensor(tD,xD,uD,fD,jD);
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
         outputTape(:, cntD) = yD;
@@ -362,11 +362,11 @@ if systemObj.graphicsFlag
                 'update');
     odeGraphics([],[],[],[],[],'done');
     
-    if movieFlag
-        for iFigCnt = 1:length(figureList)
-            vidObj{iFigCnt}.close;
-        end
-    end
+%     if movieFlag
+%         for iFigCnt = 1:length(figureList)
+%             vidObj{iFigCnt}.close;
+%         end
+%     end
 end
 
 %% Nested Functions ------------------------------------------------------------
@@ -508,16 +508,16 @@ end
                 drawnow
                 
                 % Movie setup
-                if movieFlag
-                    vidObj = cell(length(figureList),1);
+                if systemObj.movieFlag && isempty(systemObj.movieObj)
+                    systemObj.movieObj = cell(length(figureList),1);
                     for iFig = 1:length(figureList)
-                        vidObj{iFig} = VideoWriter([movieFile '_' num2str(iFig)]);
-                        vidObj{iFig}.Quality = movieQuality;
-                        vidObj{iFig}.FrameRate = movieFrameRate;
-                        open(vidObj{iFig});
+                        systemObj.movieObj{iFig} = VideoWriter([systemObj.movieFileName '_' num2str(iFig)]);
+                        systemObj.movieObj{iFig}.Quality = systemObj.movieQuality;
+                        systemObj.movieObj{iFig}.FrameRate = systemObj.movieFrameRate;
+                        open(systemObj.movieObj{iFig});
                         
                         figure(figureList(iFig));
-                        vidObj{iFig}.writeVideo(getframe(figureList(iFig)));
+                        systemObj.movieObj{iFig}.writeVideo(getframe(figureList(iFig)));
                     end
                 end
                 
@@ -549,9 +549,9 @@ end
                 drawnow
                 
                 % Movie
-                if movieFlag
+                if systemObj.movieFlag
                     for iFig = 1:length(figureList)                       
-                        vidObj{iFig}.writeVideo(getframe(figureList(iFig)));
+                        systemObj.movieObj{iFig}.writeVideo(getframe(figureList(iFig)));
                     end
                 end
             case 'done'
@@ -576,9 +576,9 @@ end
                 end
                 
                 % Movie
-                if movieFlag
+                if systemObj.movieFlag
                     for iFig = 1:length(figureList)
-                        vidObj{iFig}.writeVideo(getframe(figureList(iFig)));
+                        systemObj.movieObj{iFig}.writeVideo(getframe(figureList(iFig)));
                     end
                 end
         end
