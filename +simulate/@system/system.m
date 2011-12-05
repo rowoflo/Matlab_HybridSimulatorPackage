@@ -220,6 +220,8 @@ methods
         systemObj.stateOP = zeros(systemObj.nStates,1);
         systemObj.inputOP = zeros(systemObj.nInputs,1);
         
+        systemObj.outputsToPlot = 1:nOutputs;
+        
     end
 end
 %-------------------------------------------------------------------------------

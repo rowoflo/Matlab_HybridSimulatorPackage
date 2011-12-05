@@ -66,6 +66,8 @@ end
 set(systemObj.outputAxisHandle,'NextPlot','add');
 
 %% Plot Output
+toPlot = systemObj.outputsToPlot';
+nOutputs = length(toPlot);
 if ~isempty([systemObj.outputTape outputTape])
     if isempty(outputTape)
         outputLast = systemObj.outputTape(:,end);
@@ -74,23 +76,28 @@ if ~isempty([systemObj.outputTape outputTape])
     end
     totalTimeTape = [systemObj.timeTapeD timeTape time];
     totalOutputTape = [systemObj.outputTape outputTape outputLast];
-    if isempty(systemObj.outputTapeGraphicsHandle) || ~all(ishghandle(systemObj.outputTapeGraphicsHandle)) % Create new lines
+    if isempty(systemObj.outputTapeGraphicsHandle) || ~all(ishghandle(systemObj.outputTapeGraphicsHandle(toPlot))) % Create new lines
+        colorOrder = get(systemObj.outputAxisHandle,'ColorOrder');
+        nColors = size(colorOrder,1);
         timeTemp = repmat(totalTimeTape(2:end-1),2,1);
         timeVector = [totalTimeTape(1) timeTemp(:)' totalTimeTape(end)];
-        outputTemp = repmat(permute(totalOutputTape(:,1:end-1),[3 2 1]),[2 1 1]);
-        outputVector = permute(reshape(outputTemp ,[1 2*size(outputTemp,2) systemObj.nOutputs]),[3 2 1]);
-        systemObj.outputTapeGraphicsHandle = plot(systemObj.outputAxisHandle,...
-            timeVector,outputVector',...
+        outputTemp = repmat(permute(totalOutputTape(toPlot,1:end-1),[3 2 1]),[2 1 1]);
+        outputVector = permute(reshape(outputTemp ,[1 2*size(outputTemp,2) nOutputs]),[3 2 1]);
+        
+        systemObj.outputTapeGraphicsHandle = nan(systemObj.nOutputs,1);
+        for iOutput = 1:nOutputs
+            systemObj.outputTapeGraphicsHandle(toPlot(iOutput),1) = plot(systemObj.outputAxisHandle,...
+            timeVector,outputVector(iOutput,:),...
+            'Color',colorOrder(mod(toPlot(iOutput)-1,nColors)+1,:),...
             systemObj.outputGraphicsProperties{:});
-        for iOutput = 1:systemObj.nOutputs
-            set(systemObj.outputTapeGraphicsHandle(iOutput,1),'DisplayName',systemObj.outputNames{iOutput});
+            set(systemObj.outputTapeGraphicsHandle(toPlot(iOutput),1),'DisplayName',systemObj.outputNames{toPlot(iOutput)});
         end
     else % Update lines
         timeTemp = repmat(totalTimeTape(2:end-1),2,1);
         timeVector = [totalTimeTape(1) timeTemp(:)' totalTimeTape(end)];
-        outputTemp = repmat(permute(totalOutputTape(:,1:end-1),[3 2 1]),[2 1 1]);
-        outputVector = permute(reshape(outputTemp ,[1 2*size(outputTemp,2) systemObj.nOutputs]),[3 2 1]);
-        set(systemObj.outputTapeGraphicsHandle,{'XData' 'YData'},...
+        outputTemp = repmat(permute(totalOutputTape(toPlot,1:end-1),[3 2 1]),[2 1 1]);
+        outputVector = permute(reshape(outputTemp ,[1 2*size(outputTemp,2) nOutputs]),[3 2 1]);
+        set(systemObj.outputTapeGraphicsHandle(toPlot),{'XData' 'YData'},...
             [repmat({timeVector},size(outputVector,1),1),...
             mat2cell(outputVector,ones(1,size(outputVector,1)),size(outputVector,2))],...
             systemObj.outputGraphicsProperties{:});
