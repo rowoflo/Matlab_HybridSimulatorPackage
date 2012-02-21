@@ -14,7 +14,7 @@ function createNew(systemName,systemLocation,varargin)
 %   systemLocation - (valid folder location) [pwd] 
 %       Location of where the system class will be located on file system.
 %
-% PROPERTIES: TODO: Add properties
+% PROPERTIES:
 %   'nStates' - (1 x 1 positive integer) [1]
 %       Number of states the system will have.
 %

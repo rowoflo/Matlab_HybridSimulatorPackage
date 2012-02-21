@@ -1,5 +1,5 @@
 function [d,D] = distance(planeObjs,points)
-% The "distance" method calculates the distance from the each point in
+% The "distance" method calculates the distance from each point in
 % "points" to the nearest plane in "planeObjs".
 %
 % SYNTAX:
@@ -16,8 +16,8 @@ function [d,D] = distance(planeObjs,points)
 %
 % OUTPUTS:
 %   d - (1 x nPoints number)
-%       Distance vector. Each element corresponds to the point in the
-%       "points" input.
+%       Minimum distance from a point to a plane. Each element corresponds
+%       to the point in the "points" input variable.
 %
 %   D - (nPlanes x nPoints number)
 %       Distance matrix from each point to each plane, planes are the rows
@@ -60,6 +60,8 @@ dirCube = repmat(permute(dir,[1 3 2]),[1 nPoints]); % nDim x nPoints x nPlanes
 pointCube = repmat(points,[1 1 nPlanes]); % nDim x nPoints x nPlanes
 locCube = repmat(permute(loc,[1 3 2]),[1 nPoints 1]); % nDim x nPoints x nPlanes
 D = permute(sum(dirCube .* (pointCube - locCube),1),[3 2 1]);
-d = max(D,[],1);
+[~,dInd] = min(abs(D),[],1);
+col2Ind = 0:nPlanes:nPoints*(nPlanes-1);
+d = D(dInd + col2Ind);
 
 end

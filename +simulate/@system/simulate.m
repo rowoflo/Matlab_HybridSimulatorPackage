@@ -42,7 +42,7 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 %
 %   stateTape - (? x ? number)
 %       Recording of state values during simulation. A
-%       "pendulumObj.nStates" x "length(timeTape)" maxtrix.
+%       "systemObj.nStates" x "length(timeTape)" maxtrix.
 %
 %   timeTapeD - (1 x ? real number)
 %       A vector specifying the interval of the actual simulation in
@@ -51,11 +51,11 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 %
 %   inputTape - (? x ? number)
 %       Recording of input values during simulation.  A
-%       "pendulumObj.nInputs" x "length(timeTapeD)" maxtrix.
+%       "systemObj.nInputs" x "length(timeTapeD)" maxtrix.
 %
 %   outputTape - (? x ? number)
 %       Recording of output values during simulation.  A
-%       "pendulumObj.nOutputs" x "length(timeTapeD)" maxtrix.
+%       "systemObj.nOutputs" x "length(timeTapeD)" maxtrix.
 %
 %   flowTimeTape - (1 x ? semi-positive real number)
 %       Recording of flow time values during simulation. A 1 x

@@ -32,57 +32,16 @@ properties (Abstract = true, SetAccess = private)
     type % (string) Type of system.
 end
 
-properties (Access = public) % TODO: Add set methods for all of these properties
-    % Graphics
+properties (Access = public)
     graphicsFlag = false; % (1 x 1 logical) Flag determining if graphics are drawn during simulation.
     legendFlag = true; % (1 x 1 logical) Flag determining if legends are displayed in plots.
     
     plotStateFlag = true; % (1 x 1 logical) Flag determining if the state plot is drawn during the simulation.
-    statesToPlot = []; % (1 x ? positive integer <= nStates) List of states to include in the state plot.
     plotParamsFlag = true; % (1 x 1 logical) Flag determing if the flow time and jump count will be plotted with the states.
-    paramsToPlot = []; % (1 x ? 1 or 2 or [1 2]) List of parameters to include in the state plot.
-    stateFigureHandle = []; % (1 x 1 graphics object) Figure handle to where state tape is plotted.
-    stateFigureProperties = {}; % (1 x ? cell array) State plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
-    stateAxisHandle = []; % (1 x 1 graphics object) Axis handle to where state tape is plotted.
-    stateAxisProperties = {}; % (1 x ? cell array) State plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
-    stateGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each state.
-    stateTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each state tape.
-    stateGraphicsProperties = {}; % (1 x ? cell array) State plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
-    
     plotInputFlag = true; % (1 x 1 logical) Flag determining if the input plot is drawn during the simulation.
-    inputsToPlot = []; % (1 x ? positive integer <= nInputs) List of inputs to include in the input plot.
-    inputFigureHandle = []; % (1 x 1 graphics object) Figure handle to where input tape is plotted.
-    inputFigureProperties = {}; % (1 x ? cell array) Input plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
-    inputAxisHandle = []; % (1 x 1 graphics object) Axis handle to where input tape is plotted.
-    inputAxisProperties = {}; % (1 x ? cell array) Input plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
-    inputTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each input tape.
-    inputGraphicsProperties = {}; % (1 x ? cell array) Input plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
-    
     plotOutputFlag = true; % (1 x 1 logical) Flag determining if the output plot is drawn during the simulation.
-    outputsToPlot = []; % (1 x ? positive integer <= nOutputs) List of outputs to include in the output plot.
-    outputFigureHandle = []; % (1 x 1 graphics object) Figure handle to where output tape is plotted.
-    outputFigureProperties = {}; % (1 x ? cell array) Output plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
-    outputAxisHandle = []; % (1 x 1 graphics object) Axis handle to where output tape is plotted.
-    outputAxisProperties = {}; % (1 x ? cell array) Output plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
-    outputTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each output tape.
-    outputGraphicsProperties = {}; % (1 x ? cell array) Output plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
-    
     plotPhaseFlag = false; % (1 x 1 logical) Flag determining if the phase plot is drawn during the simulation.
-    phasePairsToPlot = []; % (1 x ? positive integer <= nPhasePairs) List of phase to include in the phase plot.
-    phaseFigureHandle = []; % (1 x 1 graphics object) Figure handle to where the system phase plot is drawn.
-    phaseFigureProperties = {}; % (1 x ? cell array) Phase plot figure properties to be applied to the phase method. (e.g. {'Color','w'})
-    phaseAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system phase plot is drawn.
-    phaseAxisProperties = {}; % (1 x ? cell array) Phase axis properties to be applied to the phase method. (e.g. {'FontWeight','bold'})
-    phaseGraphicsHandle = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the state in the phase plot.
-    phaseTapeGraphicsHandle = [];  % (? x 1 graphics handle) Object handles to graphics objects associated with the state tape in the phase plot.
-    phaseGraphicsProperties = {}; % (1 x ? cell array) Phase graphics properties to be applied to the phase method. (e.g {'LineWidth',2})
-    
     plotSketchFlag = false; % (1 x 1 logical) Flag determining if the sketch plot is drawn during the simulation.
-    sketchFigureHandle = []; % (1 x 1 graphics object) Figure handle to where system animation drawing is done.
-    sketchFigureProperties = {}; % (1 x ? cell array) Sketch plot figure properties to be applied to the sketch method. (e.g. {'Color','w'})
-    sketchAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system animation drawing is done.
-    sketchAxisProperties = {}; % (1 x ? cell array) Sketch plot axis properties to be applied to the sketch method. (e.g. {'FontWeight','bold'})
-    sketchGraphicsHandles = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the system animation drawing.
     
     setPriority = 'jump'; % ('flow','jump', or 'random') Sets the priority to what takes place if the state is in both the flow set and the jump set.
     maxFlowTime = inf; % (1 x 1 positive number) Maximum flow time for the simulation.
@@ -107,6 +66,51 @@ properties (Access = public) % TODO: Add set methods for all of these properties
     openLoopInputTape = []; % (1 x ? real number) Open-loop control input tape.
     stateOP; % (nStates x 1 real number) Operating point for the state used in feedback control.
     inputOP; % (nInputs x 1 real number) Operating point for the input used in feedback control.
+end
+
+properties (Access = public, Hidden = true) % TODO: Add set methods for all of these properties
+    % Graphics
+    statesToPlot = []; % (1 x ? positive integer <= nStates) List of states to include in the state plot.
+    
+    paramsToPlot = []; % (1 x ? 1 or 2 or [1 2]) List of parameters to include in the state plot.
+    stateFigureHandle = []; % (1 x 1 graphics object) Figure handle to where state tape is plotted.
+    stateFigureProperties = {}; % (1 x ? cell array) State plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
+    stateAxisHandle = []; % (1 x 1 graphics object) Axis handle to where state tape is plotted.
+    stateAxisProperties = {}; % (1 x ? cell array) State plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
+    stateGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each state.
+    stateTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each state tape.
+    stateGraphicsProperties = {}; % (1 x ? cell array) State plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
+    
+    inputsToPlot = []; % (1 x ? positive integer <= nInputs) List of inputs to include in the input plot.
+    inputFigureHandle = []; % (1 x 1 graphics object) Figure handle to where input tape is plotted.
+    inputFigureProperties = {}; % (1 x ? cell array) Input plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
+    inputAxisHandle = []; % (1 x 1 graphics object) Axis handle to where input tape is plotted.
+    inputAxisProperties = {}; % (1 x ? cell array) Input plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
+    inputTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each input tape.
+    inputGraphicsProperties = {}; % (1 x ? cell array) Input plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
+    
+    outputsToPlot = []; % (1 x ? positive integer <= nOutputs) List of outputs to include in the output plot.
+    outputFigureHandle = []; % (1 x 1 graphics object) Figure handle to where output tape is plotted.
+    outputFigureProperties = {}; % (1 x ? cell array) Output plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
+    outputAxisHandle = []; % (1 x 1 graphics object) Axis handle to where output tape is plotted.
+    outputAxisProperties = {}; % (1 x ? cell array) Output plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
+    outputTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each output tape.
+    outputGraphicsProperties = {}; % (1 x ? cell array) Output plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
+    
+    phasePairsToPlot = []; % (1 x ? positive integer <= nPhasePairs) List of phase to include in the phase plot.
+    phaseFigureHandle = []; % (1 x 1 graphics object) Figure handle to where the system phase plot is drawn.
+    phaseFigureProperties = {}; % (1 x ? cell array) Phase plot figure properties to be applied to the phase method. (e.g. {'Color','w'})
+    phaseAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system phase plot is drawn.
+    phaseAxisProperties = {}; % (1 x ? cell array) Phase axis properties to be applied to the phase method. (e.g. {'FontWeight','bold'})
+    phaseGraphicsHandle = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the state in the phase plot.
+    phaseTapeGraphicsHandle = [];  % (? x 1 graphics handle) Object handles to graphics objects associated with the state tape in the phase plot.
+    phaseGraphicsProperties = {}; % (1 x ? cell array) Phase graphics properties to be applied to the phase method. (e.g {'LineWidth',2})
+    
+    sketchFigureHandle = []; % (1 x 1 graphics object) Figure handle to where system animation drawing is done.
+    sketchFigureProperties = {}; % (1 x ? cell array) Sketch plot figure properties to be applied to the sketch method. (e.g. {'Color','w'})
+    sketchAxisHandle = []; % (1 x 1 graphics handle) Axis handle to where the system animation drawing is done.
+    sketchAxisProperties = {}; % (1 x ? cell array) Sketch plot axis properties to be applied to the sketch method. (e.g. {'FontWeight','bold'})
+    sketchGraphicsHandles = []; % (? x 1 graphics handle) Object handles to graphics objects associated with the system animation drawing.
 end
 
 properties (SetAccess = protected)

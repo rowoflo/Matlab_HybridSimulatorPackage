@@ -119,6 +119,22 @@ graphicsHandles(4) = plot(axisHandle,pts(1,:),pts(2,:),...
     'MarkerFaceColor','r',...
     varargin{:});
 
+%% Axis limits
+xmin = min(pts(1,:)) - normLength;
+xmax = max(pts(1,:)) + normLength;
+ymin = min(pts(2,:)) - normLength;
+ymax = max(pts(2,:)) + normLength;
+
+xlim([xmin xmax])
+ylim([ymin ymax])
+
+axis equal
+
+%% Turn off legend components
+for i = 1:length(graphicsHandles)
+    set(get(get(graphicsHandles(i),'Annotation'),'LegendInformation'),'IconDisplayStyle','off')
+end
+
 %% Output handle if needed
 if nargout == 0
     clear graphicsHandles
