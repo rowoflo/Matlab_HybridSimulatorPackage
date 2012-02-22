@@ -86,7 +86,7 @@ tFinal = t0 + duration;
 timeInterval = [t0 tFinal];
 
 %% Simulate
-[timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape] = ...
+[timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
     simulate(systemObj,timeInterval,systemObj.state,systemObj.flowTime,systemObj.jumpCount,'movieFile',movieFile);
 
 %% Update
@@ -102,5 +102,7 @@ systemObj.inputTape = [systemObj.inputTape inputTape];
 systemObj.outputTape = [systemObj.outputTape outputTape];
 systemObj.flowTimeTape = [systemObj.flowTimeTape flowTimeTape];
 systemObj.jumpCountTape = [systemObj.jumpCountTape jumpCountTape];
+
+systemObj.stopFlag = stopFlag;
 
 end

@@ -220,7 +220,7 @@ end
 
 %% Methods in separte files ----------------------------------------------------
 methods (Access = public)
-    [d,D] = distance(planeObjs,points)
+    [d,D] = distance(planeObjs,points,dType)
     pts = intercept(planeObjs)
     graphicsHandles = sketch(planeObjs,axisHandle,varargin)
 end

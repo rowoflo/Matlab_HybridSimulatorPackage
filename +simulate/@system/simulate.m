@@ -360,7 +360,10 @@ if systemObj.graphicsFlag
                 [inputTape(:, 1:cntD) nan(systemObj.nInputs,1)],...
                 [outputTape(:, 1:cntD) nan(systemObj.nOutputs,1)],...
                 'update');
-    odeGraphics([],[],[],[],[],'done');
+    
+    if systemObj.clearStopButtonFlag || stopFlag
+        odeGraphics([],[],[],[],[],'done');
+    end
     
 %     if movieFlag
 %         for iFigCnt = 1:length(figureList)

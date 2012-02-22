@@ -35,6 +35,7 @@ end
 properties (Access = public)
     graphicsFlag = false; % (1 x 1 logical) Flag determining if graphics are drawn during simulation.
     legendFlag = true; % (1 x 1 logical) Flag determining if legends are displayed in plots.
+    clearStopButtonFlag = true; % (1 x 1 logical) Flag determining if the stop buttons are clear after simulation.
     
     plotStateFlag = true; % (1 x 1 logical) Flag determining if the state plot is drawn during the simulation.
     plotParamsFlag = true; % (1 x 1 logical) Flag determing if the flow time and jump count will be plotted with the states.
@@ -126,6 +127,8 @@ properties (SetAccess = protected)
     outputTape % (nOutputs x ? real number) Recording of past system outputs. The length is the same as "timeTapeD".
     flowTimeTape % (1 x ? semi-positive real number) Recording of past flow time. The length is the same as "timeTapeD".
     jumpCountTape % (1 x ? semi-positive integer) Recording of past jump count. The length is the same as "timeTapeD".
+    
+    stopFlag = false; % (1 x 1 logical) Indicates if the stop button was hit in the run method.
 end
 
 properties (SetAccess = private)
@@ -593,7 +596,7 @@ methods (Access = public)
     end
     
     function setState(systemObj,state)
-        % The "setTime" method is used to set the state property of the
+        % The "setState" method is used to set the state property of the
         % system.
         %
         % SYNTAX:
