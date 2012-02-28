@@ -150,7 +150,7 @@ end
 %% Parameters
 % movieFrameRate = 20; % TODO: Add these paramerters to input
 % movieQuality = 60;
-catSize = 500;
+catSize = 2000;
 
 %% Initialize
 zeroSize = systemObj.zeroSize;

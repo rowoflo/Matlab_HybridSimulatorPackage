@@ -92,8 +92,8 @@ function [route,policy] = rapidRandomTrees(initialState,goalState,goalSize,state
 % 
 % OUTPUTS:
 %   route - (? x ? number)
-%       Route from "initialState" to "goalState". The matrix is number of
-%       states by number of nodes in the route.
+%       Route from "initialState" to "goalState". The matrix is dimension of
+%       the state by number of nodes in the route.
 %
 %   policy - (size type) TODO
 %       Description.
@@ -302,7 +302,7 @@ while ~foundGoal && nodeCnt < maxNodeCnt
         drawnow
         
         if movieFlag
-            currentFrame = getframe;
+            currentFrame = getframe; %#ok<UNRCH>
             writeVideo(vidObj,currentFrame);
         end
         delete(randHandle)
@@ -328,7 +328,7 @@ if plotFlag
     scatter(axisHandle,route(plotStates(1),:),route(plotStates(2),:),'ro','filled','LineWidth',2);
     plot(axisHandle,route(plotStates(1),:),route(plotStates(2),:),'r-','LineWidth',2);
     if movieFlag
-        currentFrame = getframe;
+        currentFrame = getframe; %#ok<UNRCH>
         for ii = 1:ceil(movieFrameRate/2)
             writeVideo(vidObj,currentFrame);
         end
