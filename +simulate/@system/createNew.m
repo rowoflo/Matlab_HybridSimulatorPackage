@@ -34,7 +34,7 @@ function createNew(systemName,systemLocation,varargin)
 %   'nOutputs' - (1 x 1 positive integer) [nStates]
 %       Number of outputs the system will have.
 %
-%   'outputNames' - (? x 1 cell array of strings) [{'x1';'x2';...}]
+%   'outputNames' - (? x 1 cell array of strings) [{'y1';'y2';...}]
 %       Names of the output variables. One per output. If this is specified
 %       'nOutputs' property will automatically be updated. Default uses the
 %       value in the 'nOutputs' property.

@@ -172,7 +172,7 @@ for iParam = 1:propargin/2
     end
 end
 
-% Set to default value if necessary TODO: Add property defaults
+% Set to default value if necessary
 if ~exist('axisHandle','var'), axisHandle = []; end
 
 % Check property values for errors TODO: Add property error checks
