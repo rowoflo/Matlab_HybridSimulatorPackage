@@ -42,7 +42,8 @@ function [route,policy] = rapidRandomTrees(initialState,goalState,goalSize,state
 %
 %   distanceCalculation - (function handle)
 %       A function that calculates the distance from each state-to-node
-%       pair.
+%       pair. Note, you may set distance to infinate if path from node to
+%       state is not valid.
 %       SYNTAX:
 %       distanceMatrix = distanceCalculation(nodes,states)
 %       INPUTS:
@@ -180,6 +181,11 @@ assert(isempty(axisHandle) || (ishandle(axisHandle) && numel(axisHandle) == 1 &&
     'simulate:rapidRandomTrees:axisHandle',...
     'Property "axisHandle" must be empty or a 1 x 1 axes handle.')
 
+% Check if goal state is valid state by given validation function
+assert(stateValidation(goalState),...
+    'simulate:rapidRandomTrees:goalSize',...
+    'Input argument "goalSize" does not valid from "stateValidation" function.')
+
 %% Parameters % TODO: add these parameters to input arguments parameters
 maxNodeCnt = 10000; % Maximum number of nodes in the tree
 nodeCatSize = 3000; % Node preallocation size
@@ -235,12 +241,11 @@ foundGoal = all(abs(initialState - goalState) <= goalSize);
 while ~foundGoal && nodeCnt < maxNodeCnt
     iterationCnt = iterationCnt + 1;
     
-    % Pick random point
-    randStates = randomState(nRandPoints,stateLimits,stateValidation);
-    randStatePlusGoal = [randStates goalState];
+    % Pick random state points, plus goal state
+    randStates = [randomState(nRandPoints,stateLimits,stateValidation) goalState];
     
     % Calculate distance
-    distanceMatrix = distanceCalculation(nodes(:,1:nodeCnt),randStatePlusGoal);
+    distanceMatrix = distanceCalculation(nodes(:,1:nodeCnt),randStates);
     if all(distanceMatrix(:) == inf)
         continue
     end
@@ -249,7 +254,7 @@ while ~foundGoal && nodeCnt < maxNodeCnt
     end
     goodDistLogic = any(distanceMatrix ~= inf,1);
     goodDistMat = distanceMatrix(:,goodDistLogic);
-    goodStates = randStatePlusGoal(:,goodDistLogic);
+    goodStates = randStates(:,goodDistLogic);
     [~,nodeInd] = min(goodDistMat,[],1);
     
     % Extend Forward
