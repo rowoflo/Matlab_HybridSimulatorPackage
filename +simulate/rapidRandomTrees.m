@@ -90,6 +90,9 @@ function [route,policy] = rapidRandomTrees(initialState,goalState,goalSize,state
 %   'axisHandle' - (1 x 1 axes handle) [[]]
 %       If not empty the creation of the tree will be plotted in
 %       this axis.
+%
+%   'nRandPoints' - (1 x 1 positive integer) [1]
+%       Number of random points drawn at each iteration.
 % 
 % OUTPUTS:
 %   route - (? x ? number)
@@ -167,6 +170,8 @@ for iParam = 1:propargin/2
     switch lower(propStrs{iParam})
         case lower('axisHandle')
             axisHandle = propValues{iParam};
+        case lower('nRandPoints')
+            nRandPoints = propValues{iParam};
         otherwise
             error('simulate:rapidRandomTrees:options',...
               'Option string ''%s'' is not recognized.',propStrs{iParam})
@@ -175,11 +180,16 @@ end
 
 % Set to default value if necessary
 if ~exist('axisHandle','var'), axisHandle = []; end
+if ~exist('nRandPoints','var'), nRandPoints = 1; end
 
 % Check property values for errors TODO: Add property error checks
 assert(isempty(axisHandle) || (ishandle(axisHandle) && numel(axisHandle) == 1 && strcmp(get(axisHandle,'Type'),'axes')),...
     'simulate:rapidRandomTrees:axisHandle',...
     'Property "axisHandle" must be empty or a 1 x 1 axes handle.')
+
+assert(isnumeric(nRandPoints) && isreal(nRandPoints) && numel(nRandPoints) == 1 && mod(nRandPoints,1) == 0 && nRandPoints > 0,...
+    'simulate:rapidRandomTrees:axisHandle',...
+    'Property "nRandPoints" must be a 1 x 1 positive integer.')
 
 % Check if goal state is valid state by given validation function
 assert(stateValidation(goalState),...
@@ -190,7 +200,6 @@ assert(stateValidation(goalState),...
 maxNodeCnt = 10000; % Maximum number of nodes in the tree
 nodeCatSize = 3000; % Node preallocation size
 plotStates = [1 2]; % States indices to plot if axesHandle is set
-nRandPoints = 1; % Number of random points choosen at each iteration
 movieFlag = false; % True if movie should be made of tree creation
 movieFile = ''; % File to where movie is saved
 movieFrameRate = 15; % Movie frame rate
