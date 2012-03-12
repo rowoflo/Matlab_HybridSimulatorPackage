@@ -1,4 +1,4 @@
-function [route,policy] = rapidRandomTrees(initialState,goalState,goalSize,stateLimits,stateValidation,distanceCalculation,extendForward,varargin)
+function [route,policy,nodeCnt] = rapidRandomTrees(initialState,goalState,goalSize,stateLimits,stateValidation,distanceCalculation,extendForward,varargin)
 % The "rapidRandomTrees" function runs the Rapidly-Exploring Random Tree
 % algorithm 
 %
@@ -102,6 +102,9 @@ function [route,policy] = rapidRandomTrees(initialState,goalState,goalSize,state
 %   policy - (size type) TODO
 %       Description.
 %
+%   nodeCnt - (1 x 1 positive integer)
+%       Number of nodes in the tree.
+%
 % EXAMPLES: TODO: Add examples
 %
 % NOTES:
@@ -204,6 +207,8 @@ movieFlag = false; % True if movie should be made of tree creation
 movieFile = ''; % File to where movie is saved
 movieFrameRate = 15; % Movie frame rate
 movieQuality = 85; % Movie quality
+nodeColor = [139 69 19]/255;
+routeColor = [255 165 0]/255;
 
 %% Variables
 if ~isempty(axisHandle) && ishandle(axisHandle)
@@ -308,10 +313,10 @@ while ~foundGoal && nodeCnt < maxNodeCnt
     % Plot
     if plotFlag
         title(axisHandle,['Number Of Nodes: ' num2str(nodeCnt)])
-        scatter(axisHandle,newNodes(plotStates(1),:),newNodes(plotStates(2),:),'go','filled','LineWidth',2);
+        scatter(axisHandle,newNodes(plotStates(1),:),newNodes(plotStates(2),:),20,nodeColor,'o','filled','MarkerEdgeColor',nodeColor,'MarkerFaceColor',nodeColor,'LineWidth',2);
         for iNewNode = 1:nNewNodes
             plot(axisHandle,[newNodes(plotStates(1),iNewNode) nodes(plotStates(1),edges(1,nodeInds(iNewNode)))],...
-                [newNodes(plotStates(2),iNewNode) nodes(plotStates(2),edges(1,nodeInds(iNewNode)))],'-g','LineWidth',2);
+                [newNodes(plotStates(2),iNewNode) nodes(plotStates(2),edges(1,nodeInds(iNewNode)))],'-','Color',nodeColor,'LineWidth',2);
         end
         drawnow
         
@@ -339,8 +344,8 @@ policy = policies(paths{end});
 policy = policy(end-1:-1:1);
 
 if plotFlag
-    scatter(axisHandle,route(plotStates(1),:),route(plotStates(2),:),'ro','filled','LineWidth',2);
-    plot(axisHandle,route(plotStates(1),:),route(plotStates(2),:),'r-','LineWidth',2);
+    scatter(axisHandle,route(plotStates(1),:),route(plotStates(2),:),20,nodeColor,'o','filled','MarkerEdgeColor',nodeColor,'MarkerFaceColor',nodeColor,'LineWidth',2);
+    plot(axisHandle,route(plotStates(1),:),route(plotStates(2),:),'-','Color',routeColor,'LineWidth',2);
     if movieFlag
         currentFrame = getframe; %#ok<UNRCH>
         for ii = 1:ceil(movieFrameRate/2)

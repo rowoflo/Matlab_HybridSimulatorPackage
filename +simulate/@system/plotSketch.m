@@ -44,8 +44,12 @@ if nargin < 3 || isempty(state), state = systemObj.state; end
 
 %% Initialize
 % Create Figure
-if isempty(systemObj.sketchFigureHandle) || ~ishghandle(systemObj.sketchFigureHandle) || ~ishghandle(systemObj.sketchAxisHandle)
-    systemObj.sketchFigureHandle = figure;
+if isempty(systemObj.sketchFigureHandle) || ~ishghandle(systemObj.sketchFigureHandle) || isempty(systemObj.sketchAxisHandle) || ~ishghandle(systemObj.sketchAxisHandle)
+    if isempty(systemObj.sketchFigureHandle)
+        systemObj.sketchFigureHandle = figure;
+    else
+        figure(systemObj.sketchFigureHandle);
+    end
     if ~isempty(systemObj.sketchFigureProperties)
         set(systemObj.sketchFigureHandle,systemObj.sketchFigureProperties{:});
     end
@@ -56,6 +60,7 @@ if isempty(systemObj.sketchAxisHandle) || ~ishghandle(systemObj.sketchAxisHandle
     % Create Axis
     figure(systemObj.sketchFigureHandle);
     systemObj.sketchAxisHandle = gca;
+    cla(systemObj.sketchAxisHandle)
     set(systemObj.sketchAxisHandle,'DrawMode','normal')
     set(systemObj.sketchAxisHandle,'NextPlot','add')
     axis equal
