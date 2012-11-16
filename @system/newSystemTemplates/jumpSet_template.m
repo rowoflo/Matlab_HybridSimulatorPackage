@@ -16,7 +16,7 @@ function jumpSetValue = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %   time - (1 x 1 real number) [SYSTEM_NAMEObj.time]
 %       Current time.
 %
-%   state - (? x 1 number) [SYSTEM_NAMEObj.state]
+%   state - (NSTATES x 1 number) [SYSTEM_NAMEObj.state]
 %       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]

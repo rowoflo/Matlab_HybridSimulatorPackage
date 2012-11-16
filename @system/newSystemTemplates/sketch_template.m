@@ -12,7 +12,7 @@ function sketch(SYSTEM_NAMEObj,state,time,varargin)
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
-%   state - (? x 1 real number) [SYSTEM_NAMEObj.state] 
+%   state - (NSTATES x 1 real number) [SYSTEM_NAMEObj.state] 
 %       The state that the SYSTEM_NAME will be drawn in.
 %
 %   time - (1 x 1 real number) [SYSTEM_NAMEObj.time] 

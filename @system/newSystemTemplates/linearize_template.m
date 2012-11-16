@@ -3,34 +3,35 @@ function [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
 % the the given operating point.
 %
 % SYNTAX:
+%   [A,B,C,D] = SYSTEM_NAMEObj.linearize()
 %   [A,B,C,D] = SYSTEM_NAMEObj.linearize(stateOP,inputOP)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
-%   stateOP - (? x 1 number)
+%   stateOP - (NSTATES x 1 number) [SYSTEM_NAMEObj.stateOP]
 %       State operating point. Must be a "SYSTEM_NAMEObj.nStates" x 1
 %       vector.
 %
-%   inputOP - (? x 1 number)
+%   inputOP - (NINPUTS x 1 number) [SYSTEM_NAMEObj.inputOP]
 %       Input operating point. Must be a "SYSTEM_NAMEObj.nInputs" x 1
 %       vector. 
 %
 % OUTPUTS:
-%   A - (? x ? number)
+%   A - (NSTATES x NSTATES number)
 %       Linearized A matrix (i.e. df/dx). A "SYSTEM_NAMEObj.nStates" x
 %       "SYSTEM_NAMEObj.nStates" matrix.
 %
-%   B - (? x ? number)
+%   B - (NSTATES x NINPUTS number)
 %       Linearized B matrix (i.e. df/du). A "SYSTEM_NAMEObj.nStates" x 
 %       "SYSTEM_NAMEObj.nInputs" matrix.
 %
-%   C - (? x ? number)
+%   C - (NOUTPUTS x NSTATES number)
 %       Linearized C matrix (i.e. dh/dx). A "SYSTEM_NAMEObj.nOutputs" x
 %       "SYSTEM_NAMEObj.nStates" matrix.
 %
-%   D - (? x ? number)
+%   D - (NOUTPUTS x NINPUTS number)
 %       Linearized D matrix (i.e. dh/du). A "SYSTEM_NAMEObj.nOutputs" x
 %       "SYSTEM_NAMEObj.nInputs" matrix.
 %
@@ -47,7 +48,8 @@ function [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-
+if nargin < 2, stateOP = SYSTEM_NAMEObj.stateOP; end
+if nargin < 3, inputOP = SYSTEM_NAMEObj.inputOP; end
 
 %% Parameters
 

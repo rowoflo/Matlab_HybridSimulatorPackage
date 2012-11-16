@@ -86,7 +86,7 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 %% Check Input Arguments
 
 % Check number of arguments
-error(nargchk(2,inf,nargin))
+narginchk(2,inf)
 
 % Apply default values
 if nargin < 3, initialState = systemObj.state; end

@@ -17,10 +17,10 @@ function output = sensor(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %   time - (1 x 1 real number) [SYSTEM_NAMEObj.time]
 %       Current time.
 %
-%   state - (? x 1 number) [SYSTEM_NAMEObj.state]
+%   state - (NSTATES x 1 number) [SYSTEM_NAMEObj.state]
 %       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
 %
-%   input - (? x 1 number) [SYSTEM_NAMEObj.input]
+%   input - (NINPUTS x 1 number) [SYSTEM_NAMEObj.input]
 %       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
@@ -30,7 +30,7 @@ function output = sensor(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %       Current jump count value.
 %
 % OUTPUTS:
-%   output - (? x 1 number)
+%   output - (NOUTPUTS x 1 number)
 %       Output values for the plant. A "SYSTEM_NAMEObj.nOutputs" x 1 vector.
 %
 % NOTES:

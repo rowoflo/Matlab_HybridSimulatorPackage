@@ -62,7 +62,7 @@ methods
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(0,3,nargin))
+        narginchk(0,3)
 
         % Apply default values
         if nargin < 1, x0 = zeros(NSTATES,1); end

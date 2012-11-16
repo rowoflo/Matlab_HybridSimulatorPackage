@@ -9,11 +9,11 @@ function inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
-%   inputIn - (? x 1 real number)
+%   inputIn - (NINPUTS x 1 real number)
 %       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
 %
 % OUTPUTS:
-%   inputOut - (? x 1 number)
+%   inputOut - (NINPUTS x 1 number)
 %       Constrained input values. A "SYSTEM_NAMEObj.nInputs" x 1 vector.
 %
 % NOTES:

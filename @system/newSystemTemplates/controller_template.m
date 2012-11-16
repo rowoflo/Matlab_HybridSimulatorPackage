@@ -16,7 +16,7 @@ function input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %   time - (1 x 1 real number) [SYSTEM_NAMEObj.time]
 %       Current time.
 %
-%   state - (? x 1 number) [SYSTEM_NAMEObj.state]
+%   state - (NSTATES x 1 number) [SYSTEM_NAMEObj.state]
 %       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
@@ -26,7 +26,7 @@ function input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %       Current jump count value.
 %
 % OUTPUTS:
-%   input - (? x 1 number)
+%   input - (NINPUTS x 1 number)
 %       Input values for the system. A "SYSTEM_NAMEObj.nInputs" x 1 vector.
 %
 % NOTES:

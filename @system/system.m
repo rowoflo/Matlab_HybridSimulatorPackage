@@ -175,7 +175,7 @@ methods
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(0,5,nargin))
+        narginchk(0,5)
         
         % Apply default values
         if nargin < 1, timeStep = 0.1; end
@@ -224,8 +224,8 @@ methods
         systemObj.setDefaultInputNames;
         systemObj.setDefaultOutputNames;
         
-        systemObj.stateOP = zeros(systemObj.nStates,1);
-        systemObj.inputOP = zeros(systemObj.nInputs,1);
+        systemObj.stateOP = zeros(systemObj.nStates,0);
+        systemObj.inputOP = zeros(systemObj.nInputs,0);
         
         systemObj.outputsToPlot = 1:nOutputs;
         

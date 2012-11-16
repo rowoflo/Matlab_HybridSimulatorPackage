@@ -63,7 +63,7 @@ function createNew(systemName,systemLocation,varargin)
 %% Check Input Arguments
 
 % Check number of arguments
-error(nargchk(1,inf,nargin))
+narginchk(1,inf)
 
 % Apply default values
 if nargin < 2, systemLocation = pwd; end
