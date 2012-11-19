@@ -1,4 +1,4 @@
-function input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
+function input = controller(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 % The "controller" method will produce input values given the current
 % time and state of the system.
 %
@@ -6,8 +6,9 @@ function input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %   input = SYSTEM_NAMEObj.controller()
 %   input = SYSTEM_NAMEObj.controller(time)
 %   input = SYSTEM_NAMEObj.controller(time,state)
-%   input = SYSTEM_NAMEObj.controller(time,state,flowTime)
-%   input = SYSTEM_NAMEObj.controller(time,state,flowTime,jumpCount)
+%   input = SYSTEM_NAMEObj.controller(time,state,input)
+%   input = SYSTEM_NAMEObj.controller(time,state,input,flowTime)
+%   input = SYSTEM_NAMEObj.controller(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
@@ -18,6 +19,9 @@ function input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %
 %   state - (NSTATES x 1 number) [SYSTEM_NAMEObj.state]
 %       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
+%
+%   input - (NINPUTS x 1 number) [SYSTEM_NAMEObj.input]
+%       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.
@@ -44,8 +48,9 @@ function input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %% Apply default values
 if nargin < 2, time = SYSTEM_NAMEObj.time; end
 if nargin < 3, state = SYSTEM_NAMEObj.state; end
-if nargin < 4, flowTime = SYSTEM_NAMEObj.flowTime; end
-if nargin < 5, jumpCount = SYSTEM_NAMEObj.jumpCount; end
+if nargin < 4, input = SYSTEM_NAMEObj.input; end
+if nargin < 5, flowTime = SYSTEM_NAMEObj.flowTime; end
+if nargin < 6, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 
 %% Parameters
 

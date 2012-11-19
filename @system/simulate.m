@@ -181,8 +181,9 @@ timeVector = initialTime:systemObj.timeStep:finalTime;
 nTimePoints = length(timeVector);
 
 % Initial input/output variables
-initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialFlowTime,initialJumpCount));
+initialInput = zeros(systemObj.nInputs,1);
 initialOutput = systemObj.sensor(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount);
+initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount));
 uD = initialInput; % Current input. Updated discretely.
 
 % Tape variables
@@ -314,8 +315,8 @@ while 1
         xD = X(:, end);
         fD = fC;
         jD = jC;
-        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,fD,jD));
         yD = systemObj.sensor(tD,xD,uD,fD,jD);
+        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,fD,jD));
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
         outputTape(:, cntD) = yD;

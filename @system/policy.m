@@ -1,16 +1,17 @@
-function input = policy(systemObj,time,state,flowTime,jumpCount)
-% The "policy" method creates input values based time and state information
-% for either open-loop control or closed loop control. This is determined
+function input = policy(systemObj,time,state,input,flowTime,jumpCount)
+% The "policy" method creates input values based on time and state information
+% for either open-loop control or closed-loop control. This is determined
 % by the "openLoopControl" property ("true" for open-loop control and
-% "false" for closed loop control). The open-loop controller is determined
+% "false" for closed-loop control). The open-loop controller is determined
 % by the "openLoopTimeTape" and "openLoopInputTape" properties and the
 % closed loop control is determined by the "controller" method.
 %
 % SYNTAX:
 %   input = policy(systemObj,time)
 %   input = policy(systemObj,time,state)
-%   input = policy(systemObj,time,state,flowTime)
-%   input = policy(systemObj,time,state,flowTime,jumpCount)
+%   input = policy(systemObj,time,state,input)
+%   input = policy(systemObj,time,state,input,flowTime)
+%   input = policy(systemObj,time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   systemObj - (1 x 1 simulate.system)
@@ -19,8 +20,11 @@ function input = policy(systemObj,time,state,flowTime,jumpCount)
 %   time - (1 x 1 real number)
 %       Current time.
 %
-%   state - (? x 1 number) [systemoObj.state]
+%   state - (systemoObj.nStates x 1 number) [systemoObj.state]
 %       Current state. Must be a "systemObj.nStates" x 1 vector.
+%
+%   input - (systemoObj.nInputs x 1 number) [zeros(systemoObj.nInputs,1)]
+%       Current input value. Must be a "systemoObj.nInputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [0]
 %       Current flow time value.
@@ -29,7 +33,7 @@ function input = policy(systemObj,time,state,flowTime,jumpCount)
 %       Current jump count value.
 %
 % OUTPUTS: TODO: Add outputs
-%   input - (? x 1 number)
+%   input - (systemoObj.nInputs x 1 number)
 %       Input values for the system. A "systemObj.nInputs" x 1 vector.
 %
 % NOTES:
@@ -49,8 +53,9 @@ function input = policy(systemObj,time,state,flowTime,jumpCount)
 
 %% Apply default values
 if nargin < 3, state = systemObj.state; end
-if nargin < 4, flowTime = 0; end
-if nargin < 5, jumpCount = 0; end
+if nargin < 4, input = systemObj.input; end
+if nargin < 5, flowTime = 0; end
+if nargin < 6, jumpCount = 0; end
 
 %% Input Policy
 if systemObj.openLoopControl
@@ -61,7 +66,9 @@ if systemObj.openLoopControl
         input = systemObj.openLoopInputTape(:,timeIndex);
     end
 else
-    input = systemObj.controller(time,state,flowTime,jumpCount);
+    output = systemObj.sensor(time,state,input,flowTime,jumpCount);
+    stateHat = systemObj.observer(time,state,input,output,flowTime,jumpCount);
+    input = systemObj.controller(time,stateHat,input,flowTime,jumpCount);
 end
 
 end

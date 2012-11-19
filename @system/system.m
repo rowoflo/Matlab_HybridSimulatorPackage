@@ -532,7 +532,7 @@ methods
         %---------------------------------------------------------------------
 
         input = systemObj.inputConstraints(systemObj.policy(...
-            systemObj.time,systemObj.state,systemObj.flowTime,systemObj.jumpCount));
+            systemObj.time,systemObj.state,zeros(systemObj.nInputs,1),systemObj.flowTime,systemObj.jumpCount));
     end
     
     function output = get.output(systemObj)
@@ -576,7 +576,7 @@ methods (Access = public)
         %-----------------------------------------------------------------------
 
         % Check number of arguments
-        error(nargchk(2,2,nargin))
+        narginchk(2,2)
         
         % Check arguments for errors
         assert(isnumeric(time) && isreal(time) && isequal(size(time),[1,1]),...
@@ -618,7 +618,7 @@ methods (Access = public)
         %-----------------------------------------------------------------------
 
         % Check number of arguments
-        error(nargchk(2,2,nargin))
+        narginchk(2,2)
         
         % Check arguments for errors
         assert(isnumeric(state) && isequal(size(state),[systemObj.nStates,1]),...
@@ -653,7 +653,7 @@ methods (Access = public)
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(1,1,nargin))
+        narginchk(1,1)
         
         for iName = 1:systemObj.nStates
             systemObj.stateNames{iName} = ['state' num2str(iName)];
@@ -676,7 +676,7 @@ methods (Access = public)
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(1,1,nargin))
+        narginchk(1,1)
         
         for iName = 1:systemObj.nInputs
             systemObj.inputNames{iName} = ['input' num2str(iName)];
@@ -699,7 +699,7 @@ methods (Access = public)
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(1,1,nargin))
+        narginchk(1,1)
         
         for iName = 1:systemObj.nOutputs
             systemObj.outputNames{iName} = ['output' num2str(iName)];
@@ -721,7 +721,7 @@ methods (Access = public)
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(1,1,nargin))
+        narginchk(1,1)
         
         if systemObj.movieFlag && ~isempty(systemObj.movieObj)
             for iFigCnt = 1:length(systemObj.movieObj)
@@ -897,45 +897,13 @@ methods (Abstract = true)
     %   input = systemObj.controller()
     %   input = systemObj.controller(time)
     %   input = systemObj.controller(time,state)
+    %   input = systemObj.controller(time,state,input)
     %   input = systemObj.controller(time,state,flowTime)
     %   input = systemObj.controller(time,state,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
     %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
-    %
-    %   time - (1 x 1 real number) [systemObj.time]
-    %       Current time.
-    %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
-    %
-    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
-    %       Current flow time value.
-    %
-    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
-    %       Current jump count value.
-    %
-    % OUTPUTS:
-    %   input - (? x 1 real number)
-    %       Input values for the plant. A "systemObj.nInputs" x 1 vector.
-    %
-    %---------------------------------------------------------------------------
-    input = controller(systemObj,time,state,flowTime,jumpCount)
-    
-    % The "observer" method will produce estimates of the state values
-    % given the current time, state, and input of the system.
-    %
-    % SYNTAX:
-    %   stateHat = systemObj.observer()
-    %   stateHat = systemObj.observer(time)
-    %   stateHat = systemObj.observer(time,state)
-    %   stateHat = systemObj.observer(time,state,input,flowTime)
-    %   stateHat = systemObj.observer(time,state,input,flowTime,jumpCount)
-    %
-    % INPUTS:
-    %   systemObj - (1 x 1 simulate.system)
-    %       An instance of the "simulate.system" class.
     %
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
@@ -953,11 +921,52 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
+    %   input - (? x 1 real number)
+    %       Input values for the plant. A "systemObj.nInputs" x 1 vector.
+    %
+    %---------------------------------------------------------------------------
+    input = controller(systemObj,time,state,input,flowTime,jumpCount)
+    
+    % The "observer" method will produce estimates of the state values
+    % given the current time, state, and input of the system.
+    %
+    % SYNTAX:
+    %   stateHat = systemObj.observer()
+    %   stateHat = systemObj.observer(time)
+    %   stateHat = systemObj.observer(time,state)
+    %   stateHat = systemObj.observer(time,state,input)
+    %   stateHat = systemObj.observer(time,state,input,output)
+    %   stateHat = systemObj.observer(time,state,input,output,flowTime)
+    %   stateHat = systemObj.observer(time,state,input,output,flowTime,jumpCount)
+    %
+    % INPUTS:
+    %   systemObj - (1 x 1 simulate.system)
+    %       An instance of the "simulate.system" class.
+    %
+    %   time - (1 x 1 real number) [systemObj.time]
+    %       Current time.
+    %
+    %   state - (? x 1 number) [systemObj.state]
+    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %
+    %   input - (? x 1 number) [systemObj.input]
+    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+    %
+    %   output - (? x 1 number) [systemObj.output]
+    %       Output values for the plant. A "triadObj.nOutputs" x 1 vector.
+    %
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
+    %       Current flow time value.
+    %
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
+    %       Current jump count value.
+    %
+    % OUTPUTS:
     %   stateHat - (? x 1 number)
     %       Estimates of the states of the system. A "systemObj.nStates" x 1 vector.
     %
     %---------------------------------------------------------------------------
-    output = observer(systemObj,time,state,input,flowTime,jumpCount)
+    output = observer(systemObj,time,state,input,output,flowTime,jumpCount)
     
     % The "sensor" method will produce output values given the current
     % time and state of the system.
@@ -1086,7 +1095,7 @@ end
 
 %% Methods in separte files ----------------------------------------------------
 methods (Access = protected)
-    input = policy(systemObj,time,state,flowTime,jumpCount)
+    input = policy(systemObj,time,state,input,flowTime,jumpCount)
     plotState(systemObj,time,state,timeTapeC,stateTape,varargin)
     plotInput(systemObj,time,timeTapeD,inputTape,varargin)
     plotOutput(systemObj,time,timeTapeD,outputTape,varargin)
@@ -1123,7 +1132,7 @@ methods (Static = true)
         % NOTES:
         %
         %-----------------------------------------------------------------------
-        version = '1.5';
+        version = '1.6';
     end
 end
 %------------------------------------------------------------------------------- 

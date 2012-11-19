@@ -233,9 +233,9 @@ methods (Access = public) % Superclass Abstract Methods
     flowState = flowSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     jumpState = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     
-    input = controller(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
+    input = controller(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
     stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
-    output = sensor(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
+    output = sensor(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
     inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
     [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
     sketch(SYSTEM_NAMEObj,state,time,varargin)

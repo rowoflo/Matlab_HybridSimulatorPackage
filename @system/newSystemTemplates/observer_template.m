@@ -1,4 +1,4 @@
-function stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
+function stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
 % The "observer" method will produce estimates of the state values given
 % the current time, state, and input of the system.
 %
@@ -7,8 +7,9 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %   stateHat = SYSTEM_NAMEObj.observer(time)
 %   stateHat = SYSTEM_NAMEObj.observer(time,state)
 %   stateHat = SYSTEM_NAMEObj.observer(time,state,input)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,flowTime)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,flowTime,jumpCount)
+%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output)
+%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output,flowTime)
+%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
@@ -22,6 +23,9 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %
 %   input - (NINPUTS x 1 number) [SYSTEM_NAMEObj.input]
 %       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
+%
+%   output - (NOUTPUTS x 1 number) [SYSTEM_NAMEObj.output]
+%       Output values for the plant. A "triadObj.nOutputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.
@@ -50,8 +54,9 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 if nargin < 2, time = SYSTEM_NAMEObj.time; end
 if nargin < 3, state = SYSTEM_NAMEObj.state; end
 if nargin < 4, input = SYSTEM_NAMEObj.input; end
-if nargin < 5, flowTime = SYSTEM_NAMEObj.flowTime; end
-if nargin < 6, jumpCount = SYSTEM_NAMEObj.jumpCount; end
+if nargin < 5, output = SYSTEM_NAMEObj.output; end
+if nargin < 6, flowTime = SYSTEM_NAMEObj.flowTime; end
+if nargin < 7, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 
 %% Parameters
 
