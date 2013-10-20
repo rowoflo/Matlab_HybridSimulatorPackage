@@ -54,6 +54,12 @@ if systemObj.plotOutputFlag
         legend(systemObj.outputAxisHandle,'Location','best')
     end
 end
+if systemObj.plotCostFlag
+    systemObj.plotCost();
+    if systemObj.legendFlag
+        legend(systemObj.costAxisHandle,'Location','best')
+    end
+end
 if systemObj.plotPhaseFlag
     systemObj.plotPhase();
     if systemObj.legendFlag

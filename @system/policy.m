@@ -20,11 +20,11 @@ function input = policy(systemObj,time,state,input,flowTime,jumpCount)
 %   time - (1 x 1 real number)
 %       Current time.
 %
-%   state - (systemoObj.nStates x 1 number) [systemoObj.state]
+%   state - (nStates x 1 number) [systemObj.state]
 %       Current state. Must be a "systemObj.nStates" x 1 vector.
 %
-%   input - (systemoObj.nInputs x 1 number) [zeros(systemoObj.nInputs,1)]
-%       Current input value. Must be a "systemoObj.nInputs" x 1 vector.
+%   input - (nInputs x 1 number) [zeros(systemObj.nInputs,1)]
+%       Current input value. Must be a "systemObj.nInputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [0]
 %       Current flow time value.
@@ -32,9 +32,9 @@ function input = policy(systemObj,time,state,input,flowTime,jumpCount)
 %   jumpCount - (1 x 1 semi-positive integer) [0] 
 %       Current jump count value.
 %
-% OUTPUTS: TODO: Add outputs
-%   input - (systemoObj.nInputs x 1 number)
-%       Input values for the system. A "systemObj.nInputs" x 1 vector.
+% OUTPUTS:
+%   input - (nInputs x 1 number)
+%       Input values for the system.
 %
 % NOTES:
 %

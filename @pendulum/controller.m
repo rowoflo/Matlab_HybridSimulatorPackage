@@ -1,11 +1,14 @@
-function input = controller(pendulumObj,time,state,flowTime,jumpCount)
+function input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
 % The "controller" method will produce input values given the current
 % time and state of the system.
 %
 % SYNTAX:
-%   input = controller(pendulumObj,time,state)
-%   input = controller(pendulumObj,time,state,flowTime)
-%   input = controller(pendulumObj,time,state,flowTime,jumpCount)
+%   input = pendulumObj.controller()
+%   input = pendulumObj.controller(time)
+%   input = pendulumObj.controller(time,state)
+%   input = pendulumObj.controller(time,state,input)
+%   input = pendulumObj.controller(time,state,input,flowTime)
+%   input = pendulumObj.controller(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -16,6 +19,9 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %
 %   state - (? x 1 number)
 %       Current state. Must be a "pendulumObj.nStates" x 1 vector.
+%
+%   input - (? x 1 number) [pendulumObj.input]
+%       Current input value. Must be a "pendulumObj.nInputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [0]
 %       Current flow time value.
@@ -40,8 +46,11 @@ function input = controller(pendulumObj,time,state,flowTime,jumpCount)
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 4, flowTime = 0; end
-if nargin < 5, jumpCount = 0; end
+if nargin < 2, time = pendulumObj.time; end
+if nargin < 3, state = pendulumObj.state; end
+if nargin < 4, input = pendulumObj.input; end
+if nargin < 5, flowTime = pendulumObj.flowTime; end
+if nargin < 6, jumpCount = pendulumObj.jumpCount; end
 
 %% Parameters
 

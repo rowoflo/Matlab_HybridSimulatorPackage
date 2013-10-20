@@ -1,16 +1,17 @@
-function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
-    simulate(systemObj,timeInterval,initialState,initialFlowTime,initialJumpCount,varargin)
+function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape,flowTimeTape,jumpCountTape,stopFlag] = ...
+    simulate(systemObj,timeInterval,initialState,initialCost,initialFlowTime,initialJumpCount,varargin)
 % The "simulate" method will simulate the system from the time of
 % "timeInterval(1)" to the time of "timeInterval(end)" and starting in the
 % state of "initialState".
 %
 % SYNTAX:
-%   [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
+%   [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape,flowTimeTape,jumpCountTape,stopFlag] = ...
 %       systemObj.simulate(timeInterval)
 %       systemObj.simulate(timeInterval,initialState)
-%       systemObj.simulate(timeInterval,initialState,initialFlowTime)
-%       systemObj.simulate(timeInterval,initialState,initialFlowTime,initialJumpCount)
-%       systemObj.simulate(timeInterval,initialState,initialFlowTime,initialJumpCount,'PropertyName',PropertyValue,...)
+%       systemObj.simulate(timeInterval,initialState,initialCost)
+%       systemObj.simulate(timeInterval,initialState,initialCost,initialFlowTime)
+%       systemObj.simulate(timeInterval,initialState,initialCost,initialFlowTime,initialJumpCount)
+%       systemObj.simulate(timeInterval,initialState,initialCost,initialFlowTime,initialJumpCount,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
 %   systemObj - (1 x 1 simulate.system)
@@ -20,9 +21,11 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 %       A vector specifying the interval of the simulation. The first value
 %       is the initial time of the second value is the final time.
 %
-%   initialState - (? x 1 number) [systemObj.state]
-%       Initial state of the simulation. Must be a "systemObj.nStates" x 1
-%       vector.
+%   initialState - (nStates x 1 number) [systemObj.state]
+%       Initial state of the simulation.
+%
+%   initialCost - (nCosts x 1 number) [systemObj.cost]
+%       Initial state of the simulation.
 %
 %   initialFlowTime (1 x 1 semi-positive real number) [0]
 %       Initial flow time of the simulation.
@@ -40,30 +43,31 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCo
 %       A vector specifying the interval of the actual simulation in (sudo)
 %       continuous time. All the ODE solver time points are included.
 %
-%   stateTape - (? x ? number)
-%       Recording of state values during simulation. A
-%       "systemObj.nStates" x "length(timeTape)" maxtrix.
+%   stateTape - (nStates x length(timeTapeC) number)
+%       Recording of state values during simulation.
 %
 %   timeTapeD - (1 x ? real number)
 %       A vector specifying the interval of the actual simulation in
 %       discrete time. Will only be different from the input "timeInterval"
 %       if "timeInterval" is two elements or the stop button is pushed in the plot.
 %
-%   inputTape - (? x ? number)
-%       Recording of input values during simulation.  A
-%       "systemObj.nInputs" x "length(timeTapeD)" maxtrix.
+%   inputTape - (nInputs x length(timeTapeD) number)
+%       Recording of input values during simulation.
 %
-%   outputTape - (? x ? number)
-%       Recording of output values during simulation.  A
-%       "systemObj.nOutputs" x "length(timeTapeD)" maxtrix.
+%   outputTape - (nOutputs x length(timeTapeD) number)
+%       Recording of output values during simulation.
 %
-%   flowTimeTape - (1 x ? semi-positive real number)
-%       Recording of flow time values during simulation. A 1 x
-%       "length(timeTapeC)" vector.
+%   instantaneousCostTape - (nCosts x length(timeTapeD) number)
+%       Recording of instantaneous cost values during simulation.
 %
-%   jumpCountTape - (1 x ? semi-positive integer)
-%       Recording of jump count values during simulation. A 1 x
-%       "length(timeTapeC)" vector.
+%   cumulativeCostTape - (nCosts x length(timeTapeD) number)
+%       Recording of cumulative cost values during simulation.
+%
+%   flowTimeTape - (1 x length(timeTapeC) semi-positive real number)
+%       Recording of flow time values during simulation.
+%
+%   jumpCountTape - (1 x length(timeTapeC) semi-positive integer)
+%       Recording of jump count values during simulation.
 %
 %   stopFlag - (1 x 1 logical)
 %       True if the stop button was pushed during simulation.
@@ -90,8 +94,9 @@ narginchk(2,inf)
 
 % Apply default values
 if nargin < 3, initialState = systemObj.state; end
-if nargin < 4, initialFlowTime = 0; end
-if nargin < 5, initialJumpCount = 0; end
+if nargin < 4, initialCost = systemObj.cost; end
+if nargin < 5, initialFlowTime = 0; end
+if nargin < 6, initialJumpCount = 0; end
 
 % Check arguments for errors
 assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
@@ -106,6 +111,10 @@ timeInterval = timeInterval(:)';
 assert(isnumeric(initialState) && isequal(size(initialState),[systemObj.nStates 1]),...
     'simulate:system:simulate:initialState',...
     'Input argument "initialState" must be a %d x 1 vector of numbers.',systemObj.nStates)
+
+assert(isnumeric(initialCost) && isequal(size(initialCost),[systemObj.nCosts 1]),...
+    'simulate:system:simulate:initialCost',...
+    'Input argument "initialCost" must be a %d x 1 vector of numbers.',systemObj.nCosts)
 
 assert(isnumeric(initialFlowTime) && isreal(initialFlowTime) && numel(initialFlowTime) == 1 && initialFlowTime >=0,...
     'simulate:system:simulate:initialFlowTime',...
@@ -184,6 +193,7 @@ nTimePoints = length(timeVector);
 initialInput = zeros(systemObj.nInputs,1);
 initialOutput = systemObj.sensor(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount);
 initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount));
+initialInstantaneousCost = systemObj.cost(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount);
 uD = initialInput; % Current input. Updated discretely.
 
 % Tape variables
@@ -202,9 +212,13 @@ cntD = 1; % Discrete
 timeTapeD = nan(1,nTimePoints+catSize);
 inputTape = nan(systemObj.nInputs,nTimePoints+catSize);
 outputTape = nan(systemObj.nOutputs,nTimePoints+catSize);
+instantaneousCostTape = nan(systemObj.nCosts,nTimePoints+catSize);
+cumulativeCostTape = nan(systemObj.nCosts,nTimePoints+catSize);
 timeTapeD(1, 1) = initialTime;
 inputTape(:, 1) = initialInput;
 outputTape(:, 1) = initialOutput;
+instantaneousCostTape(:, 1) = initialInstantaneousCost;
+cumulativeCostTape(:, 1) = initialCost;
 nTimePointsD = length(timeTapeD);
 
 % Sim variables
@@ -212,6 +226,7 @@ breakFlag = false;
 tC = initialTime; % Current continuous time
 tD = initialTime; % Current discrete time
 xC = initialState; % Currrent continuous state
+JD = initialCost; % Current discrete cost
 fC = initialFlowTime; % Current continuous flow time
 jC = initialJumpCount; % Current continuous jump count
 ts = systemObj.timeStep; % Sampling time
@@ -232,6 +247,8 @@ if systemObj.graphicsFlag
         timeTapeD(1, 1:cntD),...
         inputTape(:, 1:cntD),...
         outputTape(:, 1:cntD),...
+        instantaneousCostTape(:, 1:cntD),...
+        cumulativeCostTape(:, 1:cntD),...
         'init');
 end
 
@@ -308,6 +325,8 @@ while 1
             timeTapeD = [timeTapeD nan(1,catSize)]; %#ok<AGROW>
             inputTape = [inputTape nan(systemObj.nInputs,catSize)]; %#ok<AGROW>
             outputTape = [outputTape nan(systemObj.nOutputs,catSize)]; %#ok<AGROW>
+            instantaneousCostTape = [instantaneousCostTape nan(systemObj.nCosts,catSize)]; %#ok<AGROW>
+            cumulativeCostTape = [cumulativeCostTape nan(systemObj.nCosts,catSize)]; %#ok<AGROW>
             nTimePointsD = length(timeTapeD);
         end
         tD = T(1, end);
@@ -317,9 +336,13 @@ while 1
         jD = jC;
         yD = systemObj.sensor(tD,xD,uD,fD,jD);
         uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,fD,jD));
+        LD = systemObj.cost(tD,xD,uD,yD,fD,jD);
+        JD = systemObj.sumCost(JD,LD);
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
         outputTape(:, cntD) = yD;
+        instantaneousCostTape(:, cntD) = LD;
+        cumulativeCostTape(:, cntD) = JD;
         
         % Update graphics
         if systemObj.graphicsFlag
@@ -328,7 +351,9 @@ while 1
                 stateTape(:, 1:cntC),...
                 timeTapeD(1, 1:cntD),...
                 inputTape(:, 1:cntD),...
-                outputTape(:, 1:cntD),...
+                outputTape(:, 1:cntD),...         
+                instantaneousCostTape(:, 1:cntD),...
+                cumulativeCostTape(:, 1:cntD),...
                 'update');
         end
     end
@@ -349,6 +374,8 @@ stateTape = stateTape(:,timeLogicC);
 timeTapeD = timeTapeD(1,timeLogicD);
 inputTape = inputTape(:,timeLogicD);
 outputTape = outputTape(:,timeLogicD);
+instantaneousCostTape = instantaneousCostTape(:, timeLogicD);
+cumulativeCostTape = cumulativeCostTape(:, timeLogicD);
 flowTimeTape = flowTimeTape(1,timeLogicC);
 jumpCountTape = jumpCountTape(1,timeLogicC);
 
@@ -360,10 +387,12 @@ if systemObj.graphicsFlag
                 [timeTapeD(1, 1:cntD) nan],...
                 [inputTape(:, 1:cntD) nan(systemObj.nInputs,1)],...
                 [outputTape(:, 1:cntD) nan(systemObj.nOutputs,1)],...
+                [instantaneousCostTape(:, 1:cntD) nan(systemObj.nCosts,1)],...
+                [cumulativeCostTape(:, 1:cntD) nan(systemObj.nCosts,1)],...
                 'update');
-    
+            
     if systemObj.clearStopButtonFlag || stopFlag
-        odeGraphics([],[],[],[],[],'done');
+        odeGraphics([],[],[],[],[],[],[],'done');
     end
     
 %     if movieFlag
@@ -459,7 +488,7 @@ end
     end
 
 %% ODE Graphics Function
-    function odeGraphics(tc,x,td,u,y,flag)
+    function odeGraphics(tc,x,td,u,y,L,J,flag)
         switch flag
             case 'init'
                 if systemObj.plotStateFlag
@@ -474,6 +503,14 @@ end
                     systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1));
                     legend(systemObj.outputAxisHandle,'off')
                 end
+                if systemObj.plotInstantaneousCostFlag
+                    systemObj.plotInstantaneousCost(td(1,end),td(1,1:end-1),L(:,1:end-1));
+                    legend(systemObj.instantaneousCostAxisHandle,'off')
+                end
+                if systemObj.plotCumulativeCostFlag
+                    systemObj.plotCumulativeCost(td(1,end),td(1,1:end-1),J(:,1:end-1));
+                    legend(systemObj.cumulativeCostAxisHandle,'off')
+                end
                 if systemObj.plotPhaseFlag
                     systemObj.plotPhase(x(:,end),x(:,1:end-1));
                     legend(systemObj.phaseAxisHandle,'off')
@@ -487,6 +524,8 @@ end
                     systemObj.stateFigureHandle;...
                     systemObj.inputFigureHandle;...
                     systemObj.outputFigureHandle;...
+                    systemObj.instantaneousCostFigureHandle;...
+                    systemObj.cumulativeCostFigureHandle;...
                     systemObj.phaseFigureHandle;...
                     systemObj.sketchFigureHandle];
                 
@@ -536,6 +575,12 @@ end
                 if systemObj.plotOutputFlag
                     systemObj.plotOutput(td(1,end),td(1,1:end-1),y(:,1:end-1));
                 end
+                if systemObj.plotInstantaneousCostFlag
+                    systemObj.plotInstantaneousCost(td(1,end),td(1,1:end-1),L(:,1:end-1));
+                end
+                if systemObj.plotCumulativeCostFlag
+                    systemObj.plotCumulativeCost(td(1,end),td(1,1:end-1),J(:,1:end-1));
+                end
                 if systemObj.plotPhaseFlag
                     systemObj.plotPhase(x(:,end),x(:,1:end-1));
                 end
@@ -566,16 +611,34 @@ end
                 
                 if systemObj.legendFlag
                     if systemObj.plotStateFlag
-                        legend(systemObj.stateAxisHandle,'Location','best')
+                        if ~isempty(get(systemObj.stateAxisHandle, 'Children'))
+                            legend(systemObj.stateAxisHandle,'Location','best')
+                        end
                     end
                     if systemObj.plotInputFlag
-                        legend(systemObj.inputAxisHandle,'Location','best')
+                        if ~isempty(get(systemObj.inputAxisHandle, 'Children'))
+                            legend(systemObj.inputAxisHandle,'Location','best')
+                        end
                     end
                     if systemObj.plotOutputFlag
-                        legend(systemObj.outputAxisHandle,'Location','best')
+                        if ~isempty(get(systemObj.outputAxisHandle, 'Children'))
+                            legend(systemObj.outputAxisHandle,'Location','best')
+                        end
+                    end
+                    if systemObj.plotInstantaneousCostFlag
+                        if ~isempty(get(systemObj.instantaneousCostAxisHandle, 'Children'))
+                            legend(systemObj.instantaneousCostAxisHandle,'Location','best')
+                        end
+                    end
+                    if systemObj.plotCumulativeCostFlag
+                        if ~isempty(get(systemObj.cumulativeCostAxisHandle, 'Children'))
+                            legend(systemObj.cumulativeCostAxisHandle,'Location','best')
+                        end
                     end
                     if systemObj.plotPhaseFlag
-                        legend(systemObj.phaseAxisHandle,'Location','best')
+                        if ~isempty(get(systemObj.phaseAxisHandle, 'Children'))
+                            legend(systemObj.phaseAxisHandle,'Location','best')
+                        end
                     end
                 end
                 

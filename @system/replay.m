@@ -83,6 +83,8 @@ t = [systemObj.timeTape systemObj.time];
 x = [systemObj.stateTape systemObj.state];
 u = [systemObj.inputTape nan(systemObj.nInputs,1)];
 y = [systemObj.outputTape nan(systemObj.nOutputs,1)];
+L = [systemObj.instantaneousCostTape nan(systemObj.nCosts,1)];
+J = [systemObj.cumulativeCostTape nan(systemObj.nCosts,1)];
 
 %% Initialize
 iT = 1;
@@ -97,6 +99,14 @@ end
 if systemObj.plotOutputFlag
     systemObj.plotOutput(t(1,iT),t(1,1:iT-1),y(:,1:iT-1));
     legend(systemObj.outputAxisHandle,'Location','off')
+end
+if systemObj.plotInstantaneousCostFlag
+    systemObj.plotInstantaneousCostFlag(t(1,iT),t(1,1:iT-1),L(:,1:iT-1));
+    legend(systemObj.instantaneousCostAxisHandle,'Location','off')
+end
+if systemObj.plotCumulativeCostFlag
+    systemObj.plotCumulativeCost(t(1,iT),t(1,1:iT-1),J(:,1:iT-1));
+    legend(systemObj.cumulativeCostAxisHandle,'Location','off')
 end
 if systemObj.plotPhaseFlag
     systemObj.plotPhase(x(:,iT),x(:,1:iT-1));
@@ -127,6 +137,12 @@ for iT = 1:length(t)
     if systemObj.plotOutputFlag
         systemObj.plotOutput(t(1,iT),t(1,1:iT-1),y(:,1:iT-1));
     end
+    if systemObj.plotInstantaneousCostFlag
+        systemObj.plotInstantaneousCost(t(1,iT),t(1,1:iT-1),L(:,1:iT-1));
+    end
+    if systemObj.plotCumulativeCostFlag
+        systemObj.plotCumulativeCost(t(1,iT),t(1,1:iT-1),J(:,1:iT-1));
+    end
     if systemObj.plotPhaseFlag
         systemObj.plotPhase(x(:,iT),x(:,1:iT-1));
     end
@@ -153,6 +169,12 @@ if systemObj.legendFlag
     end
     if systemObj.plotOutputFlag
         legend(systemObj.outputAxisHandle,'Location','best')
+    end
+    if systemObj.plotInstantaneousCostFlag
+        legend(systemObj.instantaneousCostAxisHandle,'Location','best')
+    end
+    if systemObj.plotCumulativeCostFlag
+        legend(systemObj.costCumulativeAxisHandle,'Location','best')
     end
     if systemObj.plotPhaseFlag
         legend(systemObj.phaseAxisHandle,'Location','best')

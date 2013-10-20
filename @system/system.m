@@ -25,6 +25,7 @@ properties (Access = public)
     stateNames % (nStates x 1 cell array of strings) Names of the state variables. One per state.
     inputNames % (nInputs x 1 cell array of strings) Names of the input variables. One per input.
     outputNames % (nOutputs x 1 cell array of strings) Names of the output variables. One per output.
+    costNames % (nCosts x 1 cell array of strings) Names of the cost variables. One per cost.
     phaseStatePairs; % (? x 2 positive integer <= nStates) State pairs for the phase plot. One pair per row of the matrix. The first column is the x-axis and the second column is the y-axis.
 end
 
@@ -41,6 +42,8 @@ properties (Access = public)
     plotParamsFlag = true; % (1 x 1 logical) Flag determing if the flow time and jump count will be plotted with the states.
     plotInputFlag = true; % (1 x 1 logical) Flag determining if the input plot is drawn during the simulation.
     plotOutputFlag = true; % (1 x 1 logical) Flag determining if the output plot is drawn during the simulation.
+    plotInstantaneousCostFlag = false; % (1 x 1 logical) Flag determining if the instantaneous cost plot is drawn during the simulation.
+    plotCumulativeCostFlag = false; % (1 x 1 logical) Flag determining if the cumulative cost plot is drawn during the simulation.
     plotPhaseFlag = false; % (1 x 1 logical) Flag determining if the phase plot is drawn during the simulation.
     plotSketchFlag = false; % (1 x 1 logical) Flag determining if the sketch plot is drawn during the simulation.
     
@@ -67,6 +70,8 @@ properties (Access = public)
     openLoopInputTape = []; % (1 x ? real number) Open-loop control input tape.
     stateOP; % (nStates x 1 real number) Operating point for the state used in feedback control.
     inputOP; % (nInputs x 1 real number) Operating point for the input used in feedback control.
+    stateGoal; % (nStates x 1 real number) Goal point for the state used in feedback control.
+    outputGoal; % (nOutputs x 1 real number) Goal point for the output used in feedback control.
 end
 
 properties (Access = public, Hidden = true) % TODO: Add set methods for all of these properties
@@ -98,6 +103,21 @@ properties (Access = public, Hidden = true) % TODO: Add set methods for all of t
     outputTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each output tape.
     outputGraphicsProperties = {}; % (1 x ? cell array) Output plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
     
+    costsToPlot = []; % (1 x ? positive integer <= nOutputs) List of costs to include in the cost plot.
+    instantaneousCostFigureHandle = []; % (1 x 1 graphics object) Figure handle to where instantaneous cost tape is plotted.
+    instantaneousCostFigureProperties = {}; % (1 x ? cell array) Instantaneous cost plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
+    instantaneousCostAxisHandle = []; % (1 x 1 graphics object) Axis handle to where instantaneous cost tape is plotted.
+    instantaneousCostAxisProperties = {}; % (1 x ? cell array) Instantaneous cost plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
+    instantaneousCostTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each instantaneous cost tape.
+    instantaneousCostGraphicsProperties = {}; % (1 x ? cell array) Instantaneous cost plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
+    
+    cumulativeCostFigureHandle = []; % (1 x 1 graphics object) Figure handle to where cumulative cost tape is plotted.
+    cumulativeCostFigureProperties = {}; % (1 x ? cell array) Cumulative cost plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
+    cumulativeCostAxisHandle = []; % (1 x 1 graphics object) Axis handle to where cumulative cost tape is plotted.
+    cumulativeCostAxisProperties = {}; % (1 x ? cell array) Cumulative cost plot axis properties to be applied to the plot method. (e.g. {'FontWeight','bold'})
+    cumulativeCostTapeGraphicsHandle = []; % (? x 1 graphics object) Line graphics handle for each cumulative cost tape.
+    cumulativeCostGraphicsProperties = {}; % (1 x ? cell array) Cumulative cost plot graphics properties to be applied to the plot method. (e.g {'LineWidth',2})
+    
     phasePairsToPlot = []; % (1 x ? positive integer <= nPhasePairs) List of phase to include in the phase plot.
     phaseFigureHandle = []; % (1 x 1 graphics object) Figure handle to where the system phase plot is drawn.
     phaseFigureProperties = {}; % (1 x ? cell array) Phase plot figure properties to be applied to the phase method. (e.g. {'Color','w'})
@@ -117,7 +137,8 @@ end
 properties (SetAccess = protected)
     timeStep % (1 x 1 positive real number) Sampling time of the system.
     time % (1 x 1 real number) System time.
-    state % (nStates x 1 real number) System state. A "nStates" x 1 vector.
+    state % (nStates x 1 real number) System state.
+    cumulativeCost % (nCosts x 1 real number) System current cumlataed cost. 
     flowTime = 0; % (1 x 1 semi-positive real number) System current flow time.
     jumpCount = 0; % (1 x 1 semi-positive integer) System current jump count.
     timeTapeC % (1 x ? real number) Recording of past system continuous times.
@@ -125,6 +146,8 @@ properties (SetAccess = protected)
     stateTape % (nStates x ? real number) Recording of past system states. The length is the same as "timeTapeC".
     inputTape % (nInputs x ? real number) Recording of past system inputs. The length is the same as "timeTapeD".
     outputTape % (nOutputs x ? real number) Recording of past system outputs. The length is the same as "timeTapeD".
+    instantaneousCostTape % (nCosts x ? real number) Recording of past system instantaneous costs. The length is the same as "timeTapeD".
+    cumulativeCostTape % (nCosts x ? real number) Recording of past system cumulative costs. The length is the same as "timeTapeD".
     flowTimeTape % (1 x ? semi-positive real number) Recording of past flow time. The length is the same as "timeTapeD".
     jumpCountTape % (1 x ? semi-positive integer) Recording of past jump count. The length is the same as "timeTapeD".
     
@@ -138,18 +161,20 @@ end
 
 properties (Dependent = true)
     nStates % (1 x 1 positive integer) Number of states in the system.
+    nCosts % (1 x 1 semi-positive integer) Number of costs in the system.
     nPhaseStatePairs % (1 x 1 semi-positive integer) Number of phase state pairs.
     input % (nInputs x 1 number) Current input to the system.
     output % (nOutputs x 1 number) Current output from the system.
+    instantaneousCost % (nCosts X 1 number) Current instantaneous cost from the system
 end
 
 %% Constructor -----------------------------------------------------------------
 methods
-    function systemObj = system(timeStep,initialTime,initialState,nInputs,nOutputs)
+    function systemObj = system(timeStep,initialTime,initialState,initialCost,nInputs,nOutputs)
         % Constructor function for the "simulate.system" class.
         %
         % SYNTAX:
-        %   systemObj = system(timeStep,initialTime,initialState,nInputs,nOutputs)
+        %   systemObj = system(timeStep,initialTime,initialState,initialCost,nInputs,nOutputs)
         %
         % INPUTS:
         %   timeStep - (1 x 1 positive real number) [0.1]
@@ -158,8 +183,11 @@ methods
         %   initialTime - (1 x 1 real number) [0]
         %       Initializes the system time.
         %
-        %   initialState - (? x 1 number) [0]
+        %   initialState - (nStates x 1 number) [0]
         %       Initializes the system state.
+        %
+        %   initialCost - (nCosts x 1  number) [0]
+        %       Initializes the system cumulative cost.
         %
         %   nInputs - (1 x 1 semi-positive integer) [0]
         %       Sets the "systemObj.nInputs" property.
@@ -175,14 +203,15 @@ methods
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        narginchk(0,5)
+        narginchk(0,6)
         
         % Apply default values
         if nargin < 1, timeStep = 0.1; end
         if nargin < 2, initialTime = 0; end
         if nargin < 3, initialState = 0; end
-        if nargin < 4, nInputs = 0; end
-        if nargin < 5, nOutputs = 0; end
+        if nargin < 4, initialCost = 0; end
+        if nargin < 5, nInputs = 0; end
+        if nargin < 6, nOutputs = 0; end
         
         % Check input arguments for errors
         assert(isnumeric(timeStep) && isreal(timeStep) && numel(timeStep) == 1 && timeStep > 0,...
@@ -198,6 +227,11 @@ methods
             'Input argument "initialState" must be a vector of real numbers.')
         initialState = initialState(:);
         
+        assert(isnumeric(initialCost) && isreal(initialCost) && isvector(initialCost),...
+            'simulate:system:initialCost',...
+            'Input argument "initialCost" must be a vector of real numbers.')
+        initialCost = initialCost(:);
+        
         assert(isnumeric(nInputs) && isreal(nInputs) && numel(nInputs) == 1 && mod(nInputs,1) == 0 && nInputs >= 0,...
             'simulate:system:nInputs',...
             'Input argument "nInputs" must be a 1 x 1 semi-positive integer.')
@@ -207,27 +241,34 @@ methods
             'Input argument "nOutputs" must be a 1 x 1 semi-positive integer.')
         
         % Assign properties
+        nStates = length(initialState);
+        nCosts = length(initialCost);
         systemObj.nInputs = nInputs;
         systemObj.nOutputs = nOutputs;
         systemObj.timeStep = timeStep;
         systemObj.time = initialTime;
         systemObj.state = initialState;
-        systemObj.timeTapeC = zeros(1,0);
-        systemObj.timeTapeD = zeros(1,0);
-        systemObj.stateTape = zeros(length(initialState),0);
-        systemObj.inputTape = zeros(nInputs,0);
-        systemObj.outputTape = zeros(nOutputs,0);
-        systemObj.flowTimeTape = zeros(1,0);
-        systemObj.jumpCountTape = zeros(1,0);
+        systemObj.cumulativeCost = initialCost;
+        systemObj.timeTapeC = nan(1,0);
+        systemObj.timeTapeD = nan(1,0);
+        systemObj.stateTape = nan(nStates,0);
+        systemObj.inputTape = nan(nInputs,0);
+        systemObj.outputTape = nan(nOutputs,0);
+        systemObj.instantaneousCostTape = nan(nCosts,0);
+        systemObj.cumulativeCostTape = nan(nCosts,0);
+        systemObj.flowTimeTape = nan(1,0);
+        systemObj.jumpCountTape = nan(1,0);
         
         systemObj.setDefaultStateNames;
         systemObj.setDefaultInputNames;
         systemObj.setDefaultOutputNames;
+        systemObj.setDefaultCostNames;
         
-        systemObj.stateOP = zeros(systemObj.nStates,0);
-        systemObj.inputOP = zeros(systemObj.nInputs,0);
+        systemObj.stateOP = zeros(nStates,0);
+        systemObj.inputOP = zeros(nInputs,0);
         
         systemObj.outputsToPlot = 1:nOutputs;
+        systemObj.costsToPlot = 1:nCosts;
         
     end
 end
@@ -312,6 +353,26 @@ methods
         outputNames = outputNames(:);
 
         systemObj.outputNames = outputNames;
+    end
+    
+    function set.costNames(systemObj,costNames)
+        % Overloaded assignment operator function for the "inputNames" property.
+        %
+        % SYNTAX:
+        %   systemObj.costNames = costNames
+        %
+        % INPUT:
+        %   costNames - (cell array of strings)
+        %
+        % NOTES:
+        %
+        %---------------------------------------------------------------------
+        assert(iscellstr(costNames),...
+            'simulate:system:set:costNames',...
+            'Property "costNames" must be a cell array of strings.')
+        costNames = costNames(:);
+        
+        systemObj.costNames = costNames;
     end
     
     function set.phaseStatePairs(systemObj,phaseStatePairs)
@@ -433,6 +494,46 @@ methods
         systemObj.outputFigureHandle = get(systemObj.outputAxisHandle,'Parent');
     end
     
+    function set.instantaneousCostAxisHandle(systemObj,instantaneousCostAxisHandle)
+        % Overloaded assignment operator function for the "instantaneousCostAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.instantaneousCostAxisHandle = instantaneousCostAxisHandle
+        %
+        % INPUT:
+        %   instantaneousCostAxisHandle - (1 x 1 graphics handle)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(instantaneousCostAxisHandle)) && length(instantaneousCostAxisHandle) == 1 && strcmp(get(instantaneousCostAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:instantaneousCostAxisHandle',...
+            'Property "instantaneousCostAxisHandle" must be a 1 x 1 axis handle.')
+
+        systemObj.instantaneousCostAxisHandle = instantaneousCostAxisHandle;
+        systemObj.instantaneousCostFigureHandle = get(systemObj.instantaneousCostAxisHandle,'Parent');
+    end
+    
+    function set.cumulativeCostAxisHandle(systemObj,cumulativeCostAxisHandle)
+        % Overloaded assignment operator function for the "cumulativeCostAxisHandle" property.
+        %
+        % SYNTAX:
+        %   systemObj.cumulativeCostAxisHandle = cumulativeCostAxisHandle
+        %
+        % INPUT:
+        %   cumulativeCostAxisHandle - (1 x 1 graphics handle)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(all(ishghandle(cumulativeCostAxisHandle)) && length(cumulativeCostAxisHandle) == 1 && strcmp(get(cumulativeCostAxisHandle,'Type'),'axes'),...
+            'simulate:system:set:cumulativeCostAxisHandle',...
+            'Property "cumulativeCostAxisHandle" must be a 1 x 1 axis handle.')
+        
+        systemObj.cumulativeCostAxisHandle = cumulativeCostAxisHandle;
+        systemObj.cumulativeCostFigureHandle = get(systemObj.cumulativeCostAxisHandle,'Parent');
+    end
+    
     function set.phaseAxisHandle(systemObj,phaseAxisHandle)
         % Overloaded assignment operator function for the "phaseAxisHandle" property.
         %
@@ -506,6 +607,20 @@ methods
         nStates = length(systemObj.state);
     end
     
+    function nCosts = get.nCosts(systemObj)
+        %   Overloaded query operator function for the "nCosts" property.
+        %
+        % SYNTAX:
+        %	  nCosts = systemObj.nCosts
+        %
+        % OUTPUT:
+        %   nCosts - (1 x 1 positive integer)
+        %
+        %---------------------------------------------------------------------
+        
+        nCosts = length(systemObj.cumulativeCost);
+    end
+    
     function nPhaseStatePairs = get.nPhaseStatePairs(systemObj)
         %   Overloaded query operator function for the "nPhaseStatePairs" property.
         %
@@ -549,6 +664,19 @@ methods
         output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.input,systemObj.flowTime,systemObj.jumpCount);
     end
     
+    function instantaneousCost = get.instantaneousCost(systemObj)
+        %   Overloaded query operator function for the "instantaneousCost" property.
+        %
+        % SYNTAX:
+        %	  instantaneousCost = systemObj.instantaneousCost
+        %
+        % OUTPUT:
+        %   instantaneousCost - (nCosts x 1 real number)
+        %
+        %---------------------------------------------------------------------
+
+        instantaneousCost = systemObj.cost(systemObj.time,systemObj.state,systemObj.input,systemObj.output,systemObj.flowTime,systemObj.jumpCount);
+    end 
 end
 %-------------------------------------------------------------------------------
 
@@ -588,6 +716,8 @@ methods (Access = public)
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
         systemObj.inputTape = [systemObj.inputTape systemObj.input];
         systemObj.outputTape = [systemObj.outputTape systemObj.output];
+        systemObj.instantaneousCostTape = [systemObj.instantaneousCostTape systemObj.instantaneousCost];
+        systemObj.cumulativeCostTape = [systemObj.cumulativeCostTape systemObj.cumulativeCostTape];
         systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTime];
         systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCount];
         
@@ -600,15 +730,14 @@ methods (Access = public)
         % system.
         %
         % SYNTAX:
-        %   systemObj = systemObj.setTime(state)
+        %   systemObj = systemObj.setState(state)
         %
         % INPUTS:
         %   systemObj - (1 x 1 simulate.system)
         %       An instance of the "simulate.system" class.
         %
-        %   state - (? x 1 number) 
-        %       The system is set to this state.  Must be a
-        %       "systemObj.nStates" x 1 vector.
+        %   state - (nStates x 1 number) 
+        %       The system is set to this state.
         %
         % NOTES:
         %   This is used instead of the property method because it also
@@ -622,7 +751,7 @@ methods (Access = public)
         
         % Check arguments for errors
         assert(isnumeric(state) && isequal(size(state),[systemObj.nStates,1]),...
-            'simulate:system:setstate:state',...
+            'simulate:system:setState:state',...
             'Input argument "state" must be a %d x 1 real number.',systemObj.nStates)
         
         systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
@@ -630,10 +759,55 @@ methods (Access = public)
         systemObj.stateTape = [systemObj.stateTape systemObj.state];
         systemObj.inputTape = [systemObj.inputTape systemObj.input];
         systemObj.outputTape = [systemObj.outputTape systemObj.output];
+        systemObj.instantaneousCostTape = [systemObj.instantaneousCostTape systemObj.instantaneousCost];
+        systemObj.cumulativeCostTape = [systemObj.cumulativeCostTape systemObj.cumulativeCostTape];
         systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTime];
         systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCount];
         
         systemObj.state = state;
+        
+    end
+    
+    function setCost(systemObj,cost)
+        % The "setCost" method is used to set the cost property of the
+        % system.
+        %
+        % SYNTAX:
+        %   systemObj = systemObj.setCost(cost)
+        %
+        % INPUTS:
+        %   systemObj - (1 x 1 simulate.system)
+        %       An instance of the "simulate.system" class.
+        %
+        %   cost - (nCosts x 1 number) 
+        %       The system is set to this cumulative cost.
+        %
+        % NOTES:
+        %   This is used instead of the property method because it also
+        %   adds to the tape properties. Accessing other properties should
+        %   not be done in the property methods.
+        %
+        %-----------------------------------------------------------------------
+
+        % Check number of arguments
+        narginchk(2,2)
+        
+        % Check arguments for errors
+        assert(isnumeric(cost) && isequal(size(cost),[systemObj.nCosts,1]),...
+            'simulate:system:setCost:cost',...
+            'Input argument "cost" must be a %d x 1 real number.',systemObj.nCosts)
+        
+        systemObj.timeTapeC = [systemObj.timeTapeC systemObj.time];
+        systemObj.timeTapeD = [systemObj.timeTapeD systemObj.time];
+        systemObj.stateTape = [systemObj.stateTape systemObj.state];
+        systemObj.inputTape = [systemObj.inputTape systemObj.input];
+        systemObj.outputTape = [systemObj.outputTape systemObj.output];
+        systemObj.instantaneousCostTape = [systemObj.instantaneousCostTape systemObj.instantaneousCost];
+        systemObj.cumulativeCostTape = [systemObj.cumulativeCostTape systemObj.cumulativeCostTape];
+        systemObj.flowTimeTape = [systemObj.flowTimeTape systemObj.flowTime];
+        systemObj.jumpCountTape = [systemObj.jumpCountTape systemObj.jumpCount];
+        
+        systemObj.cumulativeCost = cost;
         
     end
     
@@ -706,6 +880,29 @@ methods (Access = public)
         end
     end
     
+    function setDefaultCostNames(systemObj)
+        % The "setDefaultCostNames" method is used to set the cost names
+        % to their default values.
+        %
+        % SYNTAX:
+        %   systemObj = systemObj.setDefaultCostNames()
+        %
+        % INPUTS:
+        %   systemObj - (1 x 1 simulate.system)
+        %       An instance of the "simulate.system" class.
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        
+        % Check number of arguments
+        narginchk(1,1)
+        
+        for iName = 1:systemObj.nCosts
+            systemObj.costNames{iName} = ['cost' num2str(iName)];
+        end
+    end
+    
     function saveMovie(systemObj)
         % The "saveMovie" method is save a movie to a file.
         %
@@ -753,11 +950,11 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
     %
-    %   input - (? x 1 number) [systemObj.input]
-    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -766,8 +963,8 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   stateDot - (? x 1 real number)
-    %       Updated state derivatives. A "systemObj.nStates" x 1 vector.
+    %   stateDot - (nStates x 1 real number)
+    %       Updated state derivatives.
     %
     %   setPriority - ('flow','jump', or 'random') 
     %       Sets the priority to what takes place if the state is in both
@@ -793,11 +990,11 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
     %
-    %   input - (? x 1 number) [systemObj.input]
-    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -806,8 +1003,8 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   statePlus - (? x 1 real number)
-    %       Updated states. A "systemObj.nStates" x 1 vector.
+    %   statePlus - (nStates x 1 real number)
+    %       Updated states.
     %
     %   timePlus - (1 x 1 real number)
     %       Updated time.
@@ -836,8 +1033,8 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -872,8 +1069,8 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -908,11 +1105,11 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
     %
-    %   input - (? x 1 number) [systemObj.input]
-    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -921,8 +1118,8 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   input - (? x 1 real number)
-    %       Input values for the plant. A "systemObj.nInputs" x 1 vector.
+    %   input - (nInputs x 1 real number)
+    %       Input values for the plant.
     %
     %---------------------------------------------------------------------------
     input = controller(systemObj,time,state,input,flowTime,jumpCount)
@@ -946,14 +1143,14 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
     %
-    %   input - (? x 1 number) [systemObj.input]
-    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
     %
-    %   output - (? x 1 number) [systemObj.output]
-    %       Output values for the plant. A "triadObj.nOutputs" x 1 vector.
+    %   output - (nOutputs x 1 number) [systemObj.output]
+    %       Output values for the plant.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -962,8 +1159,8 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   stateHat - (? x 1 number)
-    %       Estimates of the states of the system. A "systemObj.nStates" x 1 vector.
+    %   stateHat - (nStates x 1 number)
+    %       Estimates of the states of the system.
     %
     %---------------------------------------------------------------------------
     output = observer(systemObj,time,state,input,output,flowTime,jumpCount)
@@ -986,11 +1183,11 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (? x 1 number) [systemObj.state]
-    %       Current state. Must be a "systemObj.nStates" x 1 vector.
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
     %
-    %   input - (? x 1 number) [systemObj.input]
-    %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
@@ -999,11 +1196,51 @@ methods (Abstract = true)
     %       Current jump count value.
     %
     % OUTPUTS:
-    %   output - (? x 1 real number)
-    %       Output values for the plant. A "systemObj.nOutputs" x 1 vector.
+    %   output - (nOutputs x 1 real number)
+    %       Output values for the plant.
     %
     %---------------------------------------------------------------------------
     output = sensor(systemObj,time,state,input,flowTime,jumpCount)
+    
+    % The "cost" method will produce cost values given the current
+    % time and state of the system.
+    %
+    % SYNTAX:
+    %   cost = systemObj.cost(time)
+    %   cost = systemObj.cost(time,state)
+    %   cost = systemObj.cost(time,state,input)
+    %   cost = systemObj.cost(time,state,input,output)
+    %   cost = systemObj.cost(time,state,input,output,flowtime)
+    %   cost = systemObj.cost(time,state,input,output,flowtime,jumpCount)
+    %
+    % INPUTS:
+    %   systemObj - (1 x 1 simulate.system)
+    %       An instance of the "simulate.system" class.
+    %
+    %   time - (1 x 1 real number) [systemObj.time]
+    %       Current time.
+    %
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
+    %
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
+    %
+    %   output - (nOutputs x 1 number) [systemObj.output]
+    %       Output values for the plant.
+    %
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
+    %       Current flow time value.
+    %
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
+    %       Current jump count value.
+    %
+    % OUTPUTS:
+    %   cost - (nCosts x 1 real number)
+    %       Cost values for the system.
+    %
+    %---------------------------------------------------------------------------
+    cost = cost(systemObj,time,state,input,output,flowtime,jumpCount)
     
     % The "linearize" method outputs the system's linearize matrices
     % evaluated at the the given operating point.
@@ -1015,30 +1252,26 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   stateOP - (? x 1 number)
+    %   stateOP - (nStates x 1 number)
     %       State operating point. Must be a "systemObj.nStates" x 1
     %       vector.
     %
-    %   inputOP - (? x 1 number)
+    %   inputOP - (nInputs x 1 number)
     %       Input operating point. Must be a "systemObj.nInputs" x 1
     %       vector. 
     %
     % OUTPUTS:
-    %   A - (? x ? real number)
-    %       Linearized A matrix (i.e. df/dx). A "systemObj.nStates" x
-    %       "systemObj.nStates" matrix.
+    %   A - (nStates x nStates real number)
+    %       Linearized A matrix (i.e. df/dx).
     %
-    %   B - (? x ? real number)
-    %       Linearized B matrix (i.e. df/du). A "systemObj.nStates" x 
-    %       "systemObj.nInputs" matrix.
+    %   B - (nStates x nInputs real number)
+    %       Linearized B matrix (i.e. df/du).
     %
-    %   C - (? x ? real number)
-    %       Linearized C matrix (i.e. dh/dx). A "systemObj.nOutputs" x
-    %       "systemObj.nStates" matrix.
+    %   C - (nOutputs x nStates real number)
+    %       Linearized C matrix (i.e. dh/dx).
     %
-    %   D - (? x ? real number)
-    %       Linearized D matrix (i.e. dh/du). A "systemObj.nOutputs" x
-    %       "systemObj.nInputs" matrix.
+    %   D - (nOutputs x nInputs real number)
+    %       Linearized D matrix (i.e. dh/du).
     %
     %---------------------------------------------------------------------------
     [A,B,C,D] = linearize(systemObj,stateOP,inputOP)
@@ -1053,11 +1286,11 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   inputIn - (? x 1 real number)
+    %   inputIn - (nInputs x 1 real number)
     %       Current input value. Must be a "systemObj.nInputs" x 1 vector.
     %
     % OUTPUTS:
-    %   inputOut - (? x 1 number)
+    %   inputOut - (nInputs x 1 number)
     %       Constrained input values. A "systemObj.nInputs" x 1 vector.
     %
     %---------------------------------------------------------------------------
@@ -1077,7 +1310,7 @@ methods (Abstract = true)
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   state - (? x 1 real number) [systemObj.state] 
+    %   state - (nStates x 1 real number) [systemObj.state] 
     %       The state that the system will be drawn in.
     %
     %   time - (1 x 1 real number) [systemObj.time] 
@@ -1096,16 +1329,19 @@ end
 %% Methods in separte files ----------------------------------------------------
 methods (Access = protected)
     input = policy(systemObj,time,state,input,flowTime,jumpCount)
+    cumulativeCost = sumCost(systemObj,cumulativeCost,instantaneousCost)
     plotState(systemObj,time,state,timeTapeC,stateTape,varargin)
     plotInput(systemObj,time,timeTapeD,inputTape,varargin)
     plotOutput(systemObj,time,timeTapeD,outputTape,varargin)
+    plotInstantaneousCost(systemObj,time,timeTapeD,instantaneousCostTape,varargin)
+    plotCumulativeCost(systemObj,time,timeTapeD,cumulativeCostTape,varargin)
     plotPhase(systemObj,time,state,timeTapeC,stateTape,varargin)
     plotSketch(systemObj,state,time,varargin)
 end
 
 methods (Access = public)
-    [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
-        simulate(systemObj,timeInterval,initialState,initialFlowTime,initialJumpCount,varargin)
+    [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape,flowTimeTape,jumpCountTape,stopFlag] = ...
+        simulate(systemObj,timeInterval,initialState,initialCost,initialFlowTime,initialJumpCount,varargin)
     run(systemObj,duration,varargin)
     plot(systemObj,varargin)
     replay(systemObj,varargin)
@@ -1132,7 +1368,7 @@ methods (Static = true)
         % NOTES:
         %
         %-----------------------------------------------------------------------
-        version = '1.6';
+        version = '1.7';
     end
 end
 %------------------------------------------------------------------------------- 
