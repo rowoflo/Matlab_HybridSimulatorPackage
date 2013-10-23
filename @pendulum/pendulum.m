@@ -261,6 +261,7 @@ methods (Access = public) % Superclass Abstract Methods
     input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
     stateHat = observer(pendulumObj,time,state,input,output,flowTime,jumpCount)
     output = sensor(pendulumObj,time,state,input,flowTime,jumpCount)
+    instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,jumpCount)
     inputOut = inputConstraints(pendulumObj,inputIn)
     [A,B,C,D] = linearize(pendulumObj,stateOP,inputOP)
     sketch(pendulumObj,state,time,varargin)

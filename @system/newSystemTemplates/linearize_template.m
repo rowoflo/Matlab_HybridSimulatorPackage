@@ -11,29 +11,23 @@ function [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
 %   stateOP - (NSTATES x 1 number) [SYSTEM_NAMEObj.stateOP]
-%       State operating point. Must be a "SYSTEM_NAMEObj.nStates" x 1
-%       vector.
+%       State operating point.
 %
 %   inputOP - (NINPUTS x 1 number) [SYSTEM_NAMEObj.inputOP]
-%       Input operating point. Must be a "SYSTEM_NAMEObj.nInputs" x 1
-%       vector. 
+%       Input operating point.
 %
 % OUTPUTS:
 %   A - (NSTATES x NSTATES number)
-%       Linearized A matrix (i.e. df/dx). A "SYSTEM_NAMEObj.nStates" x
-%       "SYSTEM_NAMEObj.nStates" matrix.
+%       Linearized A matrix (i.e. df/dx).
 %
 %   B - (NSTATES x NINPUTS number)
-%       Linearized B matrix (i.e. df/du). A "SYSTEM_NAMEObj.nStates" x 
-%       "SYSTEM_NAMEObj.nInputs" matrix.
+%       Linearized B matrix (i.e. df/du).
 %
 %   C - (NOUTPUTS x NSTATES number)
-%       Linearized C matrix (i.e. dh/dx). A "SYSTEM_NAMEObj.nOutputs" x
-%       "SYSTEM_NAMEObj.nStates" matrix.
+%       Linearized C matrix (i.e. dh/dx).
 %
 %   D - (NOUTPUTS x NINPUTS number)
-%       Linearized D matrix (i.e. dh/du). A "SYSTEM_NAMEObj.nOutputs" x
-%       "SYSTEM_NAMEObj.nInputs" matrix.
+%       Linearized D matrix (i.e. dh/du).
 %
 % NOTES:
 %

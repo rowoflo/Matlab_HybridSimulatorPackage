@@ -1,19 +1,18 @@
-function stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
-% The "observer" method will produce estimates of the state values given
-% the current time, state, and input of the system.
+function instantaneousCost = cost(SYSTEM_NAMEObj,time,state,input,output,flowtime,jumpCount)
+% The "cost" method will produce cost values given the current
+% time and state of the system.
 %
 % SYNTAX:
-%   stateHat = SYSTEM_NAMEObj.observer()
-%   stateHat = SYSTEM_NAMEObj.observer(time)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output,flowTime)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output,flowTime,jumpCount)
+%   instantaneousCost = pendulumObj.cost(time)
+%   instantaneousCost = pendulumObj.cost(time,state)
+%   instantaneousCost = pendulumObj.cost(time,state,input)
+%   instantaneousCost = pendulumObj.cost(time,state,input,output)
+%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime)
+%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime,jumpCount)
 %
 % INPUTS:
-%   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
-%       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
+%   SYSTEM_NAMEObj - (1 x 1 simulate.system)
+%       An instance of the "simulate.system" class.
 %
 %   time - (1 x 1 real number) [SYSTEM_NAMEObj.time]
 %       Current time.
@@ -30,17 +29,17 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jum
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.
 %
-%   jumpCount - (1 x 1 semi-positive integer) [SYSTEM_NAMEObj.jumpCount] 
+%   jumpCount - (1 x 1 semi-positive integer) [SYSTEM_NAMEObj.jumpCount]
 %       Current jump count value.
 %
 % OUTPUTS:
-%   stateHat - (NSTATES x 1 number)
-%       Estimates of the states of the system.
+%   instantaneousCost - (NCOSTS x 1 real number)
+%       Instantaneous cost values for the system.
 %
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   NECESSARY_PACKAGE+simulate
+%   +simulate
 %
 % AUTHOR:
 %    FULL_NAME
@@ -57,6 +56,7 @@ if nargin < 5, output = SYSTEM_NAMEObj.output; end
 if nargin < 6, flowTime = SYSTEM_NAMEObj.flowTime; end
 if nargin < 7, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 
+
 %% Parameters
 
 
@@ -67,6 +67,6 @@ if nargin < 7, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 
 
 %% Set output
-stateHat = state;
+instantaneousCost = zeros(SYSTEM_NAMEObj.nCosts,1);
 
 end

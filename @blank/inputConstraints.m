@@ -1,31 +1,31 @@
-function inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
+function inputOut = inputConstraints(blankObj,inputIn)
 % The "inputConstraints" method constrains the input values for the
 % system.
 %
 % SYNTAX:
-%   inputOut = SYSTEM_NAMEObj.inputConstraints(inputIn)
+%   inputOut = blankObj.inputConstraints(inputIn)
 %
 % INPUTS:
-%   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
-%       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
+%   blankObj - (1 x 1 simulate.blank)
+%       An instance of the "simulate.blank" class.
 %
-%   inputIn - (NINPUTS x 1 real number)
+%   inputIn - (1 x 1 real number)
 %       Current input value.
 %
 % OUTPUTS:
-%   inputOut - (NINPUTS x 1 number)
+%   inputOut - (1 x 1 number)
 %       Constrained input values.
 %
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   NECESSARY_PACKAGE+simulate
+%   +simulate, +simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created DD-MMM-YYYY
+%   Created 21-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Parameters

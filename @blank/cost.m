@@ -1,4 +1,4 @@
-function instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,jumpCount)
+function instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jumpCount)
 % The "cost" method will produce cost values given the current
 % time and state of the system.
 %
@@ -11,25 +11,25 @@ function instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,j
 %   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime,jumpCount)
 %
 % INPUTS:
-%   pendulumObj - (1 x 1 simulate.system)
+%   blankObj - (1 x 1 simulate.system)
 %       An instance of the "simulate.system" class.
 %
-%   time - (1 x 1 real number) [pendulumObj.time]
+%   time - (1 x 1 real number) [blankObj.time]
 %       Current time.
 %
-%   state - (2 x 1 number) [pendulumObj.state]
+%   state - (1 x 1 number) [blankObj.state]
 %       Current state.
 %
-%   input - (1 x 1 number) [pendulumObj.input]
+%   input - (1 x 1 number) [blankObj.input]
 %       Current input value.
 %
-%   output - (2 x 1 number) [pendulumObj.output]
+%   output - (1 x 1 number) [blankObj.output]
 %       Output values for the plant.
 %
-%   flowTime - (1 x 1 semi-positive real number) [pendulumObj.flowTime]
+%   flowTime - (1 x 1 semi-positive real number) [blankObj.flowTime]
 %       Current flow time value.
 %
-%   jumpCount - (1 x 1 semi-positive integer) [pendulumObj.jumpCount]
+%   jumpCount - (1 x 1 semi-positive integer) [blankObj.jumpCount]
 %       Current jump count value.
 %
 % OUTPUTS:
@@ -45,16 +45,16 @@ function instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,j
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 23-OCT-2011
+%   Created 21-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 2, time = pendulumObj.time; end
-if nargin < 3, state = pendulumObj.state; end
-if nargin < 4, input = pendulumObj.input; end
-if nargin < 5, output = pendulumObj.output; end
-if nargin < 6, flowTime = pendulumObj.flowTime; end
-if nargin < 7, jumpCount = pendulumObj.jumpCount; end
+if nargin < 2, time = blankObj.time; end
+if nargin < 3, state = blankObj.state; end
+if nargin < 4, input = blankObj.input; end
+if nargin < 5, output = blankObj.output; end
+if nargin < 6, flowTime = blankObj.flowTime; end
+if nargin < 7, jumpCount = blankObj.jumpCount; end
 
 
 %% Parameters
@@ -67,6 +67,6 @@ if nargin < 7, jumpCount = pendulumObj.jumpCount; end
 
 
 %% Set output
-instantaneousCost = 1/2*(state'*state+input'*input);
+instantaneousCost = zeros(blankObj.nCosts,1);
 
 end
