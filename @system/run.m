@@ -42,7 +42,7 @@ function run(systemObj,duration,varargin)
 %% Check Input Arguments
 
 % Check number of arguments
-error(nargchk(2,inf,nargin))
+narginchk(2,inf)
 
 % Check arguments for errors
 assert(isa(systemObj,'simulate.system') && numel(systemObj) == 1,...
@@ -86,12 +86,14 @@ tFinal = t0 + duration;
 timeInterval = [t0 tFinal];
 
 %% Simulate
-[timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
-    simulate(systemObj,timeInterval,systemObj.state,systemObj.flowTime,systemObj.jumpCount,'movieFile',movieFile);
+[timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape,flowTimeTape,jumpCountTape,stopFlag] = ...
+    simulate(systemObj,timeInterval,systemObj.state,systemObj.cumulativeCost,systemObj.flowTime,systemObj.jumpCount,'movieFile',movieFile);
 
 %% Update
 systemObj.time = timeTapeC(1,end);
 systemObj.state = stateTape(:,end);
+systemObj.instantaneousCost = instantaneousCostTape(:,end);
+systemObj.cumulativeCost = cumulativeCostTape(:,end);
 systemObj.flowTime = flowTimeTape(1,end);
 systemObj.jumpCount = jumpCountTape(1,end);
 
@@ -100,6 +102,8 @@ systemObj.timeTapeD = [systemObj.timeTapeD timeTapeD];
 systemObj.stateTape = [systemObj.stateTape stateTape];
 systemObj.inputTape = [systemObj.inputTape inputTape];
 systemObj.outputTape = [systemObj.outputTape outputTape];
+systemObj.instantaneousCost = [systemObj.instantaneousCost instantaneousCost];
+systemObj.cumulativeCost = [systemObj.cumulativeCost cumulativeCost];
 systemObj.flowTimeTape = [systemObj.flowTimeTape flowTimeTape];
 systemObj.jumpCountTape = [systemObj.jumpCountTape jumpCountTape];
 

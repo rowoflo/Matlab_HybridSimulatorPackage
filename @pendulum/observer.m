@@ -1,12 +1,13 @@
-function stateHat = observer(pendulumObj,time,state,input,flowTime,jumpCount)
+function stateHat = observer(pendulumObj,time,state,input,output,flowTime,jumpCount)
 % The "observer" method will produce estimates of the state values given
 % the current time, state, and input of the system.
 %
 % SYNTAX:
 %   stateHat = pendulumObj.observer(time,state)
 %   stateHat = pendulumObj.observer(time,state,input)
-%   stateHat = pendulumObj.observer(time,state,input,flowTime)
-%   stateHat = pendulumObj.observer(time,state,input,flowTime,jumpCount)
+%   stateHat = pendulumObj.observer(time,state,input,output)
+%   stateHat = pendulumObj.observer(time,state,input,output,flowTime)
+%   stateHat = pendulumObj.observer(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -20,6 +21,9 @@ function stateHat = observer(pendulumObj,time,state,input,flowTime,jumpCount)
 %
 %   input - (? x 1 real number) [zeros(pendulumObj.nInputs,1)]
 %       Current input. Must be a "pendulumObj.nInputs" x 1 vector.
+%
+%   output - (? x 1 number) [pendulumObj.output]
+%       Output values for the plant. A "triadObj.nOutputs" x 1 vector.
 %
 %   flowTime - (1 x 1 semi-positive real number) [0]
 %       Current flow time value.
@@ -45,9 +49,13 @@ function stateHat = observer(pendulumObj,time,state,input,flowTime,jumpCount)
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 4, input = zeros(pendulumObj.nInputs,1);
-if nargin < 5, flowTime = 0; end
-if nargin < 6, jumpCount = 0; end
+if nargin < 2, time = pendulumObj.time; end
+if nargin < 3, state = pendulumObj.state; end
+if nargin < 4, input = pendulumObj.input; end
+if nargin < 5, output = pendulumObj.output; end
+if nargin < 6, flowTime = pendulumObj.flowTime; end
+if nargin < 7, jumpCount = pendulumObj.jumpCount; end
+
 
 %% Parameters
 

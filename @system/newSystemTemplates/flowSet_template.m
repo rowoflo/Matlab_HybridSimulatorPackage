@@ -17,7 +17,7 @@ function flowSetValue = flowSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %       Current time.
 %
 %   state - (NSTATES x 1 number) [SYSTEM_NAMEObj.state]
-%       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
+%       Current state.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.

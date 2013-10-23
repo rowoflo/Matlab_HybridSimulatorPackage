@@ -39,6 +39,14 @@ function createNew(systemName,systemLocation,varargin)
 %       'nOutputs' property will automatically be updated. Default uses the
 %       value in the 'nOutputs' property.
 %
+%   'nCosts' - (1 x 1 positive integer) [1]
+%       Number of costs the system will have.
+%
+%   costNames' - (? x 1 cell array of strings) [{'J1';'J2';...}]
+%       Names of the cost variables. One per cost. If this is specified
+%       'nCosts' property will automoattically be updated. Default uses the
+%       value in the 'nCosts' property.
+%
 %   'phaseStatePairs' - phaseStatePairs; % (? x 2 positive integer <=
 %   nStates) [[1 1]]
 %       State pairs for the phase plot. One pair per row of the matrix. The
@@ -68,11 +76,25 @@ narginchk(1,inf)
 % Apply default values
 if nargin < 2, systemLocation = pwd; end
 
+fileList = {...
+    'classTest';...
+    'class';...
+    'flowMap';...
+    'flowSet';...
+    'jumpMap';...
+    'jumpSet';...
+    'controller';...
+    'observer';...
+    'sensor';...
+    'cost';...
+    'inputConstraints';...
+    'linearize';...
+    'sketch'};
 
 % Check arguments for errors
-assert(ischar(systemName),...
+assert(ischar(systemName) && ~ismember(systemName,fileList),...
     'simulate:system:createNew:systemName',...
-    'Input argument "systemName" must be a string.')
+    'Input argument "systemName" must be a string and can not be the same as one of the method names.')
 
 assert(ischar(systemLocation) && isdir(systemLocation),...
     'simulate:system:createNew:systemLocation',...
@@ -103,6 +125,10 @@ for iParam = 1:propargin/2
             nOutputs = propValues{iParam};
         case lower('outputNames')
             outputNames = propValues{iParam};
+        case lower('nCosts')
+            nCosts = propValues{iParam};
+        case lower('costNames')
+            costNames = propValues{iParam};
         case lower('phaseStatePairs')
             phaseStatePairs = propValues{iParam};
         otherwise
@@ -118,6 +144,8 @@ if ~exist('nInputs','var'), nInputs = []; end
 if ~exist('inputNames','var'), inputNames = []; end
 if ~exist('nOutputs','var'), nOutputs = []; end
 if ~exist('outputNames','var'), outputNames = []; end
+if ~exist('nCosts','var'), nCosts = []; end
+if ~exist('costNames','var'), costNames = []; end
 if ~exist('phaseStatePairs','var'), phaseStatePairs = [1 1]; end
 
 % Check property values for errors TODO: Add property error checks
@@ -196,7 +224,7 @@ assert(isnumeric(nOutputs) && isreal(nOutputs) && numel(nOutputs) == 1 && ...
     'Property "nOutputs" must be a 1 x 1 positive integer.')
 if nOutputs > numel(outputNames)
     for iOutput = numel(outputNames)+1:nOutputs
-        outputNames{iOutput} = ['u' num2str(iOutput)];
+        outputNames{iOutput} = ['y' num2str(iOutput)];
     end
 end
 
@@ -204,6 +232,36 @@ assert(iscellstr(outputNames) && length(outputNames) == nOutputs,...
     'simulate:system:createNew:outputNames',...
     'Property "outputNames" must be a 1 x 1 positive integer.')
 outputNames = outputNames(:);
+
+if isempty(nCosts) && isempty(costNames)
+    nCosts = 1;
+    costNames = cell(nCosts,1);
+    for iCost = 1:nCosts
+        costNames{iCost} = ['J' num2str(iCost)];
+    end
+elseif isempty(nCosts) && ~isempty(costNames)
+    nCosts = numel(costNames);
+elseif ~isempty(nCosts) && isempty(costNames)
+    costNames = cell(nCosts,1);
+    for iCost = 1:nCosts
+        costNames{iCost} = ['J' num2str(iCost)];
+    end
+end
+
+assert(isnumeric(nCosts) && isreal(nCosts) && numel(nCosts) == 1 && ...
+    nCosts > 0 && mod(nCosts,1) == 0,...
+    'simulate:system:createNew:nCosts',...
+    'Property "nCosts" must be a 1 x 1 positive integer.')
+if nCosts > numel(costNames)
+    for iCost = numel(costNames)+1:nCosts
+        costNames{iCost} = ['J' num2str(iCost)];
+    end
+end
+
+assert(iscellstr(costNames) && length(costNames) == nCosts,...
+    'simulate:system:createNew:costNames',...
+    'Property "costNames" must be a 1 x 1 positive integer.')
+costNames = costNames(:);
 
 assert(isnumeric(phaseStatePairs) && isreal(phaseStatePairs) && ...
     size(phaseStatePairs,2) == 2 && all(phaseStatePairs(:) > 0) && ...
@@ -218,19 +276,11 @@ version = simulate.system.currentVersion;
 
 systemClassPath = fileparts(which('simulate.system'));
 templateFolderName = 'newSystemTemplates';
-templateFileList = {...
-    'classTest_template.m';...
-    'class_template.m';...
-    'flowMap_template.m';...
-    'flowSet_template.m';...
-    'jumpMap_template.m';...
-    'jumpSet_template.m';...
-    'controller_template.m';...
-    'observer_template.m';...
-    'sensor_template.m';...
-    'inputConstraints_template.m';...
-    'linearize_template.m';...
-    'sketch_template.m'};
+
+templateFileList = fileList;
+for i = 1:length(fileList)
+    templateFileList{i} = [fileList{i} '_template.m'];
+end
 
 packageName = regexp(systemLocation,'(?<=\+)\w*(?=/)|(?<=\+)\w*$','match'); % Get package name from path
 if isempty(packageName)
@@ -320,6 +370,8 @@ edit(testDocPath);
                 aLine = regexprep(aLine,'INPUT_NAMES',names2str(inputNames)); % Set the input names
                 aLine = regexprep(aLine,'NOUTPUTS',num2str(nOutputs)); % Set the number of outputs
                 aLine = regexprep(aLine,'OUTPUT_NAMES',names2str(outputNames)); % Set the output names
+                aLine = regexprep(aLine,'NCOSTS',num2str(nCosts)); % Set the number of outputs
+                aLine = regexprep(aLine,'COST_NAMES',names2str(costNames)); % Set the output names
                 aLine = regexprep(aLine,'PHASE_STATE_PAIRS',phaseMat2str(phaseStatePairs)); % Set the output names
                 fprintf(docFileID,'%s\n',aLine);
             catch ME

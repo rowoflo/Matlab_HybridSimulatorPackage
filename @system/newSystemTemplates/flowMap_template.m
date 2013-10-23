@@ -17,10 +17,10 @@ function [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTi
 %       Current time.
 %
 %   state - (NSTATES x 1 number) [SYSTEM_NAMEObj.state]
-%       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
+%       Current state.
 %
 %   input - (NINPUTS x 1 number) [SYSTEM_NAMEObj.input]
-%       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
+%       Current input value.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.
@@ -30,7 +30,7 @@ function [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTi
 %
 % OUTPUTS:
 %   stateDot - (NSTATES x 1 number)
-%       Updated state derivatives. A "SYSTEM_NAMEObj.nStates" x 1 vector.
+%       Updated state derivatives.
 %
 %   setPriority - ('flow','jump', or 'random')
 %       Sets the priority to what takes place if the state is in both

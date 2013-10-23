@@ -19,7 +19,7 @@ classdef pendulum < simulate.system
 
 %% Properties ------------------------------------------------------------------
 properties (Constant = true, Hidden = true)
-    systemVersion = '1.5' % (string) Current version of the super class.
+    systemVersion = '1.7' % (string) Current version of the super class.
 end
 
 properties (SetAccess = private) % Superclass Abstract Properties
@@ -74,7 +74,7 @@ methods
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        error(nargchk(0,6,nargin))
+        narginchk(0,6)
 
         % Apply default values
         if nargin < 1, x0 = zeros(2,1); end
@@ -112,7 +112,7 @@ methods
         % Initialize Superclass
         nInputs = 1;
         nOutputs = 2;
-        pendulumObj = pendulumObj@simulate.system(dt,t0,x0,nInputs,nOutputs);
+        pendulumObj = pendulumObj@simulate.system(dt,t0,x0,0,nInputs,nOutputs);
         
         % Check class compatibility with super class
         assert(strcmp(pendulumObj.systemVersion,simulate.system.currentVersion),...
@@ -258,9 +258,10 @@ methods (Access = public) % Superclass Abstract Methods
     flowState = flowSet(pendulumObj,time,state,flowTime,jumpCount)
     jumpState = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
     
-    input = controller(pendulumObj,time,state,flowTime,jumpCount)
-    stateHat = observer(pendulumObj,time,state,input,flowTime,jumpCount)
+    input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
+    stateHat = observer(pendulumObj,time,state,input,output,flowTime,jumpCount)
     output = sensor(pendulumObj,time,state,input,flowTime,jumpCount)
+    instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,jumpCount)
     inputOut = inputConstraints(pendulumObj,inputIn)
     [A,B,C,D] = linearize(pendulumObj,stateOP,inputOP)
     sketch(pendulumObj,state,time,varargin)

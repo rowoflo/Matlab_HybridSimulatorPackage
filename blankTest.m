@@ -1,20 +1,20 @@
-%% SYSTEM_NAMETest.m
-% The "SYSTEM_NAMETest" script is used to test the
-% "PACKAGE_NAME_D_SYSTEM_NAME" system class.
+%% blankTest.m
+% The "blankTest" script is used to test the
+% "simulate.blank" system class.
 %
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   NECESSARY_PACKAGE+simulate, @SYSTEM_NAME
+%   +simulate, +simulate, @blank
 %
 % SEE ALSO: TODO: Add see alsos
 %    relatedFunction1 | relatedFunction2
 %
 % AUTHOR:
-%    FULL_NAME
+%    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created DD-MMM-YYYY
+%   Created 21-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Clear
@@ -29,7 +29,7 @@ duration = 1;
 % System parameters
 
 % Create System
-S = PACKAGE_NAME_D_SYSTEM_NAME();
+S = simulate.blank();
 timeInterval = [S.time, S.time + duration];
 initialState = S.state;
 

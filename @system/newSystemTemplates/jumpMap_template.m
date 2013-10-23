@@ -17,10 +17,10 @@ function [statePlus,timePlus,setPriority] = jumpMap(SYSTEM_NAMEObj,time,state,in
 %       Current time.
 %
 %   state - (NSTATES x 1 number) [SYSTEM_NAMEObj.state]
-%       Current state. Must be a "SYSTEM_NAMEObj.nStates" x 1 vector.
+%       Current state.
 %
 %   input - (NINPUTS x 1 number) [SYSTEM_NAMEObj.input]
-%       Current input value. Must be a "SYSTEM_NAMEObj.nInputs" x 1 vector.
+%       Current input value.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]
 %       Current flow time value.
@@ -30,7 +30,7 @@ function [statePlus,timePlus,setPriority] = jumpMap(SYSTEM_NAMEObj,time,state,in
 %
 % OUTPUTS:
 %   statePlus - (NSTATES x 1 number)
-%       Updated states. A "SYSTEM_NAMEObj.nStates" x 1 vector.
+%       Updated states.
 %
 %   timePlus - (1 x 1 real number)
 %       Updated time.

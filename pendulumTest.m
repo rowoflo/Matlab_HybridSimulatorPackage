@@ -18,7 +18,7 @@
 %-------------------------------------------------------------------------------
 
 %% Clear
-cccc
+ccc
 
 %% Load
 
@@ -39,12 +39,16 @@ S.graphicsFlag = true;
 S.plotStateFlag = true;
 S.plotInputFlag = true;
 S.plotOutputFlag = true;
+S.plotInstantaneousCostFlag = true;
+S.plotCumulativeCostFlag = true;
 S.plotSketchFlag = true;
 S.plotPhaseFlag = true;
 
 S.stateFigureProperties = {'Position', [1   420   480   387]};
 S.inputFigureProperties = {'Position', [481   420   480   387]};
 S.outputFigureProperties = {'Position', [961   420   480   387]};
+S.instantaneousCostFigureProperties = {'Position', [961   212   480   184]};
+S.cumulativeCostFigureProperties = {'Position', [961   -17   480   183]};
 S.sketchFigureProperties = {'Position', [1   -17   480   387]};
 S.phaseFigureProperties = {'Position', [481   -17   480   387]};
 
@@ -57,6 +61,12 @@ S.inputAxisProperties = {...
 S.outputAxisProperties = {...
     'XLim',timeInterval,...
     'XGrid','on','YGrid','on'};
+S.instantaneousCostAxisProperties = {...
+    'XLim',timeInterval,...
+    'XGrid','on','YGrid','on'};
+S.cumulativeCostAxisProperties = {...
+    'XLim',timeInterval,...
+    'XGrid','on','YGrid','on'};
 S.sketchAxisProperties = {...
      'XGrid','on','YGrid','on'};
 S.phaseAxisProperties = {...
@@ -67,5 +77,5 @@ S.phaseAxisProperties = {...
 
 
 %% Simulate
-[timeTapeC,stateTape,timeTapeD,inputTape,outputTape,flowTimeTape,jumpCountTape,stopFlag] = ...
+[timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape,flowTimeTape,jumpCountTape,stopFlag] = ...
     S.simulate(timeInterval,initialState);
