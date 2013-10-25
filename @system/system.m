@@ -72,6 +72,9 @@ properties (Access = public)
     inputOP; % (nInputs x 1 real number) Operating point for the input used in feedback control.
     stateGoal; % (nStates x 1 real number) Goal point for the state used in feedback control.
     outputGoal; % (nOutputs x 1 real number) Goal point for the output used in feedback control.
+    
+    % Random stream    
+    randSeed; % (1 x 1 semi-postive number) Random number produced with each initialization of class for setting the seed of the random numeber stream.
 end
 
 properties (Access = public, Hidden = true) % TODO: Add set methods for all of these properties
@@ -157,6 +160,11 @@ end
 properties (SetAccess = private)
     nInputs % (1 x 1 semi-positive integer) Number of inputs to the system.
     nOutputs % (1 x 1 semi-positive integer) Number of outputs to the system.
+    
+    % Random stream
+    randStream; %(RandStream) Random number stream for the system. All rand functions in system methods should use this stream.
+    randState; % (RandStream State) Current state of the random number stream.
+    randStateTime; % (1 x 1 number) The time associated with the "randState" prorperty.
 end
 
 properties (Dependent = true)
@@ -170,11 +178,11 @@ end
 
 %% Constructor -----------------------------------------------------------------
 methods
-    function systemObj = system(timeStep,initialTime,initialState,initialCost,nInputs,nOutputs)
+    function systemObj = system(timeStep,initialTime,initialState,initialCost,nInputs,nOutputs,randSeed)
         % Constructor function for the "simulate.system" class.
         %
         % SYNTAX:
-        %   systemObj = system(timeStep,initialTime,initialState,initialCost,nInputs,nOutputs)
+        %   systemObj = system(timeStep,initialTime,initialState,initialCost,nInputs,nOutputs,randSeed)
         %
         % INPUTS:
         %   timeStep - (1 x 1 positive real number) [0.1]
@@ -195,6 +203,9 @@ methods
         %   nOutputs - (1 x 1 semi-positive integer) [0]
         %       Sets the "systemObj.nOutputs" property.
         %
+        %   randSeed - (1 x 1 semi-positive integer) [[]]
+        %       Random number seed. If nan or empty then random seed is
+        %       used.
         %
         % OUTPUTS:
         %   systemObj - (1 x 1 simulate.system) 
@@ -203,7 +214,7 @@ methods
         %-----------------------------------------------------------------------
         
         % Check number of arguments
-        narginchk(0,6)
+        narginchk(0,7)
         
         % Apply default values
         if nargin < 1, timeStep = 0.1; end
@@ -212,6 +223,7 @@ methods
         if nargin < 4, initialCost = 0; end
         if nargin < 5, nInputs = 0; end
         if nargin < 6, nOutputs = 0; end
+        if nargin < 7, randSeed = [];end
         
         % Check input arguments for errors
         assert(isnumeric(timeStep) && isreal(timeStep) && numel(timeStep) == 1 && timeStep > 0,...
@@ -239,6 +251,14 @@ methods
         assert(isnumeric(nOutputs) && isreal(nOutputs) && numel(nOutputs) == 1 && mod(nOutputs,1) == 0 && nOutputs >= 0,...
             'simulate:system:nOutputs',...
             'Input argument "nOutputs" must be a 1 x 1 semi-positive integer.')
+        
+        assert(isempty(randSeed) || isnan(randSeed) || ...
+            (isnumeric(randSeed) && randSeed >= 0  && mod(randSeed,1) == 0),...
+            'simulate:system:randSeed',...
+            'Input argument "randSeed" must be a semi-positive integer, empty, or NaN')
+        if isempty(randSeed) || isnan(randSeed)
+            randSeed = 'shuffle';
+        end
         
         % Assign properties
         nStates = length(initialState);
@@ -269,6 +289,11 @@ methods
         
         systemObj.outputsToPlot = 1:nOutputs;
         systemObj.costsToPlot = 1:nCosts;
+        
+        systemObj.randStream = RandStream('mt19937ar','Seed',randSeed);
+        systemObj.randSeed = systemObj.randStream.Seed;
+        systemObj.randState = systemObj.randStream.State;
+        systemObj.randStateTime = systemObj.time;
         
     end
 end
@@ -432,6 +457,30 @@ methods
             'Property "maxJumpCount" must be a 1 x 1 positive integer or "inf".')
 
         systemObj.maxJumpCount = maxJumpCount;
+    end
+    
+    function set.randSeed(systemObj,randSeed)
+        % Overloaded assignment operator function for the "randSeed" property.
+        %
+        % SYNTAX:
+        %   systemObj.randSeed = randSeed
+        %
+        % INPUT:
+        %   randSeed - (1 x 1 positive integer)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        assert(isempty(randSeed) || isnan(randSeed) || ...
+            (isnumeric(randSeed) && randSeed >= 0  && mod(randSeed,1) == 0),...
+            'simulate:system:set:randSeed',...
+            'Input argument "randSeed" must be a semi-positive integer, empty, or NaN')
+        if isempty(randSeed) || isnan(randSeed)
+            randSeed = 'shuffle';
+        end
+        systemObj.randStream = RandStream('mt19937ar','Seed',randSeed);
+        systemObj.randSeed = systemObj.randStream.Seed;
+        systemObj.randState = systemObj.randStream.State;        
     end
     
     function set.stateAxisHandle(systemObj,stateAxisHandle)

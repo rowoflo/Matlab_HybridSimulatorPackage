@@ -57,6 +57,14 @@ if nargin < 4, input = systemObj.input; end
 if nargin < 5, flowTime = 0; end
 if nargin < 6, jumpCount = 0; end
 
+%% Set RandStream
+if systemObj.randStateTime == time
+    systemObj.randStream.State = systemObj.randState;
+else
+    systemObj.randState = systemObj.randStream.State;
+    systemObj.randStateTime = time;
+end
+
 %% Input Policy
 if systemObj.openLoopControl
     timeIndex = find(time >= systemObj.openLoopTimeTape,1,'last');
@@ -69,6 +77,4 @@ else
     output = systemObj.sensor(time,state,input,flowTime,jumpCount);
     stateHat = systemObj.observer(time,state,input,output,flowTime,jumpCount);
     input = systemObj.controller(time,stateHat,input,flowTime,jumpCount);
-end
-
 end
