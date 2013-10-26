@@ -63,7 +63,7 @@ if nargin < 7, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 %% Variables
 
 
-%% Observer Definition
+%% Cost Definition
 
 
 %% Set output
