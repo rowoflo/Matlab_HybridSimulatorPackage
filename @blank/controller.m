@@ -1,4 +1,4 @@
-function input = controller(blankObj,time,state,input,flowTime,jumpCount)
+function input = controller(blankObj,time,state,input,output,flowTime,jumpCount)
 % The "controller" method will produce input values given the current
 % time and state of the system.
 %
@@ -7,8 +7,9 @@ function input = controller(blankObj,time,state,input,flowTime,jumpCount)
 %   input = blankObj.controller(time)
 %   input = blankObj.controller(time,state)
 %   input = blankObj.controller(time,state,input)
-%   input = blankObj.controller(time,state,input,flowTime)
-%   input = blankObj.controller(time,state,input,flowTime,jumpCount)
+%   input = blankObj.controller(time,state,input,output)
+%   input = blankObj.controller(time,state,input,output,flowTime)
+%   input = blankObj.controller(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
 %   blankObj - (1 x 1 simulate.blank)
@@ -22,6 +23,9 @@ function input = controller(blankObj,time,state,input,flowTime,jumpCount)
 %
 %   input - (1 x 1 number) [blankObj.input]
 %       Current input value.
+%
+%   output - (NOUTPUTs x 1 number) [blankObj.output]
+%       Output values for the plant.
 %
 %   flowTime - (1 x 1 semi-positive real number) [blankObj.flowTime]
 %       Current flow time value.
@@ -42,15 +46,16 @@ function input = controller(blankObj,time,state,input,flowTime,jumpCount)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 21-OCT-2013
+%   Created 26-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values
 if nargin < 2, time = blankObj.time; end
 if nargin < 3, state = blankObj.state; end
 if nargin < 4, input = blankObj.input; end
-if nargin < 5, flowTime = blankObj.flowTime; end
-if nargin < 6, jumpCount = blankObj.jumpCount; end
+if nargin < 5, output = blankObj.output; end
+if nargin < 6, flowTime = blankObj.flowTime; end
+if nargin < 7, jumpCount = blankObj.jumpCount; end
 
 %% Parameters
 

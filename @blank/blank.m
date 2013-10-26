@@ -15,7 +15,7 @@ classdef blank < simulate.system
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 21-OCT-2013
+%   Created 26-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
@@ -234,7 +234,7 @@ methods (Access = public) % Superclass Abstract Methods
     flowState = flowSet(blankObj,time,state,flowTime,jumpCount)
     jumpState = jumpSet(blankObj,time,state,flowTime,jumpCount)
     
-    input = controller(blankObj,time,state,input,flowTime,jumpCount)
+    input = controller(blankObj,time,state,input,output,flowTime,jumpCount)
     stateHat = observer(blankObj,time,state,input,output,flowTime,jumpCount)
     output = sensor(blankObj,time,state,input,output,flowTime,jumpCount)
     instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jumpCount)

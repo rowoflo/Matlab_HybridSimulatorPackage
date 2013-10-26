@@ -45,7 +45,7 @@ function instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jump
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 21-OCT-2013
+%   Created 26-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values
@@ -63,7 +63,7 @@ if nargin < 7, jumpCount = blankObj.jumpCount; end
 %% Variables
 
 
-%% Observer Definition
+%% Cost Definition
 
 
 %% Set output

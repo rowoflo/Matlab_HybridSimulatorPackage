@@ -38,7 +38,7 @@ function [A,B,C,D] = linearize(blankObj,stateOP,inputOP)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 21-OCT-2013
+%   Created 26-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

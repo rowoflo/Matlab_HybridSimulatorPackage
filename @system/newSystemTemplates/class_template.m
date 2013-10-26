@@ -234,7 +234,7 @@ methods (Access = public) % Superclass Abstract Methods
     flowState = flowSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     jumpState = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
     
-    input = controller(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
+    input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
     stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
     output = sensor(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
     instantaneousCost = cost(SYSTEM_NAMEObj,time,state,input,output,flowtime,jumpCount)

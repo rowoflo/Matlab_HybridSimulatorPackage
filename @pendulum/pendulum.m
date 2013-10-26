@@ -258,7 +258,7 @@ methods (Access = public) % Superclass Abstract Methods
     flowState = flowSet(pendulumObj,time,state,flowTime,jumpCount)
     jumpState = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
     
-    input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
+    input = controller(pendulumObj,time,state,input,ouput,flowTime,jumpCount)
     stateHat = observer(pendulumObj,time,state,input,output,flowTime,jumpCount)
     output = sensor(pendulumObj,time,state,input,flowTime,jumpCount)
     instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,jumpCount)
