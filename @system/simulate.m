@@ -338,6 +338,8 @@ while 1
         uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,yD,fD,jD));
         LD = systemObj.cost(tD,xD,uD,yD,fD,jD);
         JD = systemObj.sumCost(JD,LD);
+        systemObj.evaluate(tD,xD,uD,yD,LD,JD,fD,jD,...
+            timeTapeC(1,1:cntC-1),stateTape(:,1:cntC-1),timeTapeD(1,1:cntD-1),inputTape(:,1:cntD-1),outputTape(:,1:cntD-1),instantaneousCostTape(1,1:cntD-1),cumulativeCostTape(1,1:cntD-1));
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
         outputTape(:, cntD) = yD;

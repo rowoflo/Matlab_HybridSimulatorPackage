@@ -1388,6 +1388,54 @@ methods (Abstract = true)
     %---------------------------------------------------------------------------
     cost = cost(systemObj,time,state,input,output,flowtime,jumpCount)
     
+    % The "evaluate" method is execute at each time step.
+    %
+    % SYNTAX:
+    %   systemObj.evaluate(time)
+    %   ...
+    %   evaluate(systemObj,time,state,input,output,...
+    %       instantaneousCost,cumulativeCost,flowtime,jumpCount,...
+    %       timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
+    %   
+    %
+    % INPUTS:
+    %   systemObj - (1 x 1 simulate.system)
+    %       An instance of the "simulate.system" class.
+    %
+    %   time - (1 x 1 real number) [systemObj.time]
+    %       Current time.
+    %
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
+    %
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
+    %
+    %   output - (nOutputs x 1 number) [systemObj.output]
+    %       Output values for the plant.
+    %
+    %   instantaneousCost % (nCosts X 1 number) [systemObj.instantaneousCost]
+    %       Current instantaneous cost from the system.
+    %
+    %   cumulativeCost % (nCosts x 1 real number) [systemObj.cumulativeCost]
+    %       System current cumlataed cost.
+    %
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
+    %       Current flow time value.
+    %
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
+    %       Current jump count value.
+    %
+    %   TODO
+    %
+    % OUTPUTS:
+    %
+    %---------------------------------------------------------------------------
+    evaluate(systemObj,time,state,input,output,...
+        instantaneousCost,cumulativeCost,flowtime,jumpCount,...
+        timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
+    
+    
     % The "linearize" method outputs the system's linearize matrices
     % evaluated at the the given operating point.
 	%
