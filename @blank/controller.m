@@ -24,7 +24,7 @@ function input = controller(blankObj,time,state,input,output,flowTime,jumpCount)
 %   input - (1 x 1 number) [blankObj.input]
 %       Current input value.
 %
-%   output - (NOUTPUTs x 1 number) [blankObj.output]
+%   output - (1 x 1 number) [blankObj.output]
 %       Output values for the plant.
 %
 %   flowTime - (1 x 1 semi-positive real number) [blankObj.flowTime]

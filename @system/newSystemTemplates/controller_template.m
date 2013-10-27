@@ -24,7 +24,7 @@ function input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jump
 %   input - (NINPUTS x 1 number) [SYSTEM_NAMEObj.input]
 %       Current input value.
 %
-%   output - (NOUTPUTs x 1 number) [SYSTEM_NAMEObj.output]
+%   output - (NOUTPUTS x 1 number) [SYSTEM_NAMEObj.output]
 %       Output values for the plant.
 %
 %   flowTime - (1 x 1 semi-positive real number) [SYSTEM_NAMEObj.flowTime]

@@ -56,7 +56,7 @@ if isempty(systemObj.cumulativeCostAxisHandle) || ~ishghandle(systemObj.cumulati
     figure(systemObj.cumulativeCostFigureHandle);
     systemObj.cumulativeCostAxisHandle = gca;
     set(systemObj.cumulativeCostAxisHandle,'DrawMode','fast')
-    title(systemObj.cumulativeCostAxisHandle,[systemObj.name ' Cost Plot'])
+    title(systemObj.cumulativeCostAxisHandle,[systemObj.name 'Cumulative Cost Plot'])
     xlabel(systemObj.cumulativeCostAxisHandle,'Time')
     ylabel(systemObj.cumulativeCostAxisHandle,'Value')
     if ~isempty(systemObj.cumulativeCostAxisProperties)
