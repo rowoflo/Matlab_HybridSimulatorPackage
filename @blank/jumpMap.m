@@ -48,7 +48,7 @@ function [statePlus,timePlus,setPriority] = jumpMap(blankObj,time,state,input,fl
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 21-OCT-2013
+%   Created 26-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

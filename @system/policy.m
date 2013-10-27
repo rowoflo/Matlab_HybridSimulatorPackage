@@ -1,4 +1,4 @@
-function input = policy(systemObj,time,state,input,flowTime,jumpCount)
+function input = policy(systemObj,time,state,input,output,flowTime,jumpCount)
 % The "policy" method creates input values based on time and state information
 % for either open-loop control or closed-loop control. This is determined
 % by the "openLoopControl" property ("true" for open-loop control and
@@ -10,8 +10,9 @@ function input = policy(systemObj,time,state,input,flowTime,jumpCount)
 %   input = policy(systemObj,time)
 %   input = policy(systemObj,time,state)
 %   input = policy(systemObj,time,state,input)
-%   input = policy(systemObj,time,state,input,flowTime)
-%   input = policy(systemObj,time,state,input,flowTime,jumpCount)
+%   input = policy(systemObj,time,state,input,output)
+%   input = policy(systemObj,time,state,input,output,flowTime)
+%   input = policy(systemObj,time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
 %   systemObj - (1 x 1 simulate.system)
@@ -21,15 +22,18 @@ function input = policy(systemObj,time,state,input,flowTime,jumpCount)
 %       Current time.
 %
 %   state - (nStates x 1 number) [systemObj.state]
-%       Current state. Must be a "systemObj.nStates" x 1 vector.
+%       Current state.
 %
-%   input - (nInputs x 1 number) [zeros(systemObj.nInputs,1)]
-%       Current input value. Must be a "systemObj.nInputs" x 1 vector.
+%   input - (nInputs x 1 number) [systemObj.input]
+%       Current input value.
 %
-%   flowTime - (1 x 1 semi-positive real number) [0]
+%   output - (nOuputs x 1 number) [systemObj.output]
+%       Output values for the plant.
+%
+%   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
 %       Current flow time value.
 %
-%   jumpCount - (1 x 1 semi-positive integer) [0] 
+%   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount] 
 %       Current jump count value.
 %
 % OUTPUTS:
@@ -54,16 +58,9 @@ function input = policy(systemObj,time,state,input,flowTime,jumpCount)
 %% Apply default values
 if nargin < 3, state = systemObj.state; end
 if nargin < 4, input = systemObj.input; end
-if nargin < 5, flowTime = 0; end
-if nargin < 6, jumpCount = 0; end
-
-%% Set RandStream
-if systemObj.randStateTime == time
-    systemObj.randStream.State = systemObj.randState;
-else
-    systemObj.randState = systemObj.randStream.State;
-    systemObj.randStateTime = time;
-end
+if nargin < 5, output = systemObj.output; end
+if nargin < 6, flowTime = systemObj.flowTime; end
+if nargin < 7, jumpCount = systemObj.jumpCount; end
 
 %% Input Policy
 if systemObj.openLoopControl
@@ -74,7 +71,6 @@ if systemObj.openLoopControl
         input = systemObj.openLoopInputTape(:,timeIndex);
     end
 else
-    output = systemObj.sensor(time,state,input,flowTime,jumpCount);
     stateHat = systemObj.observer(time,state,input,output,flowTime,jumpCount);
-    input = systemObj.controller(time,stateHat,input,flowTime,jumpCount);
+    input = systemObj.controller(time,stateHat,input,output,flowTime,jumpCount);
 end

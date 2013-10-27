@@ -56,7 +56,7 @@ if isempty(systemObj.instantaneousCostAxisHandle) || ~ishghandle(systemObj.insta
     figure(systemObj.instantaneousCostFigureHandle);
     systemObj.instantaneousCostAxisHandle = gca;
     set(systemObj.instantaneousCostAxisHandle,'DrawMode','fast')
-    title(systemObj.instantaneousCostAxisHandle,[systemObj.name ' Cost Plot'])
+    title(systemObj.instantaneousCostAxisHandle,[systemObj.name ' Instantaneous Cost Plot'])
     xlabel(systemObj.instantaneousCostAxisHandle,'Time')
     ylabel(systemObj.instantaneousCostAxisHandle,'Value')
     if ~isempty(systemObj.instantaneousCostAxisProperties)

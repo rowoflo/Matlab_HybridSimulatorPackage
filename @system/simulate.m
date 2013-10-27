@@ -94,7 +94,7 @@ narginchk(2,inf)
 
 % Apply default values
 if nargin < 3, initialState = systemObj.state; end
-if nargin < 4, initialCost = systemObj.cost; end
+if nargin < 4, initialCost = systemObj.cumulativeCost; end
 if nargin < 5, initialFlowTime = 0; end
 if nargin < 6, initialJumpCount = 0; end
 
@@ -192,7 +192,7 @@ nTimePoints = length(timeVector);
 % Initial input/output variables
 initialInput = zeros(systemObj.nInputs,1);
 initialOutput = systemObj.sensor(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount);
-initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount));
+initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount));
 initialInstantaneousCost = systemObj.cost(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount);
 uD = initialInput; % Current input. Updated discretely.
 
@@ -335,9 +335,11 @@ while 1
         fD = fC;
         jD = jC;
         yD = systemObj.sensor(tD,xD,uD,fD,jD);
-        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,fD,jD));
+        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,yD,fD,jD));
         LD = systemObj.cost(tD,xD,uD,yD,fD,jD);
         JD = systemObj.sumCost(JD,LD);
+        systemObj.evaluate(tD,xD,uD,yD,LD,JD,fD,jD,...
+            timeTapeC(1,1:cntC-1),stateTape(:,1:cntC-1),timeTapeD(1,1:cntD-1),inputTape(:,1:cntD-1),outputTape(:,1:cntD-1),instantaneousCostTape(1,1:cntD-1),cumulativeCostTape(1,1:cntD-1));
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
         outputTape(:, cntD) = yD;

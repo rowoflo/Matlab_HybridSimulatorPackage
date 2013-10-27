@@ -161,6 +161,10 @@ properties (SetAccess = private)
     nInputs % (1 x 1 semi-positive integer) Number of inputs to the system.
     nOutputs % (1 x 1 semi-positive integer) Number of outputs to the system.
     
+    inputMem % (nInputs x 1 number) Current input to the system stored in memory.
+    outputMem % (nOutputs x 1 number) Current output from the system stored in memory.
+    instantaneousCostMem % (nCosts X 1 number) Current instantaneous cost from the system stored in memory.
+    
     % Random stream
     randStream; %(RandStream) Random number stream for the system. All rand functions in system methods should use this stream.
     randState; % (RandStream State) Current state of the random number stream.
@@ -171,9 +175,10 @@ properties (Dependent = true)
     nStates % (1 x 1 positive integer) Number of states in the system.
     nCosts % (1 x 1 semi-positive integer) Number of costs in the system.
     nPhaseStatePairs % (1 x 1 semi-positive integer) Number of phase state pairs.
+    
     input % (nInputs x 1 number) Current input to the system.
     output % (nOutputs x 1 number) Current output from the system.
-    instantaneousCost % (nCosts X 1 number) Current instantaneous cost from the system
+    instantaneousCost % (nCosts X 1 number) Current instantaneous cost from the system.
 end
 
 %% Constructor -----------------------------------------------------------------
@@ -268,6 +273,9 @@ methods
         systemObj.timeStep = timeStep;
         systemObj.time = initialTime;
         systemObj.state = initialState;
+        systemObj.inputMem = nan;
+        systemObj.outputMem = nan;
+        systemObj.instantaneousCostMem = nan;
         systemObj.cumulativeCost = initialCost;
         systemObj.timeTapeC = nan(1,0);
         systemObj.timeTapeD = nan(1,0);
@@ -642,6 +650,82 @@ methods
         systemObj.odeMethod = odeMethod;
     end
     
+    function set.time(systemObj,time)
+        % Overloaded assignment operator function for the "time" property.
+        %
+        % SYNTAX:
+        %   systemObj.time = time
+        %
+        % INPUT:
+        %   time - (1 x 1 number)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        
+        systemObj.inputMem = nan;
+        systemObj.outputMem = nan;
+        systemObj.instantaneousCostMem = nan;
+        systemObj.time = time;
+    end
+    
+    function set.state(systemObj,state)
+        % Overloaded assignment operator function for the "state" property.
+        %
+        % SYNTAX:
+        %   systemObj.state = state
+        %
+        % INPUT:
+        %   state - (nStates x 1 number)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        
+        systemObj.inputMem = nan;
+        systemObj.outputMem = nan;
+        systemObj.instantaneousCostMem = nan;
+        systemObj.state = state;
+    end
+    
+    function set.flowTime(systemObj,flowTime)
+        % Overloaded assignment operator function for the "flowTime" property.
+        %
+        % SYNTAX:
+        %   systemObj.flowTime = flowTime
+        %
+        % INPUT:
+        %   flowTime - (1 x 1 number)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        
+        systemObj.inputMem = nan;
+        systemObj.outputMem = nan;
+        systemObj.instantaneousCostMem = nan;
+        systemObj.flowTime = flowTime;
+    end
+    
+    function set.jumpCount(systemObj,jumpCount)
+        % Overloaded assignment operator function for the "jumpCount" property.
+        %
+        % SYNTAX:
+        %   systemObj.jumpCount = jumpCount
+        %
+        % INPUT:
+        %   jumpCount - (1 x 1 number)
+        %
+        % NOTES:
+        %
+        %-----------------------------------------------------------------------
+        
+        systemObj.inputMem = nan;
+        systemObj.outputMem = nan;
+        systemObj.instantaneousCostMem = nan;
+        systemObj.jumpCount = jumpCount;
+    end
+    
     function nStates = get.nStates(systemObj)
         %   Overloaded query operator function for the "nStates" property.
         %
@@ -695,8 +779,11 @@ methods
         %
         %---------------------------------------------------------------------
 
-        input = systemObj.inputConstraints(systemObj.policy(...
-            systemObj.time,systemObj.state,zeros(systemObj.nInputs,1),systemObj.flowTime,systemObj.jumpCount));
+        if isnan(systemObj.inputMem)
+            systemObj.inputMem = systemObj.inputConstraints(systemObj.policy(...
+            systemObj.time,systemObj.state,zeros(systemObj.nInputs,1),systemObj.output,systemObj.flowTime,systemObj.jumpCount));
+        end
+        input = systemObj.inputMem;
     end
     
     function output = get.output(systemObj)
@@ -709,8 +796,11 @@ methods
         %   output - (nOutputs x 1 real number)
         %
         %---------------------------------------------------------------------
-
-        output = systemObj.sensor(systemObj.time,systemObj.state,systemObj.input,systemObj.flowTime,systemObj.jumpCount);
+        
+        if isnan(systemObj.outputMem)
+            systemObj.outputMem = systemObj.sensor(systemObj.time,systemObj.state,systemObj.input,systemObj.flowTime,systemObj.jumpCount);
+        end
+        output = systemObj.outputMem;
     end
     
     function instantaneousCost = get.instantaneousCost(systemObj)
@@ -723,8 +813,11 @@ methods
         %   instantaneousCost - (nCosts x 1 real number)
         %
         %---------------------------------------------------------------------
-
-        instantaneousCost = systemObj.cost(systemObj.time,systemObj.state,systemObj.input,systemObj.output,systemObj.flowTime,systemObj.jumpCount);
+        
+        if isnan(systemObj.instantaneousCostMem)
+            systemObj.instantaneousCostMem = systemObj.cost(systemObj.time,systemObj.state,systemObj.input,systemObj.output,systemObj.flowTime,systemObj.jumpCount);
+        end
+        instantaneousCost = systemObj.instantaneousCostMem;
     end 
 end
 %-------------------------------------------------------------------------------
@@ -1144,8 +1237,9 @@ methods (Abstract = true)
     %   input = systemObj.controller(time)
     %   input = systemObj.controller(time,state)
     %   input = systemObj.controller(time,state,input)
-    %   input = systemObj.controller(time,state,flowTime)
-    %   input = systemObj.controller(time,state,flowTime,jumpCount)
+    %   input = systemObj.controller(time,state,input,output)
+    %   input = systemObj.controller(time,state,input,output,flowTime)
+    %   input = systemObj.controller(time,state,input,output,flowTime,jumpCount)
     %
     % INPUTS:
     %   systemObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
@@ -1160,6 +1254,9 @@ methods (Abstract = true)
     %   input - (nInputs x 1 number) [systemObj.input]
     %       Current input value.
     %
+    %   output - (nOuputs x 1 number) [systemObj.output]
+    %       Output values for the plant.
+    %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
@@ -1171,7 +1268,7 @@ methods (Abstract = true)
     %       Input values for the plant.
     %
     %---------------------------------------------------------------------------
-    input = controller(systemObj,time,state,input,flowTime,jumpCount)
+    input = controller(systemObj,time,state,input,output,flowTime,jumpCount)
     
     % The "observer" method will produce estimates of the state values
     % given the current time, state, and input of the system.
@@ -1291,6 +1388,54 @@ methods (Abstract = true)
     %---------------------------------------------------------------------------
     cost = cost(systemObj,time,state,input,output,flowtime,jumpCount)
     
+    % The "evaluate" method is execute at each time step.
+    %
+    % SYNTAX:
+    %   systemObj.evaluate(time)
+    %   ...
+    %   evaluate(systemObj,time,state,input,output,...
+    %       instantaneousCost,cumulativeCost,flowtime,jumpCount,...
+    %       timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
+    %   
+    %
+    % INPUTS:
+    %   systemObj - (1 x 1 simulate.system)
+    %       An instance of the "simulate.system" class.
+    %
+    %   time - (1 x 1 real number) [systemObj.time]
+    %       Current time.
+    %
+    %   state - (nStates x 1 number) [systemObj.state]
+    %       Current state.
+    %
+    %   input - (nInputs x 1 number) [systemObj.input]
+    %       Current input value.
+    %
+    %   output - (nOutputs x 1 number) [systemObj.output]
+    %       Output values for the plant.
+    %
+    %   instantaneousCost % (nCosts X 1 number) [systemObj.instantaneousCost]
+    %       Current instantaneous cost from the system.
+    %
+    %   cumulativeCost % (nCosts x 1 real number) [systemObj.cumulativeCost]
+    %       System current cumlataed cost.
+    %
+    %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
+    %       Current flow time value.
+    %
+    %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
+    %       Current jump count value.
+    %
+    %   TODO
+    %
+    % OUTPUTS:
+    %
+    %---------------------------------------------------------------------------
+    evaluate(systemObj,time,state,input,output,...
+        instantaneousCost,cumulativeCost,flowtime,jumpCount,...
+        timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
+    
+    
     % The "linearize" method outputs the system's linearize matrices
     % evaluated at the the given operating point.
 	%
@@ -1377,7 +1522,7 @@ end
 
 %% Methods in separte files ----------------------------------------------------
 methods (Access = protected)
-    input = policy(systemObj,time,state,input,flowTime,jumpCount)
+    input = policy(systemObj,time,state,input,output,flowTime,jumpCount)
     cumulativeCost = sumCost(systemObj,cumulativeCost,instantaneousCost)
     plotState(systemObj,time,state,timeTapeC,stateTape,varargin)
     plotInput(systemObj,time,timeTapeD,inputTape,varargin)

@@ -1,4 +1,4 @@
-function input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
+function input = controller(pendulumObj,time,state,input,output,flowTime,jumpCount)
 % The "controller" method will produce input values given the current
 % time and state of the system.
 %
@@ -7,8 +7,9 @@ function input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
 %   input = pendulumObj.controller(time)
 %   input = pendulumObj.controller(time,state)
 %   input = pendulumObj.controller(time,state,input)
-%   input = pendulumObj.controller(time,state,input,flowTime)
-%   input = pendulumObj.controller(time,state,input,flowTime,jumpCount)
+%   input = pendulumObj.controller(time,state,input,output)
+%   input = pendulumObj.controller(time,state,input,output,flowTime)
+%   input = pendulumObj.controller(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.pendulum)
@@ -17,21 +18,24 @@ function input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
 %   time - (1 x 1 real number)
 %       Current time.
 %
-%   state - (? x 1 number)
-%       Current state. Must be a "pendulumObj.nStates" x 1 vector.
+%   state - (nStates x 1 number)
+%       Current state.
 %
-%   input - (? x 1 number) [pendulumObj.input]
-%       Current input value. Must be a "pendulumObj.nInputs" x 1 vector.
+%   input - (nInputs x 1 number) [pendulumObj.input]
+%       Current input value.
 %
-%   flowTime - (1 x 1 semi-positive real number) [0]
+%   output - (nOuputs x 1 number) [pendulumObj.output]
+%       Output values for the plant.
+%
+%   flowTime - (1 x 1 semi-positive real number) [pendulumObj.flowTime]
 %       Current flow time value.
 %
-%   jumpCount - (1 x 1 semi-positive integer) [0] 
+%   jumpCount - (1 x 1 semi-positive integer) [pendulumObj.jumpCount] 
 %       Current jump count value.
 %
 % OUTPUTS:
 %   input - (? x 1 number)
-%       Input values for the system. A "pendulumObj.nInputs" x 1 vector.
+%       Input values for the system.
 %
 % NOTES:
 %
@@ -49,8 +53,9 @@ function input = controller(pendulumObj,time,state,input,flowTime,jumpCount)
 if nargin < 2, time = pendulumObj.time; end
 if nargin < 3, state = pendulumObj.state; end
 if nargin < 4, input = pendulumObj.input; end
-if nargin < 5, flowTime = pendulumObj.flowTime; end
-if nargin < 6, jumpCount = pendulumObj.jumpCount; end
+if nargin < 5, output = tyroObj.output; end
+if nargin < 6, flowTime = tyroObj.flowTime; end
+if nargin < 7, jumpCount = tyroObj.jumpCount; end
 
 %% Parameters
 

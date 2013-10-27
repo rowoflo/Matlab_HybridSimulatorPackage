@@ -1,18 +1,17 @@
-function instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jumpCount)
-% The "cost" method will produce cost values given the current
-% time and state of the system.
+function evaluate(blankObj,time,state,input,output,flowTime,jumpCount)
+% The "evaluate" method is execute at each time step.
 %
 % SYNTAX:
-%   instantaneousCost = pendulumObj.cost(time)
-%   instantaneousCost = pendulumObj.cost(time,state)
-%   instantaneousCost = pendulumObj.cost(time,state,input)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime,jumpCount)
+%   blankObj.evaluate(time)
+%   blankObj.evaluate(time,state)
+%   blankObj.evaluate(time,state,input)
+%   blankObj.evaluate(time,state,input,output)
+%   blankObj.evaluate(time,state,input,output,flowtime)
+%   blankObj.evaluate(time,state,input,output,flowtime,jumpCount)
 %
 % INPUTS:
-%   blankObj - (1 x 1 simulate.system)
-%       An instance of the "simulate.system" class.
+%   blankObj - (1 x 1 simulate.blank)
+%       An instance of the "simulate.blank" class.
 %
 %   time - (1 x 1 real number) [blankObj.time]
 %       Current time.
@@ -29,17 +28,16 @@ function instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jump
 %   flowTime - (1 x 1 semi-positive real number) [blankObj.flowTime]
 %       Current flow time value.
 %
-%   jumpCount - (1 x 1 semi-positive integer) [blankObj.jumpCount]
+%   jumpCount - (1 x 1 semi-positive integer) [blankObj.jumpCount] 
 %       Current jump count value.
 %
 % OUTPUTS:
-%   instantaneousCost - (1 x 1 real number)
-%       Instantaneous cost values for the system.
+%
 %
 % NOTES:
 %
 % NECESSARY FILES AND/OR PACKAGES:
-%   +simulate
+%   +simulate, +simulate
 %
 % AUTHOR:
 %    Rowland O'Flaherty
@@ -56,17 +54,13 @@ if nargin < 5, output = blankObj.output; end
 if nargin < 6, flowTime = blankObj.flowTime; end
 if nargin < 7, jumpCount = blankObj.jumpCount; end
 
-
 %% Parameters
 
 
 %% Variables
 
 
-%% Cost Definition
+%% Run
 
-
-%% Set output
-instantaneousCost = zeros(blankObj.nCosts,1);
 
 end

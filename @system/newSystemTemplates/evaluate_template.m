@@ -1,15 +1,13 @@
-function input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
-% The "controller" method will produce input values given the current
-% time and state of the system.
+function evaluate(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
+% The "evaluate" method is execute at each time step.
 %
 % SYNTAX:
-%   input = SYSTEM_NAMEObj.controller()
-%   input = SYSTEM_NAMEObj.controller(time)
-%   input = SYSTEM_NAMEObj.controller(time,state)
-%   input = SYSTEM_NAMEObj.controller(time,state,input)
-%   input = SYSTEM_NAMEObj.controller(time,state,input,output)
-%   input = SYSTEM_NAMEObj.controller(time,state,input,output,flowTime)
-%   input = SYSTEM_NAMEObj.controller(time,state,input,output,flowTime,jumpCount)
+%   SYSTEM_NAMEObj.evaluate(time)
+%   SYSTEM_NAMEObj.evaluate(time,state)
+%   SYSTEM_NAMEObj.evaluate(time,state,input)
+%   SYSTEM_NAMEObj.evaluate(time,state,input,output)
+%   SYSTEM_NAMEObj.evaluate(time,state,input,output,flowtime)
+%   SYSTEM_NAMEObj.evaluate(time,state,input,output,flowtime,jumpCount)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
@@ -34,8 +32,7 @@ function input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jump
 %       Current jump count value.
 %
 % OUTPUTS:
-%   input - (NINPUTS x 1 number)
-%       Input values for the system.
+%
 %
 % NOTES:
 %
@@ -63,11 +60,7 @@ if nargin < 7, jumpCount = SYSTEM_NAMEObj.jumpCount; end
 %% Variables
 
 
-%% Controller Definition
-
-
-%% Set input
-input = zeros(SYSTEM_NAMEObj.nInputs,1);
+%% Run
 
 
 end
