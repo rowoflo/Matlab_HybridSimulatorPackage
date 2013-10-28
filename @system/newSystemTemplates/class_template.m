@@ -237,7 +237,11 @@ methods (Access = public) % Superclass Abstract Methods
     input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
     stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
     output = sensor(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
-    instantaneousCost = cost(SYSTEM_NAMEObj,time,state,input,output,flowtime,jumpCount)
+    instantaneousCost = cost(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount,...
+        timeBar,stateBar,inputBar,outputBar)
+    evaluate(SYSTEM_NAMEObj,time,state,input,output,...
+        instantaneousCost,cumulativeCost,flowtime,jumpCount,...
+        timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
     inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
     [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
     sketch(SYSTEM_NAMEObj,state,time,varargin)

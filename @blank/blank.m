@@ -15,7 +15,7 @@ classdef blank < simulate.system
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 26-OCT-2013
+%   Created 27-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
@@ -237,7 +237,11 @@ methods (Access = public) % Superclass Abstract Methods
     input = controller(blankObj,time,state,input,output,flowTime,jumpCount)
     stateHat = observer(blankObj,time,state,input,output,flowTime,jumpCount)
     output = sensor(blankObj,time,state,input,output,flowTime,jumpCount)
-    instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jumpCount)
+    instantaneousCost = cost(blankObj,time,state,input,output,flowTime,jumpCount,...
+        timeBar,stateBar,inputBar,outputBar)
+    evaluate(blankObj,time,state,input,output,...
+        instantaneousCost,cumulativeCost,flowtime,jumpCount,...
+        timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
     inputOut = inputConstraints(blankObj,inputIn)
     [A,B,C,D] = linearize(blankObj,stateOP,inputOP)
     sketch(blankObj,state,time,varargin)

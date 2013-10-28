@@ -1,14 +1,13 @@
-function instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jumpCount)
+function instantaneousCost = cost(blankObj,time,state,input,output,flowTime,jumpCount,...
+    timeBar,stateBar,inputBar,outputBar)
 % The "cost" method will produce cost values given the current
 % time and state of the system.
 %
 % SYNTAX:
-%   instantaneousCost = pendulumObj.cost(time)
-%   instantaneousCost = pendulumObj.cost(time,state)
-%   instantaneousCost = pendulumObj.cost(time,state,input)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime,jumpCount)
+%   instantaneousCost = blankObj.cost(time)
+%   ...
+%   instantaneousCost = blankObj.cost(time,state,input,output,flowTime,jumpCount,...
+%       timeBar,stateBar,inputBar,outputBar)
 %
 % INPUTS:
 %   blankObj - (1 x 1 simulate.system)
@@ -32,6 +31,18 @@ function instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jump
 %   jumpCount - (1 x 1 semi-positive integer) [blankObj.jumpCount]
 %       Current jump count value.
 %
+%   timeBar - (1 x 1 real number) [blankObj.time]
+%       Reference time value.
+%
+%   stateBar - (1 x 1 number) [blankObj.state]
+%       Reference state value
+%
+%   inputBar - (1 x 1 number) [blankObj.input]
+%       Reference input value.
+%
+%   outputBar - (1 x 1 number) [blankObj.output]
+%       Reference output value.
+%
 % OUTPUTS:
 %   instantaneousCost - (1 x 1 real number)
 %       Instantaneous cost values for the system.
@@ -45,7 +56,7 @@ function instantaneousCost = cost(blankObj,time,state,input,output,flowtime,jump
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 26-OCT-2013
+%   Created 27-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values
@@ -55,6 +66,10 @@ if nargin < 4, input = blankObj.input; end
 if nargin < 5, output = blankObj.output; end
 if nargin < 6, flowTime = blankObj.flowTime; end
 if nargin < 7, jumpCount = blankObj.jumpCount; end
+if nargin < 8, timeBar = blankObj.timeBar; end
+if nargin < 9, stateBar = blankObj.stateBar; end 
+if nargin < 10, inputBar = blankObj.inputBar; end
+if nargin < 11, outputBar = blankObj.outputBar; end
 
 
 %% Parameters

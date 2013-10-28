@@ -51,14 +51,17 @@ properties (Access = public)
     maxFlowTime = inf; % (1 x 1 positive number) Maximum flow time for the simulation.
     maxJumpCount = inf; % (1 x 1 positive integer) Maximum jump count for the simulation.
     
-    % Movie
+    % Tape Properties
+    catSize = 2000; % (1 x 1 positive integer) Concatenation size for tape properties.
+    
+    % Movie Properties
     movieFileName = 'systemMovie'; % (string) Name of file the movie will be saved to, with no extension.
     movieFlag = false; % (1 x 1 logical) If true a movie will be created.
     movieObj = {}; % (? x 1 cell array of VideoWriter Objects) Video objects.
     movieQuality = 60; % (1 x 1 positive integer) Sets movie quality. 0 - 100.
     movieFrameRate = 20; % (1 x 1 positive integer) Sets movie frames per second.
     
-    % ODE Solver
+    % ODE Solver Properties
     odeMethod = 'odeSolver'; % ('odeSolver' or 'euler') Selects how the ODE is solved.
     odeSolver = @ode113; % (ODE function handle) ODE solver function handle.
     odeOptions % (ODE options structure) Stores the options of the ODE solver. See "odeset" and "odeget".
@@ -66,12 +69,15 @@ properties (Access = public)
     
     % Control Properties
     openLoopControl = false; % (1 x 1 logical) Determines if open-loop control is used or closed loop control.
-    openLoopTimeTape = []; % (1 x ? real number) Open-loop control time tape.
+    openLoopTimeTape = []; % (1 x ? real number) Open-loop control time tape. Must be monotonically increasing.
     openLoopInputTape = []; % (1 x ? real number) Open-loop control input tape.
-    stateOP; % (nStates x 1 real number) Operating point for the state used in feedback control.
-    inputOP; % (nInputs x 1 real number) Operating point for the input used in feedback control.
-    stateGoal; % (nStates x 1 real number) Goal point for the state used in feedback control.
-    outputGoal; % (nOutputs x 1 real number) Goal point for the output used in feedback control.
+    timeTrajTape = []; % (1 x ? real number) Time trajectory tape. Must be monotonically increasing.
+    stateTrajTape = []; % (nStates x ? real number) State trajectory tape.
+    timeBar % (1 x 1 number) Current reference time value.
+    stateBar % (nStates x 1 number) Current reference state value.
+    inputBar % (nInputs x 1 number) Current reference input value.
+    outputBar % (nOutputs x 1 number) Current reference output value.
+    
     
     % Random stream    
     randSeed; % (1 x 1 semi-postive number) Random number produced with each initialization of class for setting the seed of the random numeber stream.
@@ -287,13 +293,15 @@ methods
         systemObj.flowTimeTape = nan(1,0);
         systemObj.jumpCountTape = nan(1,0);
         
+        systemObj.timeBar = 0;
+        systemObj.stateBar = zeros(nStates,1);
+        systemObj.inputBar = zeros(nInputs,1);
+        systemObj.outputBar = zeros(nOutputs,1);
+        
         systemObj.setDefaultStateNames;
         systemObj.setDefaultInputNames;
         systemObj.setDefaultOutputNames;
         systemObj.setDefaultCostNames;
-        
-        systemObj.stateOP = zeros(nStates,0);
-        systemObj.inputOP = zeros(nInputs,0);
         
         systemObj.outputsToPlot = 1:nOutputs;
         systemObj.costsToPlot = 1:nCosts;
@@ -798,7 +806,7 @@ methods
         %---------------------------------------------------------------------
         
         if isnan(systemObj.outputMem)
-            systemObj.outputMem = systemObj.sensor(systemObj.time,systemObj.state,systemObj.input,systemObj.flowTime,systemObj.jumpCount);
+            systemObj.outputMem = systemObj.sensor(systemObj.time,systemObj.state,zeros(systemObj.nInputs,1),systemObj.flowTime,systemObj.jumpCount);
         end
         output = systemObj.outputMem;
     end
@@ -815,7 +823,9 @@ methods
         %---------------------------------------------------------------------
         
         if isnan(systemObj.instantaneousCostMem)
-            systemObj.instantaneousCostMem = systemObj.cost(systemObj.time,systemObj.state,systemObj.input,systemObj.output,systemObj.flowTime,systemObj.jumpCount);
+            systemObj.instantaneousCostMem = ...
+                systemObj.cost(systemObj.time,systemObj.state,systemObj.input,systemObj.output,systemObj.flowTime,systemObj.jumpCount,...
+                    systemObj.timeBar,systemObj.stateBar,systemObj.inputBar,systemObj.outputBar);
         end
         instantaneousCost = systemObj.instantaneousCostMem;
     end 
@@ -1353,10 +1363,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   cost = systemObj.cost(time)
-    %   cost = systemObj.cost(time,state)
-    %   cost = systemObj.cost(time,state,input)
-    %   cost = systemObj.cost(time,state,input,output)
-    %   cost = systemObj.cost(time,state,input,output,flowtime)
+    %   ...
     %   cost = systemObj.cost(time,state,input,output,flowtime,jumpCount)
     %
     % INPUTS:
@@ -1366,13 +1373,13 @@ methods (Abstract = true)
     %   time - (1 x 1 real number) [systemObj.time]
     %       Current time.
     %
-    %   state - (nStates x 1 number) [systemObj.state]
+    %   state - (NSTATES x 1 number) [systemObj.state]
     %       Current state.
     %
-    %   input - (nInputs x 1 number) [systemObj.input]
+    %   input - (NINPUTS x 1 number) [systemObj.input]
     %       Current input value.
     %
-    %   output - (nOutputs x 1 number) [systemObj.output]
+    %   output - (NOUTPUTS x 1 number) [systemObj.output]
     %       Output values for the plant.
     %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
@@ -1381,12 +1388,25 @@ methods (Abstract = true)
     %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
     %
+    %   timeBar - (1 x 1 real number) [systemObj.time]
+    %       Reference time value.
+    %
+    %   stateBar - (NSTATES x 1 number) [systemObj.state]
+    %       Reference state value
+    %
+    %   inputBar - (NINPUTS x 1 number) [systemObj.input]
+    %       Reference input value.
+    %
+    %   outputBar - (NOUTPUTS x 1 number) [systemObj.output]
+    %       Reference output value.
+    %
     % OUTPUTS:
     %   cost - (nCosts x 1 real number)
     %       Cost values for the system.
     %
     %---------------------------------------------------------------------------
-    cost = cost(systemObj,time,state,input,output,flowtime,jumpCount)
+    cost = cost(systemObj,time,state,input,output,flowtime,jumpCount,...
+        timeBar,stateBar,inputBar,outputBar)
     
     % The "evaluate" method is execute at each time step.
     %
@@ -1414,17 +1434,32 @@ methods (Abstract = true)
     %   output - (nOutputs x 1 number) [systemObj.output]
     %       Output values for the plant.
     %
-    %   instantaneousCost % (nCosts X 1 number) [systemObj.instantaneousCost]
-    %       Current instantaneous cost from the system.
-    %
-    %   cumulativeCost % (nCosts x 1 real number) [systemObj.cumulativeCost]
-    %       System current cumlataed cost.
-    %
     %   flowTime - (1 x 1 semi-positive real number) [systemObj.flowTime]
     %       Current flow time value.
     %
     %   jumpCount - (1 x 1 semi-positive integer) [systemObj.jumpCount]
     %       Current jump count value.
+    %
+    %   timeTapeC - (1 x ? number) [systemObj.timeTapeC]
+    %       Current record of continuous times.
+    %
+    %   stateTape - (nStates x ? number) [systemObj.timeTapeC]
+    %       Current record of continuous states.
+    %
+    %   timeTapeD - (1 x ? number) [systemObj.timeTapeD]
+    %       Current record of discrete times.
+    %
+    %   inputTape - (nInputs x ? number) [systemObj.inputTape]
+    %       Current record of discrete inputs.
+    %
+    %   outputTape - (nOutputs x ? number) [systemObj.outputTape]
+    %       Current record of discrete outputs.
+    %
+    %   instantaneousCostTape - (nCosts x ? number) [systemObj.instantaneousCostTape]
+    %       Current record of discrete instantaneous costs.
+    %
+    %   cumulativeCostTape - (nCosts x ? number) [systemObj.cumulativeCostTape]
+    %       Current record of discrete comulative costs.
     %
     %   TODO
     %

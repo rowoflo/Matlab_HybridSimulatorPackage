@@ -1,14 +1,13 @@
-function instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,jumpCount)
-% The "cost" method will produce cost values given the current
-% time and state of the system.
+function instantaneousCost = cost(pendulumObj,time,state,input,output,flowTime,jumpCount,...
+    timeBar,stateBar,inputBar,outputBar) %#ok<INUSL,INUSD>
+% The "cost" method will produce cost values given the current time and
+% state of the system.
 %
 % SYNTAX:
 %   instantaneousCost = pendulumObj.cost(time)
-%   instantaneousCost = pendulumObj.cost(time,state)
-%   instantaneousCost = pendulumObj.cost(time,state,input)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime)
-%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowtime,jumpCount)
+%   ...
+%   instantaneousCost = pendulumObj.cost(time,state,input,output,flowTime,jumpCount,...
+%       timeBar,stateBar,inputBar,outputBar)
 %
 % INPUTS:
 %   pendulumObj - (1 x 1 simulate.system)
@@ -17,13 +16,13 @@ function instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,j
 %   time - (1 x 1 real number) [pendulumObj.time]
 %       Current time.
 %
-%   state - (2 x 1 number) [pendulumObj.state]
+%   state - (nStates x 1 number) [pendulumObj.state]
 %       Current state.
 %
-%   input - (1 x 1 number) [pendulumObj.input]
+%   input - (nInputs x 1 number) [pendulumObj.input]
 %       Current input value.
 %
-%   output - (2 x 1 number) [pendulumObj.output]
+%   output - (nOuputs x 1 number) [pendulumObj.output]
 %       Output values for the plant.
 %
 %   flowTime - (1 x 1 semi-positive real number) [pendulumObj.flowTime]
@@ -31,6 +30,18 @@ function instantaneousCost = cost(pendulumObj,time,state,input,output,flowtime,j
 %
 %   jumpCount - (1 x 1 semi-positive integer) [pendulumObj.jumpCount]
 %       Current jump count value.
+%
+%   timeBar - (1 x 1 real number) [pendulumObj.time]
+%       Reference time value.
+%
+%   stateBar - (NSTATES x 1 number) [pendulumObj.state]
+%       Reference state value
+%
+%   inputBar - (NINPUTS x 1 number) [pendulumObj.input]
+%       Reference input value.
+%
+%   outputBar - (NOUTPUTS x 1 number) [pendulumObj.output]
+%       Reference output value.
 %
 % OUTPUTS:
 %   instantaneousCost - (1 x 1 real number)

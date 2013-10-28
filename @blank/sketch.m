@@ -30,7 +30,7 @@ function sketch(blankObj,state,time,varargin)
 %    Rowland O'Flaherty
 %
 % VERSION: 
-%   Created 26-OCT-2013
+%   Created 27-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

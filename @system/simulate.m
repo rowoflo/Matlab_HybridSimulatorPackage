@@ -159,7 +159,7 @@ end
 %% Parameters
 % movieFrameRate = 20; % TODO: Add these paramerters to input
 % movieQuality = 60;
-catSize = 2000;
+systemObj.catSize = 2000;
 
 %% Initialize
 zeroSize = systemObj.zeroSize;
@@ -193,15 +193,16 @@ nTimePoints = length(timeVector);
 initialInput = zeros(systemObj.nInputs,1);
 initialOutput = systemObj.sensor(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount);
 initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount));
-initialInstantaneousCost = systemObj.cost(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount);
+xBar = stateTraj2stateBar(initialTime,systemObj.timeTrajTape,systemObj.stateTrajTape);
+initialInstantaneousCost = systemObj.cost(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount,[],xBar);
 uD = initialInput; % Current input. Updated discretely.
 
 % Tape variables
 cntC = 1; % Continuous
-timeTapeC = nan(1,nTimePoints+catSize);
-stateTape = nan(systemObj.nStates,nTimePoints+catSize);
-flowTimeTape = nan(1,nTimePoints+catSize);
-jumpCountTape = nan(1,nTimePoints+catSize);
+timeTapeC = nan(1,nTimePoints+systemObj.catSize);
+stateTape = nan(systemObj.nStates,nTimePoints+systemObj.catSize);
+flowTimeTape = nan(1,nTimePoints+systemObj.catSize);
+jumpCountTape = nan(1,nTimePoints+systemObj.catSize);
 timeTapeC(1, 1) = initialTime;
 stateTape(:, 1) = initialState;
 flowTimeTape(1, 1) = initialFlowTime;
@@ -209,11 +210,11 @@ jumpCountTape(1, 1) = initialJumpCount;
 nTimePointsC = length(timeTapeC);
 
 cntD = 1; % Discrete
-timeTapeD = nan(1,nTimePoints+catSize);
-inputTape = nan(systemObj.nInputs,nTimePoints+catSize);
-outputTape = nan(systemObj.nOutputs,nTimePoints+catSize);
-instantaneousCostTape = nan(systemObj.nCosts,nTimePoints+catSize);
-cumulativeCostTape = nan(systemObj.nCosts,nTimePoints+catSize);
+timeTapeD = nan(1,nTimePoints+systemObj.catSize);
+inputTape = nan(systemObj.nInputs,nTimePoints+systemObj.catSize);
+outputTape = nan(systemObj.nOutputs,nTimePoints+systemObj.catSize);
+instantaneousCostTape = nan(systemObj.nCosts,nTimePoints+systemObj.catSize);
+cumulativeCostTape = nan(systemObj.nCosts,nTimePoints+systemObj.catSize);
 timeTapeD(1, 1) = initialTime;
 inputTape(:, 1) = initialInput;
 outputTape(:, 1) = initialOutput;
@@ -265,10 +266,10 @@ while 1
             cntCPrev = cntC;
             cntC = cntC + nT;
             if cntC > nTimePointsC
-                timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
-                stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
-                flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
-                jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
+                timeTapeC = [timeTapeC nan(1,systemObj.catSize)]; %#ok<AGROW>
+                stateTape = [stateTape nan(systemObj.nStates,systemObj.catSize)]; %#ok<AGROW>
+                flowTimeTape = [flowTimeTape nan(1,systemObj.catSize)]; %#ok<AGROW>
+                jumpCountTape = [jumpCountTape nan(1,systemObj.catSize)]; %#ok<AGROW>
                 nTimePointsC = length(timeTapeC);
             end
             tC = T(1, end);
@@ -289,10 +290,10 @@ while 1
             cntCPrev = cntC;
             cntC = cntC + nT;
             if cntC > nTimePointsC
-                timeTapeC = [timeTapeC nan(1,catSize)]; %#ok<AGROW>
-                stateTape = [stateTape nan(systemObj.nStates,catSize)]; %#ok<AGROW>
-                flowTimeTape = [flowTimeTape nan(1,catSize)]; %#ok<AGROW>
-                jumpCountTape = [jumpCountTape nan(1,catSize)]; %#ok<AGROW>
+                timeTapeC = [timeTapeC nan(1,systemObj.catSize)]; %#ok<AGROW>
+                stateTape = [stateTape nan(systemObj.nStates,systemObj.catSize)]; %#ok<AGROW>
+                flowTimeTape = [flowTimeTape nan(1,systemObj.catSize)]; %#ok<AGROW>
+                jumpCountTape = [jumpCountTape nan(1,systemObj.catSize)]; %#ok<AGROW>
                 nTimePointsC = length(timeTapeC);
             end
             tC = T;
@@ -322,11 +323,11 @@ while 1
     if min(abs(T(1, end) - timeVector)) == 0
         cntD = cntD + 1;
         if cntD > nTimePointsD
-            timeTapeD = [timeTapeD nan(1,catSize)]; %#ok<AGROW>
-            inputTape = [inputTape nan(systemObj.nInputs,catSize)]; %#ok<AGROW>
-            outputTape = [outputTape nan(systemObj.nOutputs,catSize)]; %#ok<AGROW>
-            instantaneousCostTape = [instantaneousCostTape nan(systemObj.nCosts,catSize)]; %#ok<AGROW>
-            cumulativeCostTape = [cumulativeCostTape nan(systemObj.nCosts,catSize)]; %#ok<AGROW>
+            timeTapeD = [timeTapeD nan(1,systemObj.catSize)]; %#ok<AGROW>
+            inputTape = [inputTape nan(systemObj.nInputs,systemObj.catSize)]; %#ok<AGROW>
+            outputTape = [outputTape nan(systemObj.nOutputs,systemObj.catSize)]; %#ok<AGROW>
+            instantaneousCostTape = [instantaneousCostTape nan(systemObj.nCosts,systemObj.catSize)]; %#ok<AGROW>
+            cumulativeCostTape = [cumulativeCostTape nan(systemObj.nCosts,systemObj.catSize)]; %#ok<AGROW>
             nTimePointsD = length(timeTapeD);
         end
         tD = T(1, end);
@@ -336,7 +337,8 @@ while 1
         jD = jC;
         yD = systemObj.sensor(tD,xD,uD,fD,jD);
         uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,yD,fD,jD));
-        LD = systemObj.cost(tD,xD,uD,yD,fD,jD);
+        xBar = stateTraj2stateBar(tD,systemObj.timeTrajTape,systemObj.stateTrajTape);
+        LD = systemObj.cost(tD,xD,uD,yD,fD,jD,[],xBar);
         JD = systemObj.sumCost(JD,LD);
         systemObj.evaluate(tD,xD,uD,yD,LD,JD,fD,jD,...
             timeTapeC(1,1:cntC-1),stateTape(:,1:cntC-1),timeTapeD(1,1:cntD-1),inputTape(:,1:cntD-1),outputTape(:,1:cntD-1),instantaneousCostTape(1,1:cntD-1),cumulativeCostTape(1,1:cntD-1));
@@ -661,6 +663,15 @@ end
 end
 
 %% Helper Functions ------------------------------------------------------------
+function stateBar = stateTraj2stateBar(time,timeTrajTape,stateTrajTape)
+tInd = find(time >= timeTrajTape,1,'last');
+if isempty(tInd)
+    stateBar = zeros(size(stateTrajTape,1),1);
+else
+    stateBar = stateTrajTape(:,tInd);
+end
+end
+
 function [T,X,TE,XE,IE] = euler(odefun,tspan,x0,options)
     eventsFun = options.events;
     t0 = tspan(1);
