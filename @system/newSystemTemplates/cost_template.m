@@ -53,7 +53,7 @@ function instantaneousCost = cost(SYSTEM_NAMEObj,time,state,input,output,flowTim
 %   +simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

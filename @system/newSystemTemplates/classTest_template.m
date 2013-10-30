@@ -11,7 +11,7 @@
 %    relatedFunction1 | relatedFunction2
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

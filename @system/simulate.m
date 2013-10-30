@@ -81,7 +81,7 @@ function [timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTa
 %   run.m | replay.m | plot.m
 %
 % AUTHOR:
-%   Rowland O'Flaherty
+%   Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
 %   Created 17-APR-2011
@@ -192,9 +192,9 @@ nTimePoints = length(timeVector);
 % Initial input/output variables
 initialInput = zeros(systemObj.nInputs,1);
 initialOutput = systemObj.sensor(initialTime,initialState,initialInput,initialFlowTime,initialJumpCount);
-initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount));
 xBar = stateTraj2stateBar(initialTime,systemObj.timeTrajTape,systemObj.stateTrajTape);
 initialInstantaneousCost = systemObj.cost(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount,[],xBar);
+initialInput = systemObj.inputConstraints(systemObj.policy(initialTime,initialState,initialInput,initialOutput,initialFlowTime,initialJumpCount));
 uD = initialInput; % Current input. Updated discretely.
 
 % Tape variables
@@ -336,12 +336,12 @@ while 1
         fD = fC;
         jD = jC;
         yD = systemObj.sensor(tD,xD,uD,fD,jD);
-        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,yD,fD,jD));
         xBar = stateTraj2stateBar(tD,systemObj.timeTrajTape,systemObj.stateTrajTape);
         LD = systemObj.cost(tD,xD,uD,yD,fD,jD,[],xBar);
         JD = systemObj.sumCost(JD,LD);
         systemObj.evaluate(tD,xD,uD,yD,LD,JD,fD,jD,...
             timeTapeC(1,1:cntC-1),stateTape(:,1:cntC-1),timeTapeD(1,1:cntD-1),inputTape(:,1:cntD-1),outputTape(:,1:cntD-1),instantaneousCostTape(1,1:cntD-1),cumulativeCostTape(1,1:cntD-1));
+        uD = systemObj.inputConstraints(systemObj.policy(tD,xD,uD,yD,fD,jD));
         timeTapeD(1, cntD) = tD;
         inputTape(:, cntD) = uD;
         outputTape(:, cntD) = yD;
@@ -520,7 +520,7 @@ end
                     legend(systemObj.phaseAxisHandle,'off')
                 end
                 if systemObj.plotSketchFlag
-                    systemObj.plotSketch(td(1,end),x(:,end));
+                    systemObj.plotSketch(x(:,end),x(:,1:end-1),tc(1,end),tc(1,1:end-1));
                 end
                                 
                 % Figure setup
@@ -589,7 +589,7 @@ end
                     systemObj.plotPhase(x(:,end),x(:,1:end-1));
                 end
                 if systemObj.plotSketchFlag
-                    systemObj.plotSketch(td(1,end),x(:,end));
+                    systemObj.plotSketch(x(:,end),x(:,1:end-1),tc(1,end),tc(1,1:end-1));
                 end
                 
                 if stopFlag

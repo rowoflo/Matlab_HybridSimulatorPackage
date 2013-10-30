@@ -22,7 +22,7 @@ function inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY
@@ -34,7 +34,7 @@ function inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
 %% Variables
 
 
-%% Controller Definition
+%% Constraints Definition
 
 
 %% Set input

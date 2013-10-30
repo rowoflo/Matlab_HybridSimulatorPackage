@@ -4,11 +4,7 @@ function stateHat = observer(blankObj,time,state,input,output,flowTime,jumpCount
 %
 % SYNTAX:
 %   stateHat = blankObj.observer()
-%   stateHat = blankObj.observer(time)
-%   stateHat = blankObj.observer(time,state)
-%   stateHat = blankObj.observer(time,state,input)
-%   stateHat = blankObj.observer(time,state,input,output)
-%   stateHat = blankObj.observer(time,state,input,output,flowTime)
+%   ...
 %   stateHat = blankObj.observer(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
@@ -43,10 +39,10 @@ function stateHat = observer(blankObj,time,state,input,output,flowTime,jumpCount
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

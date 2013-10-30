@@ -1,20 +1,20 @@
-function [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
+function [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateBar,inputBar)
 % The "linearize" method outputs the system's linearize matrices evaluated at
-% the the given operating point.
+% the the given Barerating point.
 %
 % SYNTAX:
 %   [A,B,C,D] = SYSTEM_NAMEObj.linearize()
-%   [A,B,C,D] = SYSTEM_NAMEObj.linearize(stateOP,inputOP)
+%   [A,B,C,D] = SYSTEM_NAMEObj.linearize(stateBar,inputBar)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
-%   stateOP - (NSTATES x 1 number) [SYSTEM_NAMEObj.stateOP]
-%       State operating point.
+%   stateBar - (NSTATES x 1 number) [SYSTEM_NAMEObj.stateBar]
+%       State Barerating point.
 %
-%   inputOP - (NINPUTS x 1 number) [SYSTEM_NAMEObj.inputOP]
-%       Input operating point.
+%   inputBar - (NINPUTS x 1 number) [SYSTEM_NAMEObj.inputBar]
+%       Input Barerating point.
 %
 % OUTPUTS:
 %   A - (NSTATES x NSTATES number)
@@ -35,15 +35,15 @@ function [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 2, stateOP = SYSTEM_NAMEObj.stateOP; end
-if nargin < 3, inputOP = SYSTEM_NAMEObj.inputOP; end
+if nargin < 2, stateBar = SYSTEM_NAMEObj.stateBar; end
+if nargin < 3, inputBar = SYSTEM_NAMEObj.inputBar; end
 
 %% Parameters
 

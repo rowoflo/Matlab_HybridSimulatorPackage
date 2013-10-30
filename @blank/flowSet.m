@@ -4,9 +4,7 @@ function flowSetValue = flowSet(blankObj,time,state,flowTime,jumpCount)
 %
 % SYNTAX:
 %   flowSetValue = blankObj.flowSet()
-%   flowSetValue = blankObj.flowSet(time)
-%   flowSetValue = blankObj.flowSet(time,state)
-%   flowSetValue = blankObj.flowSet(time,state,flowTime)
+%   ...
 %   flowSetValue = blankObj.flowSet(time,state,flowTime,jumpCount)
 %
 % INPUTS:
@@ -40,10 +38,10 @@ function flowSetValue = flowSet(blankObj,time,state,flowTime,jumpCount)
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

@@ -3,10 +3,7 @@ function [statePlus,timePlus,setPriority] = jumpMap(blankObj,time,state,input,fl
 %
 % SYNTAX:
 %   [statePlus,timePlus,setPriority] = blankObj.jumpMap()
-%   [statePlus,timePlus,setPriority] = blankObj.jumpMap(time)
-%   [statePlus,timePlus,setPriority] = blankObj.jumpMap(time,state)
-%   [statePlus,timePlus,setPriority] = blankObj.jumpMap(time,state,input)
-%   [statePlus,timePlus,setPriority] = blankObj.jumpMap(time,state,input,flowTime)
+%   ...
 %   [statePlus,timePlus,setPriority] = blankObj.jumpMap(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
@@ -45,10 +42,10 @@ function [statePlus,timePlus,setPriority] = jumpMap(blankObj,time,state,input,fl
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

@@ -4,11 +4,7 @@ function input = controller(blankObj,time,state,input,output,flowTime,jumpCount)
 %
 % SYNTAX:
 %   input = blankObj.controller()
-%   input = blankObj.controller(time)
-%   input = blankObj.controller(time,state)
-%   input = blankObj.controller(time,state,input)
-%   input = blankObj.controller(time,state,input,output)
-%   input = blankObj.controller(time,state,input,output,flowTime)
+%   ...
 %   input = blankObj.controller(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
@@ -43,10 +39,10 @@ function input = controller(blankObj,time,state,input,output,flowTime,jumpCount)
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

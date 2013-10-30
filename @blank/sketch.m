@@ -27,10 +27,10 @@ function sketch(blankObj,state,time,varargin)
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

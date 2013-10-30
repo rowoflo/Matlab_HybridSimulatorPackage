@@ -22,10 +22,10 @@ function inputOut = inputConstraints(blankObj,inputIn)
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Parameters
@@ -34,7 +34,7 @@ function inputOut = inputConstraints(blankObj,inputIn)
 %% Variables
 
 
-%% Controller Definition
+%% Constraints Definition
 
 
 %% Set input

@@ -4,10 +4,7 @@ function output = sensor(blankObj,time,state,input,flowTime,jumpCount)
 %
 % SYNTAX:
 %   output = blankObj.sensor()
-%   output = blankObj.sensor(time)
-%   output = blankObj.sensor(time,state)
-%   output = blankObj.sensor(time,state,input)
-%   output = blankObj.sensor(time,state,input,flowTime)    
+%   ...    
 %   output = blankObj.sensor(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
@@ -39,10 +36,10 @@ function output = sensor(blankObj,time,state,input,flowTime,jumpCount)
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

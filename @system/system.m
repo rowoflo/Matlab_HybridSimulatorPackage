@@ -13,7 +13,7 @@ classdef system < dynamicprops
 %   simulate.map
 %
 % AUTHOR:
-%   Rowland O'Flaherty
+%   Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
 %   Created 17-APR-2011
@@ -294,9 +294,9 @@ methods
         systemObj.jumpCountTape = nan(1,0);
         
         systemObj.timeBar = 0;
-        systemObj.stateBar = zeros(nStates,1);
-        systemObj.inputBar = zeros(nInputs,1);
-        systemObj.outputBar = zeros(nOutputs,1);
+        systemObj.stateBar = nan(nStates,1);
+        systemObj.inputBar = nan(nInputs,1);
+        systemObj.outputBar = nan(nOutputs,1);
         
         systemObj.setDefaultStateNames;
         systemObj.setDefaultInputNames;
@@ -1089,10 +1089,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   [stateDot,setPriority] = systemObj.flowMap()
-    %   [stateDot,setPriority] = systemObj.flowMap(time)
-    %   [stateDot,setPriority] = systemObj.flowMap(time,state)
-    %   [stateDot,setPriority] = systemObj.flowMap(time,state,input)
-    %   [stateDot,setPriority] = systemObj.flowMap(time,state,input,flowTime)
+    %   ...
     %   [stateDot,setPriority] = systemObj.flowMap(time,state,input,flowTime,jumpCount)
     %
     % INPUTS:
@@ -1129,10 +1126,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   [statePlus,timePlus,setPriority] = systemObj.jumpMap()
-    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time)
-    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state)
-    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input)
-    %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input,flowTime)
+    %   ...
     %   [statePlus,timePlus,setPriority] = systemObj.jumpMap(time,state,input,flowTime,jumpCount)
     %
     % INPUTS:
@@ -1173,9 +1167,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   flowSetValue = systemObj.flowSet()
-    %   flowSetValue = systemObj.flowSet(time)
-    %   flowSetValue = systemObj.flowSet(time,state)
-    %   flowSetValue = systemObj.flowSet(time,state,flowTime)
+    %   ...
     %   flowSetValue = systemObj.flowSet(time,state,flowTime,jumpCount)
     %
     % INPUTS:
@@ -1208,10 +1200,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   jumpSetValue = systemObj.jumpSet()
-    %   jumpSetValue = systemObj.jumpSet(time)
-    %   jumpSetValue = systemObj.jumpSet(time,state)
-    %   jumpSetValue = systemObj.jumpSet(time,state)
-    %   jumpSetValue = systemObj.jumpSet(time,state,flowTime)
+    %   ...
     %   jumpSetValue = systemObj.jumpSet(time,state,flowTime,jumpCount)
     %
     % INPUTS:
@@ -1244,11 +1233,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   input = systemObj.controller()
-    %   input = systemObj.controller(time)
-    %   input = systemObj.controller(time,state)
-    %   input = systemObj.controller(time,state,input)
-    %   input = systemObj.controller(time,state,input,output)
-    %   input = systemObj.controller(time,state,input,output,flowTime)
+    %   ...
     %   input = systemObj.controller(time,state,input,output,flowTime,jumpCount)
     %
     % INPUTS:
@@ -1285,11 +1270,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   stateHat = systemObj.observer()
-    %   stateHat = systemObj.observer(time)
-    %   stateHat = systemObj.observer(time,state)
-    %   stateHat = systemObj.observer(time,state,input)
-    %   stateHat = systemObj.observer(time,state,input,output)
-    %   stateHat = systemObj.observer(time,state,input,output,flowTime)
+    %   ...
     %   stateHat = systemObj.observer(time,state,input,output,flowTime,jumpCount)
     %
     % INPUTS:
@@ -1326,10 +1307,7 @@ methods (Abstract = true)
     %
     % SYNTAX:
     %   output = systemObj.sensor()
-    %   output = systemObj.sensor(time)
-    %   output = systemObj.sensor(time,state)
-    %   output = systemObj.sensor(time,state,input)
-    %   output = systemObj.sensor(time,state,input,flowTime)    
+    %   ...   
     %   output = systemObj.sensor(time,state,input,flowTime,jumpCount)
     %
     % INPUTS:
@@ -1429,7 +1407,8 @@ methods (Abstract = true)
     %       Current state.
     %
     %   input - (nInputs x 1 number) [systemObj.input]
-    %       Current input value.
+    %       Current input value from previous time to current time. Not the
+    %       input that will be applied from the current time to the next time.
     %
     %   output - (nOutputs x 1 number) [systemObj.output]
     %       Output values for the plant.
@@ -1532,25 +1511,31 @@ methods (Abstract = true)
     % SYNTAX:
     %   systemObj.sketch()
     %   systemObj.sketch(state)
-    %   systemObj.sketch(state,time)
+    %   systemObj.sketch(state,stateTape,time,timeTape)
     %   systemObj.sketch(. . .,'PropertyName',PropertyValue,. . .)
     %
     % INPUTS:
     %   systemObj - (1 x 1 simulate.system)
     %       An instance of the "simulate.system" class.
     %
-    %   state - (nStates x 1 real number) [systemObj.state] 
+    %   state - (nStates x 1 real number) [systemObj.state]
     %       The state that the system will be drawn in.
     %
-    %   time - (1 x 1 real number) [systemObj.time] 
+    %   stateTape - (nStates x ? number) []
+    %       The state tape used for plotting.
+    %
+    %   time - (1 x 1 real number) [systemObj.time]
     %       The time that the system will be drawn at.
-    %    
+    %
+    %   timeTape - (1 x ? real number) []
+    %       The time tape used for plotting the state path.
+    %
     % PROPERTIES:
     %
     % NOTES:
     %
     %---------------------------------------------------------------------------
-    sketch(systemObj,state,time,varargin)
+    sketch(systemObj,state,stateTape,time,timeTape,varargin)
     
 end
 %-------------------------------------------------------------------------------
@@ -1565,7 +1550,7 @@ methods (Access = protected)
     plotInstantaneousCost(systemObj,time,timeTapeD,instantaneousCostTape,varargin)
     plotCumulativeCost(systemObj,time,timeTapeD,cumulativeCostTape,varargin)
     plotPhase(systemObj,time,state,timeTapeC,stateTape,varargin)
-    plotSketch(systemObj,state,time,varargin)
+    plotSketch(systemObj,state,stateTape,time,timeTape,varargin)
 end
 
 methods (Access = public)

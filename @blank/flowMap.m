@@ -3,10 +3,7 @@ function [stateDot,setPriority] = flowMap(blankObj,time,state,input,flowTime,jum
 %
 % SYNTAX:
 %   [stateDot,setPriority] = blankObj.flowMap()
-%   [stateDot,setPriority] = blankObj.flowMap(time)
-%   [stateDot,setPriority] = blankObj.flowMap(time,state)
-%   [stateDot,setPriority] = blankObj.flowMap(time,state,input)
-%   [stateDot,setPriority] = blankObj.flowMap(time,state,input,flowTime)
+%   ...
 %   [stateDot,setPriority] = blankObj.flowMap(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
@@ -42,10 +39,10 @@ function [stateDot,setPriority] = flowMap(blankObj,time,state,input,flowTime,jum
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

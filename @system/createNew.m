@@ -306,6 +306,7 @@ SystemName = [upper(systemName(1)) systemName(2:end)];
 %% Get User Name
 % defaultName = 'SET DEFAULT NAME IN newDoc.m LINE 96';
 defaultName = 'Rowland O''Flaherty';
+defaultWebsite = 'rowlandoflaherty.com';
 
 % if ismac
 if 0
@@ -316,6 +317,7 @@ if 0
     end
 else
     fullName = defaultName;
+    website = defaultWebsite;
 end
 
 %% Create class folder
@@ -359,6 +361,7 @@ edit(testDocPath);
                 if ~ischar(aLine),   break,   end
                 aLine = regexprep(aLine,'DD-MMM-YYYY',upper(date)); % Sets the current date
                 aLine = regexprep(aLine,'FULL_NAME',fullName); % Set the author name
+                aLine = regexprep(aLine,'WEBSITE',website); % Set the website
                 aLine = regexprep(aLine,'VERSION_STR',version); % Set the version number
                 aLine = regexprep(aLine,'PACKAGE_NAME_D_SYSTEM_NAME',packageDsystemName); % Set the package name and system name with a dot between them
                 aLine = regexprep(aLine,'PACKAGE_NAME_C_SYSTEM_NAME',packageCsystemName); % Set the package name and system name with a colon between them

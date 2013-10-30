@@ -4,9 +4,7 @@ function flowSetValue = flowSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %
 % SYNTAX:
 %   flowSetValue = SYSTEM_NAMEObj.flowSet()
-%   flowSetValue = SYSTEM_NAMEObj.flowSet(time)
-%   flowSetValue = SYSTEM_NAMEObj.flowSet(time,state)
-%   flowSetValue = SYSTEM_NAMEObj.flowSet(time,state,flowTime)
+%   ...
 %   flowSetValue = SYSTEM_NAMEObj.flowSet(time,state,flowTime,jumpCount)
 %
 % INPUTS:
@@ -40,7 +38,7 @@ function flowSetValue = flowSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

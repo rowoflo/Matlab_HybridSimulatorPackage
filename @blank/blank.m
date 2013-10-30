@@ -12,10 +12,10 @@ classdef blank < simulate.system
 %    relatedFunction1 | relatedFunction2
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Properties ------------------------------------------------------------------
@@ -169,7 +169,7 @@ end
 %         %-----------------------------------------------------------------------
 % 
 %         % Check number of arguments
-%         error(nargchk(1,2,nargin))
+%         narginchk(1,2)
 %         
 %         % Apply default values
 %         if nargin < 2, arg1 = 0; end
@@ -228,23 +228,8 @@ end
 %-------------------------------------------------------------------------------
 
 %% Methods in separte files ----------------------------------------------------
-methods (Access = public) % Superclass Abstract Methods
-    [stateDot,setPriority] = flowMap(blankObj,time,state,input,flowTime,jumpCount)
-    [statePlus,timePlus,setPriority] = jumpMap(blankObj,time,state,input,flowTime,jumpCount)
-    flowState = flowSet(blankObj,time,state,flowTime,jumpCount)
-    jumpState = jumpSet(blankObj,time,state,flowTime,jumpCount)
-    
-    input = controller(blankObj,time,state,input,output,flowTime,jumpCount)
-    stateHat = observer(blankObj,time,state,input,output,flowTime,jumpCount)
-    output = sensor(blankObj,time,state,input,output,flowTime,jumpCount)
-    instantaneousCost = cost(blankObj,time,state,input,output,flowTime,jumpCount,...
-        timeBar,stateBar,inputBar,outputBar)
-    evaluate(blankObj,time,state,input,output,...
-        instantaneousCost,cumulativeCost,flowtime,jumpCount,...
-        timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
-    inputOut = inputConstraints(blankObj,inputIn)
-    [A,B,C,D] = linearize(blankObj,stateOP,inputOP)
-    sketch(blankObj,state,time,varargin)
+methods (Access = public)
+
 end
 %-------------------------------------------------------------------------------
     

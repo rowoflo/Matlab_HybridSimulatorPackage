@@ -1,22 +1,28 @@
-function sketch(SYSTEM_NAMEObj,state,time,varargin)
+function sketch(SYSTEM_NAMEObj,state,stateTape,time,timeTape,varargin)
 % The "sketch" method will draw the system at a given time and
 % state in the sketch axis or create a new axis if it doesn't have one.
 %
 % SYNTAX:
 %   SYSTEM_NAMEObj.sketch()
 %   SYSTEM_NAMEObj.sketch(state)
-%   SYSTEM_NAMEObj.sketch(state,time)
+%   SYSTEM_NAMEObj.sketch(state,stateTape,time,timeTape)
 %   SYSTEM_NAMEObj.sketch(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
 %   SYSTEM_NAMEObj - (1 x 1 PACKAGE_NAME_D_SYSTEM_NAME)
 %       An instance of the "PACKAGE_NAME_D_SYSTEM_NAME" class.
 %
-%   state - (NSTATES x 1 real number) [SYSTEM_NAMEObj.state] 
-%       The state that the SYSTEM_NAME will be drawn in.
+%   state - (NSTATES x 1 real number) [SYSTEM_NAMEObj.state]
+%       The state that the system will be drawn in.
 %
-%   time - (1 x 1 real number) [SYSTEM_NAMEObj.time] 
-%       The time that the SYSTEM_NAME will be drawn at.
+%   stateTape - (NSTATES x ? number) []
+%       The state tape used for plotting.
+%
+%   time - (1 x 1 real number) [SYSTEM_NAMEObj.time]
+%       The time that the system will be drawn at.
+%
+%   timeTape - (1 x ? real number) []
+%       The time tape used for plotting the state path.
 %    
 % PROPERTIES:
 %
@@ -27,15 +33,17 @@ function sketch(SYSTEM_NAMEObj,state,time,varargin)
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 2 || isempty(state), state = SYSTEM_NAMEObj.state; end
-if nargin < 3 || isempty(time), time = SYSTEM_NAMEObj.time; end
+if nargin < 2, state = systemObj.state; end
+if nargin < 3, stateTape = zeros(systemObj.nStates,0); end
+if nargin < 4, time = systemObj.time; end
+if nargin < 5, timeTape = zeros(1,0); end
 
 %% Parameters
 

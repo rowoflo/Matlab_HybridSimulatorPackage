@@ -3,10 +3,7 @@ function [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTi
 %
 % SYNTAX:
 %   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap()
-%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time)
-%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state)
-%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state,input)
-%   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state,input,flowTime)
+%   ...
 %   [stateDot,setPriority] = SYSTEM_NAMEObj.flowMap(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
@@ -42,7 +39,7 @@ function [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTi
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

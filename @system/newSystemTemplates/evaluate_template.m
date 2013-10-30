@@ -22,7 +22,8 @@ function evaluate(SYSTEM_NAMEObj,time,state,input,output,...
 %       Current state.
 %
 %   input - (NINPUTS x 1 number) [SYSTEM_NAMEObj.input]
-%       Current input value.
+%       Current input value from previous time to current time. Not the
+%       input that will be applied from the current time to the next time.
 %
 %   output - (NOUTPUTS x 1 number) [SYSTEM_NAMEObj.output]
 %       Output values for the plant.
@@ -63,7 +64,7 @@ function evaluate(SYSTEM_NAMEObj,time,state,input,output,...
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

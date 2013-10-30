@@ -3,10 +3,7 @@ function [statePlus,timePlus,setPriority] = jumpMap(SYSTEM_NAMEObj,time,state,in
 %
 % SYNTAX:
 %   [statePlus,timePlus,setPriority] = SYSTEM_NAMEObj.jumpMap()
-%   [statePlus,timePlus,setPriority] = SYSTEM_NAMEObj.jumpMap(time)
-%   [statePlus,timePlus,setPriority] = SYSTEM_NAMEObj.jumpMap(time,state)
-%   [statePlus,timePlus,setPriority] = SYSTEM_NAMEObj.jumpMap(time,state,input)
-%   [statePlus,timePlus,setPriority] = SYSTEM_NAMEObj.jumpMap(time,state,input,flowTime)
+%   ...
 %   [statePlus,timePlus,setPriority] = SYSTEM_NAMEObj.jumpMap(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
@@ -45,7 +42,7 @@ function [statePlus,timePlus,setPriority] = jumpMap(SYSTEM_NAMEObj,time,state,in
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

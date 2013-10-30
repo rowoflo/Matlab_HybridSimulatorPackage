@@ -1,23 +1,29 @@
-function plotSketch(systemObj,time,state,varargin)
+function plotSketch(systemObj,state,stateTape,time,timeTape,varargin)
 % The "plotSketch" method will draw the system at either the given time and
 % state or the current system object time and state in its sketch axis or create
 % a new axis if it doesn't have one.
 %
 % SYNTAX:
 %   systemObj.plotSketch()
-%   systemObj.plotSketch(time)
-%   systemObj.plotSketch(time,state)
+%   systemObj.plotSketch(state)
+%   systemObj.plotSketch(state,stateTape,time,timeTape)
 %   systemObj.plotSketch(...,'PropertyName',PropertyValue,...)
 %
 % INPUTS:
 %   systemObj - (1 x 1 simulate.system)
 %       An instance of the "simulate.system" class.
 %
+%   state - (nStates x 1 real number) [systemObj.state]
+%       The state that the system will be drawn in.
+%
+%   stateTape - (nStates x ? number) []
+%       The state tape used for plotting.
+%
 %   time - (1 x 1 real number) [systemObj.time]
 %       The time that the system will be drawn at.
 %
-%   state - (? x 1 real number) [systemObj.state]
-%       The state that the system will be drawn in.
+%   timeTape - (1 x ? real number) []
+%       The time tape used for plotting the state path.
 %
 % PROPERTIES:
 %
@@ -39,8 +45,10 @@ function plotSketch(systemObj,time,state,varargin)
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 2 || isempty(time), time = systemObj.time; end
-if nargin < 3 || isempty(state), state = systemObj.state; end
+if nargin < 2, state = systemObj.state; end
+if nargin < 3, stateTape = zeros(systemObj.nStates,0); end
+if nargin < 4, time = systemObj.time; end
+if nargin < 5, timeTape = zeros(1,0); end
 
 %% Initialize
 % Create Figure
@@ -73,6 +81,6 @@ if ~isnan(time)
 end
 
 %% Sketch
-systemObj.sketch(state,time,varargin{:});
+systemObj.sketch(state,stateTape,time,timeTape,varargin{:});
 
 end

@@ -14,13 +14,13 @@ function plotState(systemObj,time,state,timeTape,stateTape,varargin)
 %   time - (1 x 1 real number) [systemObj.time]
 %       The time used for plotting current state.
 %
-%   state - (? x 1 number) [systemObj.state]
+%   state - (nStates x 1 number) [systemObj.state]
 %       Current state to be plotted.
 %
-%   timeTape - (1 x ? real number) [systemObj.timeTape]
-%       The time tape used for plotting the state tape and input tape.
+%   timeTape - (1 x ? real number) []
+%       The time tape used for plotting the state tape.
 %
-%   stateTape - (? x ? number) [systemObj.stateTape]
+%   stateTape - (nStates x ? number) []
 %       The state tape used for plotting.
 %
 % PROPERTIES:

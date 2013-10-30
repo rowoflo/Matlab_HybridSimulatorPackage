@@ -12,7 +12,7 @@ classdef SYSTEM_NAME < simulate.system
 %    relatedFunction1 | relatedFunction2
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY
@@ -169,7 +169,7 @@ end
 %         %-----------------------------------------------------------------------
 % 
 %         % Check number of arguments
-%         error(nargchk(1,2,nargin))
+%         narginchk(1,2)
 %         
 %         % Apply default values
 %         if nargin < 2, arg1 = 0; end
@@ -228,23 +228,8 @@ end
 %-------------------------------------------------------------------------------
 
 %% Methods in separte files ----------------------------------------------------
-methods (Access = public) % Superclass Abstract Methods
-    [stateDot,setPriority] = flowMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
-    [statePlus,timePlus,setPriority] = jumpMap(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
-    flowState = flowSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
-    jumpState = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
-    
-    input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
-    stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
-    output = sensor(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount)
-    instantaneousCost = cost(SYSTEM_NAMEObj,time,state,input,output,flowTime,jumpCount,...
-        timeBar,stateBar,inputBar,outputBar)
-    evaluate(SYSTEM_NAMEObj,time,state,input,output,...
-        instantaneousCost,cumulativeCost,flowtime,jumpCount,...
-        timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
-    inputOut = inputConstraints(SYSTEM_NAMEObj,inputIn)
-    [A,B,C,D] = linearize(SYSTEM_NAMEObj,stateOP,inputOP)
-    sketch(SYSTEM_NAMEObj,state,time,varargin)
+methods (Access = public)
+
 end
 %-------------------------------------------------------------------------------
     

@@ -252,23 +252,7 @@ end
 %-------------------------------------------------------------------------------
 
 %% Methods in separte files ----------------------------------------------------
-methods (Access = public) % Superclass Abstract Methods
-    [stateDot,setPriority] = flowMap(pendulumObj,time,state,input,flowTime,jumpCount)
-    [statePlus,timePlus,setPriority] = jumpMap(pendulumObj,time,state,input,flowTime,jumpCount)
-    flowState = flowSet(pendulumObj,time,state,flowTime,jumpCount)
-    jumpState = jumpSet(pendulumObj,time,state,flowTime,jumpCount)
-    
-    input = controller(pendulumObj,time,state,input,ouput,flowTime,jumpCount)
-    stateHat = observer(pendulumObj,time,state,input,output,flowTime,jumpCount)
-    output = sensor(pendulumObj,time,state,input,flowTime,jumpCount)
-    instantaneousCost = cost(pendulumObj,time,state,input,output,flowTime,jumpCount,...
-        timeBar,stateBar,inputBar,outputBar)
-    evaluate(pendulumObj,time,state,input,output,...
-        instantaneousCost,cumulativeCost,flowtime,jumpCount,...
-        timeTapeC,stateTape,timeTapeD,inputTape,outputTape,instantaneousCostTape,cumulativeCostTape)
-    inputOut = inputConstraints(pendulumObj,inputIn)
-    [A,B,C,D] = linearize(pendulumObj,stateOP,inputOP)
-    sketch(pendulumObj,state,time,varargin)
+methods (Access = public)
 end
 %-------------------------------------------------------------------------------
     

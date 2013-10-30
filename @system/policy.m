@@ -8,10 +8,7 @@ function input = policy(systemObj,time,state,input,output,flowTime,jumpCount)
 %
 % SYNTAX:
 %   input = policy(systemObj,time)
-%   input = policy(systemObj,time,state)
-%   input = policy(systemObj,time,state,input)
-%   input = policy(systemObj,time,state,input,output)
-%   input = policy(systemObj,time,state,input,output,flowTime)
+%   ...
 %   input = policy(systemObj,time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
@@ -49,7 +46,7 @@ function input = policy(systemObj,time,state,input,output,flowTime,jumpCount)
 %   simulate.m | run.m | replay.m | policy.m
 %
 % AUTHOR:
-%   Rowland O'Flaherty
+%   Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
 %   Created 11-SEP-2011
@@ -72,5 +69,17 @@ if systemObj.openLoopControl
     end
 else
     stateHat = systemObj.observer(time,state,input,output,flowTime,jumpCount);
+    systemObj.stateBar = stateTraj2stateBar(time,systemObj.timeTrajTape,systemObj.stateTrajTape);
     input = systemObj.controller(time,stateHat,input,output,flowTime,jumpCount);
+end
+
+end
+
+function stateBar = stateTraj2stateBar(time,timeTrajTape,stateTrajTape)
+tInd = find(time >= timeTrajTape,1,'last');
+if isempty(tInd)
+    stateBar = zeros(size(stateTrajTape,1),1);
+else
+    stateBar = stateTrajTape(:,tInd);
+end
 end

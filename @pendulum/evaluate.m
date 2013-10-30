@@ -21,7 +21,8 @@ function evaluate(pendulumObj,time,state,input,output,...
 %       Current state.
 %
 %   input - (nInputs x 1 number) [pendulumObj.input]
-%       Current input value.
+%       Current input value from previous time to current time. Not the
+%       input that will be applied from the current time to the next time.
 %
 %   output - (nOutputs x 1 number) [pendulumObj.output]
 %       Output values for the plant.

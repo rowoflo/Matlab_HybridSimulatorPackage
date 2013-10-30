@@ -4,9 +4,7 @@ function jumpSetValue = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %
 % SYNTAX:
 %   jumpSetValue = SYSTEM_NAMEObj.jumpSet()
-%   jumpSetValue = SYSTEM_NAMEObj.jumpSet(time)
-%   jumpSetValue = SYSTEM_NAMEObj.jumpSet(time,state)
-%   jumpSetValue = SYSTEM_NAMEObj.jumpSet(time,state,flowTime)
+%   ...
 %   jumpSetValue = SYSTEM_NAMEObj.jumpSet(time,state,flowTime,jumpCount)
 %
 % INPUTS:
@@ -40,7 +38,7 @@ function jumpSetValue = jumpSet(SYSTEM_NAMEObj,time,state,flowTime,jumpCount)
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

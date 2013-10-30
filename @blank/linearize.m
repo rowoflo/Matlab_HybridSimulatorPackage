@@ -1,20 +1,20 @@
-function [A,B,C,D] = linearize(blankObj,stateOP,inputOP)
+function [A,B,C,D] = linearize(blankObj,stateBar,inputBar)
 % The "linearize" method outputs the system's linearize matrices evaluated at
-% the the given operating point.
+% the the given Barerating point.
 %
 % SYNTAX:
 %   [A,B,C,D] = blankObj.linearize()
-%   [A,B,C,D] = blankObj.linearize(stateOP,inputOP)
+%   [A,B,C,D] = blankObj.linearize(stateBar,inputBar)
 %
 % INPUTS:
 %   blankObj - (1 x 1 simulate.blank)
 %       An instance of the "simulate.blank" class.
 %
-%   stateOP - (1 x 1 number) [blankObj.stateOP]
-%       State operating point.
+%   stateBar - (1 x 1 number) [blankObj.stateBar]
+%       State Barerating point.
 %
-%   inputOP - (1 x 1 number) [blankObj.inputOP]
-%       Input operating point.
+%   inputBar - (1 x 1 number) [blankObj.inputBar]
+%       Input Barerating point.
 %
 % OUTPUTS:
 %   A - (1 x 1 number)
@@ -35,15 +35,15 @@ function [A,B,C,D] = linearize(blankObj,stateOP,inputOP)
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values
-if nargin < 2, stateOP = blankObj.stateOP; end
-if nargin < 3, inputOP = blankObj.inputOP; end
+if nargin < 2, stateBar = blankObj.stateBar; end
+if nargin < 3, inputBar = blankObj.inputBar; end
 
 %% Parameters
 

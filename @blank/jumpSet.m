@@ -4,9 +4,7 @@ function jumpSetValue = jumpSet(blankObj,time,state,flowTime,jumpCount)
 %
 % SYNTAX:
 %   jumpSetValue = blankObj.jumpSet()
-%   jumpSetValue = blankObj.jumpSet(time)
-%   jumpSetValue = blankObj.jumpSet(time,state)
-%   jumpSetValue = blankObj.jumpSet(time,state,flowTime)
+%   ...
 %   jumpSetValue = blankObj.jumpSet(time,state,flowTime,jumpCount)
 %
 % INPUTS:
@@ -40,10 +38,10 @@ function jumpSetValue = jumpSet(blankObj,time,state,flowTime,jumpCount)
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

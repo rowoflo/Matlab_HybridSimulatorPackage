@@ -4,10 +4,7 @@ function output = sensor(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %
 % SYNTAX:
 %   output = SYSTEM_NAMEObj.sensor()
-%   output = SYSTEM_NAMEObj.sensor(time)
-%   output = SYSTEM_NAMEObj.sensor(time,state)
-%   output = SYSTEM_NAMEObj.sensor(time,state,input)
-%   output = SYSTEM_NAMEObj.sensor(time,state,input,flowTime)    
+%   ...    
 %   output = SYSTEM_NAMEObj.sensor(time,state,input,flowTime,jumpCount)
 %
 % INPUTS:
@@ -39,7 +36,7 @@ function output = sensor(SYSTEM_NAMEObj,time,state,input,flowTime,jumpCount)
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

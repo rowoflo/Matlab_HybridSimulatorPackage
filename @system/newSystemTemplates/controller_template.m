@@ -4,11 +4,7 @@ function input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jump
 %
 % SYNTAX:
 %   input = SYSTEM_NAMEObj.controller()
-%   input = SYSTEM_NAMEObj.controller(time)
-%   input = SYSTEM_NAMEObj.controller(time,state)
-%   input = SYSTEM_NAMEObj.controller(time,state,input)
-%   input = SYSTEM_NAMEObj.controller(time,state,input,output)
-%   input = SYSTEM_NAMEObj.controller(time,state,input,output,flowTime)
+%   ...
 %   input = SYSTEM_NAMEObj.controller(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
@@ -43,7 +39,7 @@ function input = controller(SYSTEM_NAMEObj,time,state,input,output,flowTime,jump
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY

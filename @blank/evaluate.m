@@ -22,7 +22,8 @@ function evaluate(blankObj,time,state,input,output,...
 %       Current state.
 %
 %   input - (1 x 1 number) [blankObj.input]
-%       Current input value.
+%       Current input value from previous time to current time. Not the
+%       input that will be applied from the current time to the next time.
 %
 %   output - (1 x 1 number) [blankObj.output]
 %       Output values for the plant.
@@ -63,10 +64,10 @@ function evaluate(blankObj,time,state,input,output,...
 %   +simulate, +simulate
 %
 % AUTHOR:
-%    Rowland O'Flaherty
+%    Rowland O'Flaherty (rowlandoflaherty.com)
 %
 % VERSION: 
-%   Created 27-OCT-2013
+%   Created 29-OCT-2013
 %-------------------------------------------------------------------------------
 
 %% Apply default values

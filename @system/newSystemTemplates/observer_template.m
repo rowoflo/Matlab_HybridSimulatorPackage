@@ -4,11 +4,7 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jum
 %
 % SYNTAX:
 %   stateHat = SYSTEM_NAMEObj.observer()
-%   stateHat = SYSTEM_NAMEObj.observer(time)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output)
-%   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output,flowTime)
+%   ...
 %   stateHat = SYSTEM_NAMEObj.observer(time,state,input,output,flowTime,jumpCount)
 %
 % INPUTS:
@@ -43,7 +39,7 @@ function stateHat = observer(SYSTEM_NAMEObj,time,state,input,output,flowTime,jum
 %   NECESSARY_PACKAGE+simulate
 %
 % AUTHOR:
-%    FULL_NAME
+%    FULL_NAME (WEBSITE)
 %
 % VERSION: 
 %   Created DD-MMM-YYYY
