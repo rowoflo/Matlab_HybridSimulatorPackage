@@ -85,9 +85,9 @@ end
 
 properties (Access = public, Hidden = true) % TODO: Add set methods for all of these properties
     % Graphics
-    statesToPlot = []; % (1 x ? positive integer <= nStates) List of states to include in the state plot.
-    
     paramsToPlot = []; % (1 x ? 1 or 2 or [1 2]) List of parameters to include in the state plot.
+    
+    statesToPlot = []; % (1 x ? positive integer <= nStates) List of states to include in the state plot.   
     stateFigureHandle = []; % (1 x 1 graphics object) Figure handle to where state tape is plotted.
     stateFigureProperties = {}; % (1 x ? cell array) State plot figure properties to be applied to the plot method. (e.g. {'Color','w'})
     stateAxisHandle = []; % (1 x 1 graphics object) Axis handle to where state tape is plotted.
@@ -303,6 +303,8 @@ methods
         systemObj.setDefaultOutputNames;
         systemObj.setDefaultCostNames;
         
+        systemObj.statesToPlot = 1:nStates;
+        systemObj.inputsToPlot = 1:nInputs;
         systemObj.outputsToPlot = 1:nOutputs;
         systemObj.costsToPlot = 1:nCosts;
         

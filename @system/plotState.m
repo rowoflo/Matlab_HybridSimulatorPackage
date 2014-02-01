@@ -71,30 +71,32 @@ end
 set(systemObj.stateAxisHandle,'NextPlot','add');
 
 %% Plot State
+toPlot = systemObj.statesToPlot';
+nStates = length(toPlot);
 if ~isempty(state)
     if isempty(systemObj.stateGraphicsHandle) || ~all(ishghandle(systemObj.stateGraphicsHandle)) % Create new marks
-        systemObj.stateGraphicsHandle = plot(systemObj.stateAxisHandle,time,state,'o',systemObj.stateGraphicsProperties{:});
-        for iState = 1:systemObj.nStates
-            set(systemObj.stateGraphicsHandle(iState,1),'DisplayName',systemObj.stateNames{iState});
+        systemObj.stateGraphicsHandle = plot(systemObj.stateAxisHandle,time,state(toPlot),'o',systemObj.stateGraphicsProperties{:});
+        for iState = 1:nStates
+            set(systemObj.stateGraphicsHandle(toPlot(iState),1),'DisplayName',systemObj.stateNames{toPlot(iState)});
         end
     else % Update marks
         set(systemObj.stateGraphicsHandle,{'XData' 'YData'},...
-            [repmat({time},systemObj.nStates,1),...
-            num2cell(state)],...
+            [repmat({time},nStates,1),...
+            num2cell(state(toPlot))],...
             systemObj.stateGraphicsProperties{:});
     end
 end
 
 if ~isempty([systemObj.stateTape stateTape])
     if isempty(systemObj.stateTapeGraphicsHandle) || ~all(ishghandle(systemObj.stateTapeGraphicsHandle)) % Create new lines
-        systemObj.stateTapeGraphicsHandle = plot(systemObj.stateAxisHandle,[systemObj.timeTapeC timeTape time],[systemObj.stateTape stateTape state]',systemObj.stateGraphicsProperties{:});
-        for iState = 1:systemObj.nStates
-            set(get(get(systemObj.stateTapeGraphicsHandle(iState,1),'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
+        systemObj.stateTapeGraphicsHandle = plot(systemObj.stateAxisHandle,[systemObj.timeTapeC timeTape time],[systemObj.stateTape(toPlot,:) stateTape(toPlot,:) state(toPlot)]',systemObj.stateGraphicsProperties{:});
+        for iState = 1:nStates
+            set(get(get(systemObj.stateTapeGraphicsHandle(toPlot(iState),1),'Annotation'),'LegendInformation'),'IconDisplayStyle','off');
         end
     else % Update lines
         set(systemObj.stateTapeGraphicsHandle,{'XData' 'YData'},...
-            [repmat({[systemObj.timeTapeC timeTape time]},size(stateTape,1),1),...
-            mat2cell([systemObj.stateTape stateTape state],ones(1,size(stateTape,1)),size([systemObj.stateTape stateTape state],2))],...
+            [repmat({[systemObj.timeTapeC timeTape time]},size(stateTape(toPlot,:),1),1),...
+            mat2cell([systemObj.stateTape(toPlot,:) stateTape(toPlot,:) state(toPlot)],ones(1,size(stateTape(toPlot),1)),size([systemObj.stateTape(toPlot,:) stateTape(toPlot,:) state(toPlot)],2))],...
             systemObj.stateGraphicsProperties{:});
     end
 end
